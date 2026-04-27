@@ -10,7 +10,7 @@
 set -euo pipefail
 
 # ── Config ────────────────────────────────────────────────────────────────────
-MODEL="${CHATGPT_MODEL:-}"          # optional: override model via env var
+MODEL="${CHATGPT_MODEL:-gpt-4o-mini}"  # override via -m flag or CHATGPT_MODEL env var
 OUTPUT_FILE=""
 
 PROMPT="You are a technical writer. Summarize the following README clearly and concisely.
@@ -103,7 +103,10 @@ if ! command -v chatgpt &>/dev/null; then
 fi
 
 if [[ -z "${OPENAI_API_KEY:-}" ]]; then
-  echo "Warning: OPENAI_API_KEY is not set. The chatgpt CLI may fail." >&2
+  echo "Error: OPENAI_API_KEY is not set." >&2
+  echo "Set it in your shell: export OPENAI_API_KEY=\"sk-...\"" >&2
+  echo "Or load it from Keychain: export OPENAI_API_KEY=\"\$(security find-generic-password -a \"\$USER\" -s OPENAI_API_KEY -w)\"" >&2
+  exit 1
 fi
 
 # ── Build the chatgpt command ─────────────────────────────────────────────────
