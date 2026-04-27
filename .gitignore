@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Expo
+.expo/
+
+# Editor / AI tooling
+.claude/
+
+# Generated files
+shell_best_practices.txt
+shipgang-output/
+
+# Environment
+.env
+.env.local
+.env.*.local
