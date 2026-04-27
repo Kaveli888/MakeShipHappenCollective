@@ -15,6 +15,9 @@ A developer toolkit and automation hub for shipping projects faster. This repo c
 - macOS (zsh)
 - [chatgpt-cli](https://github.com/kardolus/chatgpt-cli) installed and in `$PATH`
 - `OPENAI_API_KEY` set in your environment or loaded from macOS Keychain
+- An OpenAI account with **active billing** — the free tier does not include API access.
+  Add a credit card and purchase credits at https://platform.openai.com/settings/organization/billing.
+  `gpt-4o-mini` is the default model and the most cost-effective option.
 
 ## Installation
 
