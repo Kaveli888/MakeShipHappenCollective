@@ -1,0 +1,34 @@
+{
+  "scripts": {
+    "codex:auto": "codex --full-auto",
+    "codex:auto:danger": "codex --dangerously-bypass-approvals-and-sandbox",
+    "shipmind": "cd shipmind && npm run shipmind",
+    "shipmind:agent:auto": "cd shipmind && npm run agent:auto",
+    "shipmind:agent:auto:sonnet": "cd shipmind && npm run agent:auto:sonnet",
+    "shipmind:agent:auto:opus": "cd shipmind && npm run agent:auto:opus",
+    "shipmind:codex:auto": "cd shipmind && npm run codex:auto",
+    "shipmind:codex:auto:danger": "cd shipmind && npm run codex:auto:danger",
+    "shipspace": "cd ShipSpace && npm run shipspace",
+    "shipspace:detached": "cd ShipSpace && npm run shipspace:detached",
+    "shipspace:agent:auto": "cd ShipSpace && npm run agent:auto",
+    "shipspace:agent:auto:sonnet": "cd ShipSpace && npm run agent:auto:sonnet",
+    "shipspace:agent:auto:opus": "cd ShipSpace && npm run agent:auto:opus",
+    "shipspace:codex:auto": "cd ShipSpace && npm run codex:auto",
+    "shipspace:codex:auto:danger": "cd ShipSpace && npm run codex:auto:danger",
+    "shiptalk:codex:auto": "cd ShipTalk && npm run codex:auto",
+    "shiptalk:codex:auto:danger": "cd ShipTalk && npm run codex:auto:danger",
+    "shipcode:codex:auto": "cd ShipCode && npm run codex:auto",
+    "shipcode:codex:auto:danger": "cd ShipCode && npm run codex:auto:danger",
+    "shiptranscribe:codex:auto": "cd ShipTranscribe && npm run codex:auto",
+    "shiptranscribe:codex:auto:danger": "cd ShipTranscribe && npm run codex:auto:danger",
+    "msh-ai:codex:auto": "cd makeshiphappenAi && npm run codex:auto",
+    "msh-ai:codex:auto:danger": "cd makeshiphappenAi && npm run codex:auto:danger"
+  },
+  "dependencies": {
+    "expo": "^55.0.7"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.10",
+    "typescript": "~5.9.2"
+  }
+}
