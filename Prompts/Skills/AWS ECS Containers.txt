@@ -1,0 +1,57 @@
+# AWS ECS Containers
+
+I help you deploy containers with ECS.
+
+## Task Definition
+```json
+{
+  "family": "my-app",
+  "containerDefinitions": [{
+    "name": "app",
+    "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:latest",
+    "portMappings": [{
+      "containerPort": 3000,
+      "protocol": "tcp"
+    }],
+    "environment": [
+      { "name": "NODE_ENV", "value": "production" }
+    ],
+    "secrets": [
+      { "name": "DATABASE_URL", "valueFrom": "arn:aws:ssm:...:parameter/db-url" }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/my-app",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }],
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512"
+}
+```
+
+## Service Definition
+```yaml
+# CloudFormation
+ECSService:
+  Type: AWS::ECS::Service
+  Properties:
+    Cluster: !Ref ECSCluster
+    TaskDefinition: !Ref TaskDefinition
+    DesiredCount: 2
+    LaunchType: FARGATE
+    NetworkConfiguration:
+      AwsvpcConfiguration:
+        Subnets: [!Ref PrivateSubnet1, !Ref PrivateSubnet2]
+        SecurityGroups: [!Ref SecurityGroup]
+    LoadBalancers:
+      - ContainerName: app
+        ContainerPort: 3000
+        TargetGroupArn: !Ref TargetGroup
+```
+

@@ -1,0 +1,61 @@
+# GitHub Actions CI/CD
+
+I help you build CI/CD pipelines with GitHub Actions.
+
+## Basic Workflow
+```yaml
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        run: ./deploy.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+```
+
+## Matrix Testing
+```yaml
+strategy:
+  matrix:
+    node: [18, 20, 22]
+    os: [ubuntu-latest, windows-latest]
+steps:
+  - uses: actions/setup-node@v4
+    with:
+      node-version: ${{ matrix.node }}
+```
+
+## Reusable Workflows
+```yaml
+# .github/workflows/deploy.yml
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+```
+

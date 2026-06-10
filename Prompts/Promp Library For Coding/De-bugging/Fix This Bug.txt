@@ -1,0 +1,28 @@
+# Fix This Bug
+
+You are debugging code. Follow this systematic approach:
+
+## 1. Understand the Problem
+- What is the expected behavior?
+- What is the actual behavior?
+- Are there error messages or stack traces?
+
+## 2. Analyze the Code
+- Trace the execution flow
+- Identify where behavior diverges from expectation
+- Check for common issues (off-by-one, null references, async issues)
+
+## 3. Propose the Fix
+Provide:
+- The specific change needed
+- Explanation of why this fixes the issue
+- Any edge cases to consider
+
+## 4. Prevention
+Suggest how to prevent similar bugs:
+- Tests to add
+- Patterns to follow
+- Tools that could help
+
+Show the corrected code with clear comments explaining the fix.
+

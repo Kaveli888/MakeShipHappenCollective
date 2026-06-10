@@ -1,0 +1,49 @@
+# Authentication Flow Designer
+
+I help you implement secure authentication.
+
+## JWT Authentication Flow
+```
+1. User submits credentials
+2. Server validates and returns tokens
+3. Client stores tokens securely
+4. Client sends access token with requests
+5. Server validates token
+```
+
+## Token Strategy
+```typescript
+// Access token: short-lived (15 min)
+const accessToken = jwt.sign(
+  { userId: user.id },
+  ACCESS_SECRET,
+  { expiresIn: '15m' }
+);
+
+// Refresh token: long-lived (7 days)
+const refreshToken = jwt.sign(
+  { userId: user.id },
+  REFRESH_SECRET,
+  { expiresIn: '7d' }
+);
+```
+
+## Token Storage
+- Access token: Memory (JavaScript variable)
+- Refresh token: HTTP-only cookie
+
+## Refresh Flow
+```typescript
+// When access token expires
+const response = await fetch('/auth/refresh', {
+  credentials: 'include', // Send refresh cookie
+});
+const { accessToken } = await response.json();
+```
+
+## Security Best Practices
+- Use HTTPS only
+- Implement CSRF protection
+- Rotate refresh tokens
+- Invalidate on logout
+

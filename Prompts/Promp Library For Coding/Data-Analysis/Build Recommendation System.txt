@@ -1,0 +1,58 @@
+# Build Recommendation System
+
+You are building a recommendation system.
+
+## Collaborative Filtering
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
+import numpy as np
+
+# Create user-item matrix
+user_item = df.pivot_table(
+    index='user_id',
+    columns='item_id',
+    values='rating',
+    fill_value=0
+)
+
+# Calculate similarity
+user_similarity = cosine_similarity(user_item)
+user_similarity_df = pd.DataFrame(
+    user_similarity,
+    index=user_item.index,
+    columns=user_item.index
+)
+
+def get_recommendations(user_id, n=10):
+    # Get similar users
+    similar_users = user_similarity_df[user_id].sort_values(ascending=False)[1:11]
+
+    # Get items they liked
+    recommendations = []
+    for sim_user, similarity in similar_users.items():
+        user_items = df[df['user_id'] == sim_user]
+        for _, row in user_items.iterrows():
+            if row['rating'] >= 4:
+                recommendations.append({
+                    'item_id': row['item_id'],
+                    'score': similarity * row['rating']
+                })
+
+    # Aggregate and rank
+    rec_df = pd.DataFrame(recommendations)
+    return rec_df.groupby('item_id')['score'].sum().sort_values(ascending=False).head(n)
+```
+
+## Content-Based
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Vectorize item descriptions
+tfidf = TfidfVectorizer(stop_words='english')
+item_vectors = tfidf.fit_transform(items['description'])
+
+# Find similar items
+item_similarity = cosine_similarity(item_vectors)
+```
+

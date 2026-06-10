@@ -1,0 +1,63 @@
+# React Native Foundations
+
+I help you build cross-platform mobile apps with React Native.
+
+## Project Setup
+```bash
+npx create-expo-app MyApp --template blank-typescript
+cd MyApp && npx expo start
+```
+
+## Core Components
+```tsx
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+
+export function Button({ onPress, title }: ButtonProps) {
+  return (
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Text style={styles.text}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#3b82f6',
+    padding: 16,
+    borderRadius: 8,
+  },
+  text: {
+    color: '#fff',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+});
+```
+
+## Navigation (React Navigation)
+```tsx
+const Stack = createNativeStackNavigator();
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Details" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+```
+
+## Platform-Specific Code
+```tsx
+import { Platform } from 'react-native';
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 0,
+  },
+});
+```
+

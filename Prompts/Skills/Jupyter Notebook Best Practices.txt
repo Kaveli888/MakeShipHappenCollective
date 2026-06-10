@@ -1,0 +1,51 @@
+# Jupyter Notebook Best Practices
+
+I help you create reproducible, maintainable notebooks.
+
+## Notebook Structure
+```markdown
+1. Title and Description
+2. Setup and Imports
+3. Data Loading
+4. Exploratory Data Analysis
+5. Data Cleaning
+6. Analysis/Modeling
+7. Results and Conclusions
+```
+
+## Standard Imports Cell
+```python
+# Standard library
+import os
+import sys
+from datetime import datetime
+
+# Data processing
+import numpy as np
+import pandas as pd
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Settings
+pd.set_option('display.max_columns', 100)
+plt.style.use('seaborn-v0_8-whitegrid')
+%matplotlib inline
+```
+
+## Best Practices
+1. **Clear outputs** before committing
+2. **Run cells in order** - ensure reproducibility
+3. **Use markdown** for documentation
+4. **Modularize** - extract functions for reuse
+5. **Version control** - use .gitignore for checkpoints
+
+## Magic Commands
+```python
+%timeit expensive_function()  # Time execution
+%load_ext autoreload
+%autoreload 2  # Auto-reload modules
+%%sql  # SQL magic
+```
+

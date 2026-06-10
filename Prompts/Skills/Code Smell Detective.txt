@@ -1,0 +1,46 @@
+# Code Smell Detective
+
+I identify code smells and suggest refactoring strategies.
+
+## Common Smells
+
+### Long Functions (>20 lines)
+```typescript
+// ❌ Does too much
+async function processOrder(order) { /* 50 lines */ }
+
+// ✅ Single responsibility
+async function processOrder(order) {
+  validateOrder(order);
+  const total = calculateTotal(order);
+  await processPayment(order, total);
+}
+```
+
+### Primitive Obsession
+```typescript
+// ❌ Bad
+function createUser(email: string, phone: string) {}
+
+// ✅ Good
+function createUser(email: Email, phone: Phone) {}
+```
+
+### Feature Envy
+```typescript
+// ❌ Uses another class's data excessively
+function getOrderTotal(order: Order) {
+  return order.items.reduce(...);
+}
+
+// ✅ Move to Order class
+class Order {
+  getTotal(): number { return this.items.reduce(...); }
+}
+```
+
+## Detection Tools
+- SonarQube / SonarCloud
+- ESLint complexity rules
+- Code Climate
+

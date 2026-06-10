@@ -1,0 +1,58 @@
+# Mobile Offline Support
+
+I help you build offline-capable mobile apps.
+
+## Detect Network Status
+```typescript
+import NetInfo from '@react-native-community/netinfo';
+
+function useNetworkStatus() {
+  const [isOnline, setIsOnline] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsOnline(state.isConnected ?? false);
+    });
+    return unsubscribe;
+  }, []);
+
+  return isOnline;
+}
+```
+
+## Offline-First with React Query
+```typescript
+import { onlineManager, QueryClient } from '@tanstack/react-query';
+import NetInfo from '@react-native-community/netinfo';
+
+// Sync online status
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+});
+
+// Persist cache
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      networkMode: 'offlineFirst',
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours
+    },
+    mutations: {
+      networkMode: 'offlineFirst',
+    },
+  },
+});
+```
+
+## AsyncStorage Cache
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+});
+```
+

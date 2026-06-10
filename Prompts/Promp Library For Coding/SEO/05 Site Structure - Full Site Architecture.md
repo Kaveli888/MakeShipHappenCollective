@@ -1,0 +1,1 @@
+/goal Design a full site architecture for a new [niche] website. Include homepage, 5 category pages, 20 blog posts, and 3 landing pages. Label each with its target keyword. Don't stop until the full architecture is mapped.

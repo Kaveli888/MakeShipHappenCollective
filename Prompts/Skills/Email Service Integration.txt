@@ -1,0 +1,42 @@
+# Email Service Integration
+
+I help you integrate transactional email services.
+
+## SendGrid Integration
+```typescript
+import sgMail from '@sendgrid/mail';
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+async function sendWelcomeEmail(user: User) {
+  await sgMail.send({
+    to: user.email,
+    from: 'hello@bridgemind.co',
+    templateId: 'd-template-id',
+    dynamicTemplateData: {
+      name: user.name,
+      verifyUrl: `https://app.bridgemind.co/verify/${user.token}`,
+    },
+  });
+}
+```
+
+## Email Types
+| Type | Use Case |
+|------|----------|
+| Transactional | Password reset, verification |
+| Notification | Order updates, alerts |
+| Marketing | Newsletters, promotions |
+
+## Best Practices
+- Use templates for consistency
+- Include unsubscribe links
+- Monitor delivery rates
+- Handle bounces and complaints
+
+## Testing
+```typescript
+// Mock in tests
+jest.mock('@sendgrid/mail');
+```
+

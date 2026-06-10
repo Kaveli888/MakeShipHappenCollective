@@ -1,0 +1,51 @@
+# Analyze Dataset
+
+You are performing exploratory data analysis.
+
+## Initial Exploration
+```python
+import pandas as pd
+import numpy as np
+
+# Load and inspect
+df = pd.read_csv('data.csv')
+print(df.shape)
+print(df.info())
+print(df.describe())
+print(df.head())
+
+# Check missing values
+print(df.isnull().sum())
+print(df.isnull().sum() / len(df) * 100)
+
+# Check data types
+print(df.dtypes)
+
+# Check unique values
+for col in df.select_dtypes(include='object'):
+    print(f"{col}: {df[col].nunique()} unique values")
+```
+
+## Key Questions to Answer
+1. What is the shape and structure of the data?
+2. What are the data types?
+3. Are there missing values? How should they be handled?
+4. Are there outliers?
+5. What is the distribution of key variables?
+6. What correlations exist?
+
+## Visualization
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Distribution of numeric variables
+df.hist(figsize=(15, 10))
+
+# Correlation heatmap
+sns.heatmap(df.corr(), annot=True)
+
+# Box plots for outliers
+df.boxplot()
+```
+

@@ -1,0 +1,1 @@
+/goal Write a full E-E-A-T improvement plan for [website]. Include 10 specific actions to improve Experience, Expertise, Authoritativeness, and Trustworthiness. Don't stop until all 10 are documented with steps.

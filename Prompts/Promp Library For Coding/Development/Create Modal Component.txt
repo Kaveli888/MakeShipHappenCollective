@@ -1,0 +1,63 @@
+# Create Modal Component
+
+You are building a reusable modal component.
+
+## Modal with Radix UI
+```tsx
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
+
+interface ModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}
+
+export function Modal({ open, onOpenChange, title, description, children }: ModalProps) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 animate-fade-in" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-md animate-scale-in">
+          <Dialog.Title className="text-lg font-semibold">
+            {title}
+          </Dialog.Title>
+
+          {description && (
+            <Dialog.Description className="text-gray-500 mt-2">
+              {description}
+            </Dialog.Description>
+          )}
+
+          <div className="mt-4">
+            {children}
+          </div>
+
+          <Dialog.Close asChild>
+            <button
+              className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
+
+## Usage
+```tsx
+<Modal open={isOpen} onOpenChange={setIsOpen} title="Confirm Action">
+  <p>Are you sure you want to proceed?</p>
+  <div className="flex gap-2 mt-4">
+    <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+    <Button onClick={handleConfirm}>Confirm</Button>
+  </div>
+</Modal>
+```
+

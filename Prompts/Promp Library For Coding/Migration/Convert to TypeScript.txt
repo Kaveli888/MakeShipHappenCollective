@@ -1,0 +1,35 @@
+# Convert to TypeScript
+
+You are converting JavaScript code to TypeScript.
+
+## 1. Add Type Annotations
+- Function parameters and return types
+- Variable declarations where not inferrable
+- Class properties
+
+## 2. Define Interfaces/Types
+Create appropriate types for:
+- Object shapes
+- API responses
+- Props and state (React)
+- Configuration objects
+
+## 3. Handle Common Patterns
+- Use generics where appropriate
+- Properly type async functions (Promise<T>)
+- Handle nullable types (| null, | undefined)
+- Use union types for variants
+
+## 4. Strict Mode Considerations
+- No implicit any
+- Strict null checks
+- No unused variables
+
+## 5. Best Practices
+- Prefer interfaces for object shapes
+- Use type for unions and intersections
+- Export types that consumers need
+- Use const assertions for literals
+
+Provide fully typed code with explanations for type decisions.
+

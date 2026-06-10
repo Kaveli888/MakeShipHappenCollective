@@ -1,0 +1,52 @@
+# Debug Memory Leak
+
+You are debugging a memory leak.
+
+## Common Causes
+
+### Event Listeners Not Removed
+```typescript
+// ❌ Bug: listener never removed
+useEffect(() => {
+  window.addEventListener('resize', handler);
+  // Missing cleanup!
+}, []);
+
+// ✅ Fix: return cleanup function
+useEffect(() => {
+  window.addEventListener('resize', handler);
+  return () => window.removeEventListener('resize', handler);
+}, []);
+```
+
+### Timers Not Cleared
+```typescript
+// ❌ Bug: interval never cleared
+useEffect(() => {
+  setInterval(tick, 1000);
+}, []);
+
+// ✅ Fix: clear on unmount
+useEffect(() => {
+  const id = setInterval(tick, 1000);
+  return () => clearInterval(id);
+}, []);
+```
+
+### Subscriptions Not Unsubscribed
+```typescript
+// ✅ Fix: unsubscribe on cleanup
+useEffect(() => {
+  const subscription = observable.subscribe(handler);
+  return () => subscription.unsubscribe();
+}, []);
+```
+
+### Stale References in Closures
+Hold references to large objects in closures that persist
+
+## Detection
+- Chrome DevTools Memory tab
+- Heap snapshots before/after
+- Watch for growing memory over time
+

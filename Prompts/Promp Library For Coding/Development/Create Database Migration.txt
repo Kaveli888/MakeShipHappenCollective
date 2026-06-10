@@ -1,0 +1,49 @@
+# Create Database Migration
+
+You are creating a database migration.
+
+## Adding a New Table
+```typescript
+// Drizzle Schema
+export const projects = pgTable('projects', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  userId: uuid('user_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }).notNull(),
+  status: text('status').default('active'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+```
+
+## Adding a Column
+```sql
+-- Safe way to add column
+ALTER TABLE users ADD COLUMN bio TEXT;
+
+-- Adding NOT NULL requires default or backfill
+ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user';
+UPDATE users SET role = 'user' WHERE role IS NULL;
+ALTER TABLE users ALTER COLUMN role SET NOT NULL;
+```
+
+## Adding an Index
+```sql
+CREATE INDEX CONCURRENTLY idx_posts_user_id
+  ON posts(user_id);
+```
+
+## Migration Commands
+```bash
+npm run db:generate  # Generate migration
+npm run db:migrate   # Run migration
+```
+
+## Best Practices
+- Always make migrations reversible
+- Test on staging first
+- Consider downtime implications
+- Backup before running in production
+

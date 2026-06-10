@@ -15,8 +15,46 @@ node_modules/
 # Generated files
 shell_best_practices.txt
 shipgang-output/
+lighthouse-reports/
+*.log
+*.map
+.vercel/
+**/.vercel/
+**/.next/
+**/dist/
+**/src-tauri/target/
+**/target/
+**/*.tsbuildinfo
+**/.DS_Store
 
 # Environment
 .env
 .env.local
 .env.*.local
+**/.env
+**/.env.*
+!**/.env.example
+
+# Nested git repos — versioned separately
+/ShipCode/
+/ShipSpace/
+/ShipTalk/
+/ShipWatch/
+/makeshiphappenAi/
+/shipmind/
+
+# Own repo (git init'd separately)
+/ship-aos/
+
+# ShipSpace runtime state (contains worktree clones with .git inside)
+/.shipspace/
+
+# Large media / private exports — not for version control
+/MSH Logo/
+/Shipmind Photos/
+/Shipmind PP/
+/ShipMind_Private_Intelligence.pdf
+/ShipMind_Private_Second_Brain.pdf
+/light copy 2.png
+/untitled folder/
+*.report.html

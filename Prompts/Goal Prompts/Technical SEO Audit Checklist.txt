@@ -1,0 +1,1 @@
+/goal Write a technical SEO audit checklist for a [type] website. Include at least 30 items across categories: crawlability, indexability, page speed, mobile, on-page, and structured data. Don't stop until all 30 items are listed.

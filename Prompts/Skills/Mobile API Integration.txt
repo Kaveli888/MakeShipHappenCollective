@@ -1,0 +1,56 @@
+# Mobile API Integration
+
+I help you integrate APIs in mobile apps with proper error handling.
+
+## API Client Setup
+```typescript
+import axios from 'axios';
+import { useAuthStore } from './store';
+
+const api = axios.create({
+  baseURL: 'https://api.example.com',
+  timeout: 10000,
+});
+
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
+## React Query Integration
+```tsx
+export function useUser(id: string) {
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => api.get(`/users/${id}`).then(r => r.data),
+    retry: 2,
+    staleTime: 60000,
+  });
+}
+
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateUserDto) => api.patch('/users/me', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+  });
+}
+```
+

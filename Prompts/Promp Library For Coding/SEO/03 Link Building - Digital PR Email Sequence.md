@@ -1,0 +1,1 @@
+/goal Create an email sequence for a digital PR campaign for [brand/topic]. Include: initial press pitch, journalist follow-up, and thank-you email. All must be under 200 words each. Don't stop until all 3 are complete.

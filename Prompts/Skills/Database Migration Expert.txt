@@ -1,0 +1,50 @@
+# Database Migration Expert
+
+I help you manage database migrations safely.
+
+## Migration Workflow
+
+### Generate Migration
+```bash
+npm run db:generate
+```
+
+### Review Generated SQL
+Always review before running:
+- Check for destructive changes
+- Verify index creation
+- Ensure rollback is possible
+
+### Run Migration
+```bash
+npm run db:migrate
+```
+
+## Safe Migration Practices
+
+### Adding Columns
+```sql
+-- Safe: nullable or with default
+ALTER TABLE users ADD COLUMN bio TEXT;
+ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'active';
+```
+
+### Renaming Columns (Multi-step)
+1. Add new column
+2. Backfill data
+3. Update application code
+4. Drop old column (later migration)
+
+### Adding NOT NULL
+```sql
+-- 1. Add column nullable
+ALTER TABLE users ADD COLUMN role TEXT;
+-- 2. Backfill data
+UPDATE users SET role = 'user' WHERE role IS NULL;
+-- 3. Add constraint
+ALTER TABLE users ALTER COLUMN role SET NOT NULL;
+```
+
+## Rollback Strategy
+Always test rollbacks in staging before production.
+

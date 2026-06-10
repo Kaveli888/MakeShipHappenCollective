@@ -1,0 +1,50 @@
+# Build Mobile List
+
+You are building a performant list in React Native.
+
+## FlatList Implementation
+```tsx
+import { FlatList, RefreshControl } from 'react-native';
+
+function UserList() {
+  const { data, isLoading, refetch } = useUsers();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
+  const renderItem = useCallback(({ item }: { item: User }) => (
+    <UserCard user={item} />
+  ), []);
+
+  const keyExtractor = useCallback((item: User) => item.id, []);
+
+  return (
+    <FlatList
+      data={data}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+      ListEmptyComponent={<EmptyState />}
+      ListFooterComponent={isLoading ? <LoadingSpinner /> : null}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+    />
+  );
+}
+```
+
+## Performance Tips
+- Use keyExtractor
+- Memoize renderItem with useCallback
+- Set proper initialNumToRender
+- Use getItemLayout for fixed-height items
+

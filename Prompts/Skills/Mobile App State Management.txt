@@ -1,0 +1,49 @@
+# Mobile App State Management
+
+I help you manage state effectively in mobile apps.
+
+## Local State with useState
+```tsx
+const [isLoading, setIsLoading] = useState(false);
+const [data, setData] = useState<User[]>([]);
+```
+
+## Zustand for Global State
+```typescript
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface AuthStore {
+  user: User | null;
+  token: string | null;
+  login: (user: User, token: string) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      user: null,
+      token: null,
+      login: (user, token) => set({ user, token }),
+      logout: () => set({ user: null, token: null }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
+```
+
+## React Query for Server State
+```tsx
+const { data, isLoading, refetch } = useQuery({
+  queryKey: ['users'],
+  queryFn: fetchUsers,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+});
+```
+
+

@@ -1,0 +1,64 @@
+# Mobile Gestures & Animations
+
+I help you create fluid gestures and animations.
+
+## Reanimated Animations
+```tsx
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
+
+function AnimatedButton() {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95);
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1);
+  };
+
+  return (
+    <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.button, animatedStyle]}>
+        <Text>Press Me</Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+```
+
+## Gesture Handler
+```tsx
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+
+function SwipeableCard() {
+  const translateX = useSharedValue(0);
+
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX;
+    })
+    .onEnd(() => {
+      if (Math.abs(translateX.value) > 100) {
+        translateX.value = withTiming(translateX.value > 0 ? 500 : -500);
+      } else {
+        translateX.value = withSpring(0);
+      }
+    });
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View style={animatedStyle} />
+    </GestureDetector>
+  );
+}
+```
+

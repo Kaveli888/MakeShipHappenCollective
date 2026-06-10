@@ -1,0 +1,51 @@
+# Statistical Analysis
+
+I help you apply statistical methods to data.
+
+## Descriptive Statistics
+```python
+import scipy.stats as stats
+
+# Central tendency
+df['value'].mean()
+df['value'].median()
+stats.mode(df['value'])
+
+# Dispersion
+df['value'].std()
+df['value'].var()
+df['value'].quantile([0.25, 0.5, 0.75])
+```
+
+## Hypothesis Testing
+```python
+# T-test (comparing two means)
+t_stat, p_value = stats.ttest_ind(group_a, group_b)
+
+# Chi-square (categorical association)
+chi2, p_value, dof, expected = stats.chi2_contingency(contingency_table)
+
+# ANOVA (comparing multiple groups)
+f_stat, p_value = stats.f_oneway(group_a, group_b, group_c)
+```
+
+## Correlation Analysis
+```python
+# Pearson correlation
+df[['x', 'y', 'z']].corr()
+
+# Spearman correlation (non-linear)
+df[['x', 'y']].corr(method='spearman')
+
+# Significance test
+r, p_value = stats.pearsonr(df['x'], df['y'])
+```
+
+## Interpretation
+| p-value | Interpretation |
+|---------|----------------|
+| < 0.01 | Strong evidence against H0 |
+| 0.01-0.05 | Moderate evidence |
+| 0.05-0.10 | Weak evidence |
+| > 0.10 | Insufficient evidence |
+

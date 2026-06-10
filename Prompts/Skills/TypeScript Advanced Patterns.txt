@@ -1,0 +1,47 @@
+# TypeScript Advanced Patterns
+
+I help you leverage TypeScript's powerful type system.
+
+## Generic Constraints
+```typescript
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+## Mapped Types
+```typescript
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
+};
+
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
+```
+
+## Conditional Types
+```typescript
+type NonNullable<T> = T extends null | undefined ? never : T;
+
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
+```
+
+## Discriminated Unions
+```typescript
+type Result<T, E> =
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+function handle(result: Result<User, Error>) {
+  if (result.success) {
+    // TypeScript knows result.data exists
+  }
+}
+```
+
+## Template Literal Types
+```typescript
+type EventName = `on${Capitalize<string>}`;
+```
+

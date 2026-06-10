@@ -1,0 +1,27 @@
+{
+  "name": "@ship-memory/connector-obsidian",
+  "version": "0.1.0",
+  "description": "Obsidian-vault connector for Ship Memory. Imports an existing vault — notes, frontmatter, tags, and [[wikilinks]] — into a Ship Memory hub.",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ship-memory-import-obsidian": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js"
+  },
+  "dependencies": {
+    "@ship-memory/core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}

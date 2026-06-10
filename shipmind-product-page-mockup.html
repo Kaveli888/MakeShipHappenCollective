@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShipMind — Mockup v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { background: #0a0a0a; color: #ededed; font-family: 'Inter', system-ui, sans-serif; }
+  h1, h2, h3, .display { font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.02em; }
+  .grad-hero { background: radial-gradient(ellipse 70% 60% at 50% 30%, rgba(140,90,255,0.18), transparent 60%), radial-gradient(ellipse 60% 50% at 70% 60%, rgba(80,130,255,0.10), transparent 70%); }
+  .grad-section { background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(140,90,255,0.06), transparent 70%); }
+  .ring-soft { box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 80px -20px rgba(140,90,255,0.15); }
+  .placeholder { background: linear-gradient(135deg, #14141a 0%, #0f0f14 100%); border: 1px dashed rgba(255,255,255,0.12); color: #6a6a78; }
+  .pill { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
+  .chip { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #a78bfa; }
+  .cta { background: linear-gradient(180deg, #ffffff 0%, #e8e8f0 100%); color: #0a0a0a; }
+  .cta-ghost { border: 1px solid rgba(255,255,255,0.15); color: #ededed; }
+  .divider { height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.10), transparent); }
+  .feat-num { font-family: 'Playfair Display', serif; font-weight: 600; color: rgba(167,139,250,0.6); }
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details[open] .faq-icon { transform: rotate(45deg); }
+  .faq-icon { transition: transform 0.2s; }
+  /* tag for designer comments */
+  .design-note { background: rgba(255, 200, 80, 0.08); border-left: 2px solid rgba(255, 200, 80, 0.5); color: #f5d77a; font-size: 12px; padding: 6px 10px; margin: 8px 0; font-family: ui-monospace, SF Mono, Menlo, monospace; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- =================== UTILITY / ANNOUNCEMENT BAR =================== -->
+<div class="border-b border-white/5 bg-black/40 backdrop-blur">
+  <div class="max-w-7xl mx-auto px-6 py-2.5 text-xs flex items-center justify-center gap-2 text-white/60">
+    <span class="inline-block w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+    <span>ShipMind <span class="text-white/90">v0.5 beta</span> · Apple Silicon + Intel · Windows &amp; Linux coming</span>
+    <span class="text-white/30">·</span>
+    <a href="#" class="text-white/80 hover:text-white">See changelog →</a>
+  </div>
+</div>
+
+<!-- =================== TOP NAV =================== -->
+<header class="sticky top-0 z-40 backdrop-blur-md bg-black/60 border-b border-white/5">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="/" class="font-semibold tracking-tight text-white">MakeShipHappen<span class="text-purple-400">.Ai</span></a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-white/70">
+      <a href="#" class="hover:text-white">Products</a>
+      <a href="#" class="hover:text-white">Libraries</a>
+      <a href="#" class="hover:text-white">Community</a>
+      <a href="#" class="hover:text-white">Company</a>
+      <a href="#" class="hover:text-white">Pricing</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <span class="hidden sm:inline text-xs text-white/40">zzgemsjewelry@gm…</span>
+      <button class="cta text-sm font-medium px-4 py-2 rounded-full">Download</button>
+    </div>
+  </div>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="relative grad-hero">
+  <div class="max-w-7xl mx-auto px-6 pt-24 pb-20 grid lg:grid-cols-12 gap-12 items-center">
+    <div class="lg:col-span-6">
+      <div class="chip mb-5">MakeShipHappen · Flagship</div>
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.02] tracking-tight">
+        Your private<br>second brain<br>for builders.
+      </h1>
+      <p class="mt-6 text-2xl md:text-3xl text-white/70 font-light">
+        Ingest anything. Ask grounded questions. Ship faster.
+      </p>
+      <p class="mt-8 max-w-xl text-white/60 text-base leading-relaxed">
+        ShipMind reads <em>your own material</em> — docs, calls, PDFs, transcripts, source files —
+        and grounds every answer in it. Local-first. Cited. Yours.
+        The front door into the MakeShipHappen ecosystem.
+      </p>
+      <div class="mt-10 flex flex-wrap items-center gap-3">
+        <button class="cta px-6 py-3 rounded-full font-semibold flex items-center gap-2">
+          <span>↓</span> Download for macOS
+        </button>
+        <button class="cta-ghost px-6 py-3 rounded-full font-medium flex items-center gap-2">
+          ▶ Watch the 90-second demo
+        </button>
+      </div>
+      <div class="mt-6 text-xs text-white/40">Apple Silicon + Intel · Free during beta · No account required to try</div>
+    </div>
+
+    <div class="lg:col-span-6">
+      <!-- HERO MEDIA SLOT -->
+      <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center px-6">
+        <div>
+          <div class="chip mb-3">[ HERO LOOP VIDEO ]</div>
+          <div class="text-sm">Drag a folder of mixed files (PDF / .mp3 / .mov / .csv) onto ShipMind →<br>files index → typed question → answer streams with citation chips → click cite → scroll to source.</div>
+          <div class="text-xs mt-3 text-white/30">~6–8 sec · autoplay · muted · loops</div>
+        </div>
+      </div>
+      <div class="design-note">📹 SHOT NOTE: This is the single most important asset. Record at 1920×1080 60fps.</div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== OLD WAY / SHIPMIND WAY =================== -->
+<section class="relative grad-section py-24 border-y border-white/5">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <div class="chip mb-3">The shift</div>
+    <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">Stop renting your second brain.</h2>
+    <p class="mt-4 text-white/60 max-w-2xl mx-auto">Every other AI tool wants your knowledge on their server. ShipMind keeps it on your machine.</p>
+
+    <div class="mt-14 grid md:grid-cols-2 gap-6 text-left">
+      <div class="pill rounded-2xl p-8">
+        <div class="chip text-white/40">The old way</div>
+        <ul class="mt-5 space-y-4 text-white/50">
+          <li class="flex gap-3"><span class="text-white/30">×</span>Scattered chaos across a dozen tools</li>
+          <li class="flex gap-3"><span class="text-white/30">×</span>Rented workflows you don't own</li>
+          <li class="flex gap-3"><span class="text-white/30">×</span>Cloud-first by default</li>
+          <li class="flex gap-3"><span class="text-white/30">×</span>Paged, copied, lost context</li>
+          <li class="flex gap-3"><span class="text-white/30">×</span>Hallucinations dressed up as facts</li>
+          <li class="flex gap-3"><span class="text-white/30">×</span>Constant friction between thinking and shipping</li>
+        </ul>
+      </div>
+      <div class="pill rounded-2xl p-8" style="border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.04)">
+        <div class="chip">The ShipMind way</div>
+        <ul class="mt-5 space-y-4 text-white">
+          <li class="flex gap-3"><span class="text-purple-400">✓</span>One unified workspace</li>
+          <li class="flex gap-3"><span class="text-purple-400">✓</span>Owned data, owned keys</li>
+          <li class="flex gap-3"><span class="text-purple-400">✓</span>Local-first storage and AI</li>
+          <li class="flex gap-3"><span class="text-purple-400">✓</span>Grounded, cited context</li>
+          <li class="flex gap-3"><span class="text-purple-400">✓</span>Citations on every answer</li>
+          <li class="flex gap-3"><span class="text-purple-400">✓</span>Seamless agentic workflow</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PROBLEM STRIP =================== -->
+<section class="py-24">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="chip mb-4">The problem</div>
+    <h2 class="text-3xl md:text-5xl font-semibold leading-tight">
+      Right now your knowledge lives in <span class="text-white/40">twelve places.</span><br>
+      None of them know about each other.
+    </h2>
+    <p class="mt-6 text-white/60 max-w-3xl text-lg">
+      PDFs in Downloads. Notes in Apple Notes. Calls in Zoom. Specs in Google Drive.
+      Source code in a repo. Half a launch plan in a Slack DM. The other half in your head.
+    </p>
+    <p class="mt-3 text-white/60 max-w-3xl text-lg">
+      And every AI tool you've tried wants you to <em>paste it all into a chat window</em> and
+      trust an answer with no source.
+    </p>
+
+    <!-- VISUAL: scattered icons illustration -->
+    <div class="placeholder rounded-2xl mt-10 h-48 flex items-center justify-center">
+      <span class="text-white/40 text-sm">[ ILLUSTRATION: scattered file/app icons fading toward edges ] · static SVG · ~h:300px</span>
+    </div>
+  </div>
+</section>
+
+<!-- =================== 6 CORE CAPABILITIES =================== -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-20">
+      <div class="chip mb-3">What it actually does</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">Six capabilities. One continuous loop.</h2>
+      <p class="mt-4 text-white/60 max-w-2xl mx-auto">Every feature is grounded in the same private workspace. Every answer cites its source.</p>
+    </div>
+
+    <!-- CAPABILITY 1 -->
+    <div class="grid lg:grid-cols-12 gap-12 items-center mb-32">
+      <div class="lg:col-span-5">
+        <span class="feat-num text-2xl">01</span>
+        <h3 class="text-3xl md:text-4xl font-semibold mt-2">Ingest anything.</h3>
+        <p class="text-white/40 text-sm mt-3 uppercase tracking-wider">The problem</p>
+        <p class="text-white/70 mt-2">Your context is scattered across PDFs, recordings, browser tabs, Drive folders, transcripts, and source files.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">What ShipMind does</p>
+        <p class="text-white/70 mt-2">Drag any of it onto ShipMind. PDFs, audio, video, websites, CSV, JSON, Markdown, source files — embedded, indexed, organized locally. One Convergence Hub for everything.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">The benefit</p>
+        <p class="text-white mt-2 font-medium">One place to drop, search, and ask. Sources stay on your machine.</p>
+      </div>
+      <div class="lg:col-span-7">
+        <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center">
+          <div>
+            <div class="chip mb-2">[ GIF · ~5s loop ]</div>
+            <div class="text-sm">Drag-and-drop multi-file folder onto ShipMind. File-type chips light up: PDF · Audio · Video · CSV · JSON · Web · Notes · Drive.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPABILITY 2 -->
+    <div class="grid lg:grid-cols-12 gap-12 items-center mb-32">
+      <div class="lg:col-span-7 lg:order-1 order-2">
+        <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center">
+          <div>
+            <div class="chip mb-2">[ GIF · ~6s ]</div>
+            <div class="text-sm">Audio file dragged in → Whisper indexing progress → transcript appears with speaker labels and clickable timestamps. Then: paste a YouTube URL → same thing.</div>
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-5 lg:order-2 order-1">
+        <span class="feat-num text-2xl">02</span>
+        <h3 class="text-3xl md:text-4xl font-semibold mt-2">Meetings become memory.</h3>
+        <p class="text-white/40 text-sm mt-3 uppercase tracking-wider">The problem</p>
+        <p class="text-white/70 mt-2">Three hours of audio you'll never listen to again. Decisions buried in calls you can't search.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">What ShipMind does</p>
+        <p class="text-white/70 mt-2">Local Whisper transcription with automatic speaker labels. Drop in audio, video, or paste a YouTube URL — it ingests directly.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">The benefit</p>
+        <p class="text-white mt-2 font-medium">Search a moment from a six-month-old meeting. Scrub to the exact second a decision was made.</p>
+      </div>
+    </div>
+
+    <!-- CAPABILITY 3 -->
+    <div class="grid lg:grid-cols-12 gap-12 items-center mb-32">
+      <div class="lg:col-span-5">
+        <span class="feat-num text-2xl">03</span>
+        <h3 class="text-3xl md:text-4xl font-semibold mt-2">Ask once. Verify instantly.</h3>
+        <p class="text-white/40 text-sm mt-3 uppercase tracking-wider">The problem</p>
+        <p class="text-white/70 mt-2">Generic AI tools invent answers and hide their reasoning behind a friendly tone. You can't tell what's real.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">What ShipMind does</p>
+        <p class="text-white/70 mt-2">Every claim is grounded in your sources. Click any sentence to jump to the exact passage, page, or audio timestamp. Ungrounded answers are flagged.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">The benefit</p>
+        <p class="text-white mt-2 font-medium">Zero hallucinations dressed up as facts. If an answer has no citation, ShipMind tells you.</p>
+      </div>
+      <div class="lg:col-span-7">
+        <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center">
+          <div>
+            <div class="chip mb-2">[ GIF · ~7s ]</div>
+            <div class="text-sm">Type "what were the main revenue drivers in Q3?" → answer streams → cursor hovers a citation chip [1] → it expands showing the source paragraph + timestamp → click → page scrolls to source.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPABILITY 4 -->
+    <div class="grid lg:grid-cols-12 gap-12 items-center mb-32">
+      <div class="lg:col-span-7 lg:order-1 order-2">
+        <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center">
+          <div>
+            <div class="chip mb-2">[ GIF · ~6s ]</div>
+            <div class="text-sm">Two source cards (Source A: Product Spec / Source B: Founder Meeting) appear side-by-side. Conflict highlighted: "Launch date Q3" vs "delayed to Q4." A red ribbon labels it as a contradiction.</div>
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-5 lg:order-2 order-1">
+        <span class="feat-num text-2xl">04</span>
+        <h3 class="text-3xl md:text-4xl font-semibold mt-2">Find what doesn't add up.</h3>
+        <p class="text-white/40 text-sm mt-3 uppercase tracking-wider">The problem</p>
+        <p class="text-white/70 mt-2">Two sources say two different things. The contradiction is buried in 200 pages.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">What ShipMind does</p>
+        <p class="text-white/70 mt-2">Surfaces conflicting claims, missing logic, and open loops across hundreds of documents. Shows you both sides with the disagreement highlighted.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">The benefit</p>
+        <p class="text-white mt-2 font-medium">Catch the broken assumption before the investor meeting, not during.</p>
+      </div>
+    </div>
+
+    <!-- CAPABILITY 5 -->
+    <div class="grid lg:grid-cols-12 gap-12 items-center mb-32">
+      <div class="lg:col-span-5">
+        <span class="feat-num text-2xl">05</span>
+        <h3 class="text-3xl md:text-4xl font-semibold mt-2">Studio: turn knowledge into work.</h3>
+        <p class="text-white/40 text-sm mt-3 uppercase tracking-wider">The problem</p>
+        <p class="text-white/70 mt-2">Answers in a chat window evaporate. They don't ship.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">What ShipMind does</p>
+        <p class="text-white/70 mt-2">10 built-in artifact modes — briefs, study guides, status updates, comparison tables, meeting minutes, follow-up emails — generated from your sources, sourced and ready to paste.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">The benefit</p>
+        <p class="text-white mt-2 font-medium">From "I have the context" to "I have the deliverable" in one click.</p>
+      </div>
+      <div class="lg:col-span-7">
+        <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center">
+          <div>
+            <div class="chip mb-2">[ GIF · ~7s ]</div>
+            <div class="text-sm">Mode picker dropdown opens — Brief / Study Guide / Status Update / Comparison Table / Meeting Minutes / Email. Pick one. The current answer transforms in place into a polished, formatted artifact.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPABILITY 6 -->
+    <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7 lg:order-1 order-2">
+        <div class="placeholder rounded-2xl ring-soft aspect-video flex items-center justify-center text-center">
+          <div>
+            <div class="chip mb-2">[ GIF · ~5s ]</div>
+            <div class="text-sm">User holds the ShipTalk hotkey, speaks a question, releases. Voice waveform animates. Transcribed text appears in ShipMind's input. Answer starts streaming.</div>
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-5 lg:order-2 order-1">
+        <span class="feat-num text-2xl">06</span>
+        <h3 class="text-3xl md:text-4xl font-semibold mt-2">Talk to your workspace.</h3>
+        <p class="text-white/40 text-sm mt-3 uppercase tracking-wider">The problem</p>
+        <p class="text-white/70 mt-2">Typing every thought breaks the build. You lose ideas faster than you can write them.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">What ShipMind does</p>
+        <p class="text-white/70 mt-2">ShipTalk runs on-device. Hold the hotkey, speak, drop your voice into ShipMind, ShipSpace, or any app on your machine.</p>
+        <p class="text-white/40 text-sm mt-5 uppercase tracking-wider">The benefit</p>
+        <p class="text-white mt-2 font-medium">Ideas out of your head and into the system without leaving the work.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PRIVACY PROOF =================== -->
+<section class="relative py-24 border-t border-white/5 grad-section">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <div class="chip mb-3">Trust &amp; Privacy</div>
+    <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">Local-first isn't a marketing claim.<br><span class="text-white/50">It's a verifiable fact.</span></h2>
+    <p class="mt-5 text-white/60 max-w-2xl mx-auto">Other privacy-first tools <em>say</em> it. ShipMind shows you exactly where your data lives.</p>
+
+    <div class="mt-16 grid md:grid-cols-3 gap-6 text-left">
+      <div class="pill rounded-2xl p-6">
+        <div class="placeholder rounded-lg h-40 mb-4 flex items-center justify-center">
+          <span class="text-xs text-white/40">[ SCREENSHOT · local SQLite vault path in Finder ]</span>
+        </div>
+        <h4 class="font-semibold text-white">Your sources live on your disk.</h4>
+        <p class="text-white/60 text-sm mt-2">Local SQLite storage. Browse the file path yourself. No cloud sync unless you turn one on.</p>
+      </div>
+      <div class="pill rounded-2xl p-6">
+        <div class="placeholder rounded-lg h-40 mb-4 flex items-center justify-center">
+          <span class="text-xs text-white/40">[ SCREENSHOT · Ollama model picker dropdown ]</span>
+        </div>
+        <h4 class="font-semibold text-white">Local AI by default.</h4>
+        <p class="text-white/60 text-sm mt-2">Llama via Ollama runs on your machine. Toggle off network. ShipMind keeps working.</p>
+      </div>
+      <div class="pill rounded-2xl p-6">
+        <div class="placeholder rounded-lg h-40 mb-4 flex items-center justify-center">
+          <span class="text-xs text-white/40">[ SCREENSHOT · API key settings panel ]</span>
+        </div>
+        <h4 class="font-semibold text-white">Your keys, your model.</h4>
+        <p class="text-white/60 text-sm mt-2">Cloud providers are opt-in. Bring your own OpenAI / Anthropic / Together keys. We never see them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== USE CASES =================== -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <div class="chip mb-3">Use cases</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">Built for the way builders actually work.</h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="pill rounded-2xl p-8">
+        <div class="placeholder rounded-lg h-32 mb-5 flex items-center justify-center text-xs text-white/40">[ Screenshot: PRD with diff highlights ]</div>
+        <div class="text-2xl mb-2">📐</div>
+        <h4 class="text-xl font-semibold">Product specs &amp; PRDs</h4>
+        <p class="text-white/60 mt-2">Drop in product docs, decision logs, and roadmaps. Ask "what changed since the last review?" and get a grounded diff with citations.</p>
+      </div>
+      <div class="pill rounded-2xl p-8">
+        <div class="placeholder rounded-lg h-32 mb-5 flex items-center justify-center text-xs text-white/40">[ Screenshot: meeting transcript with action items ]</div>
+        <div class="text-2xl mb-2">🎙️</div>
+        <h4 class="text-xl font-semibold">Meeting &amp; customer call context</h4>
+        <p class="text-white/60 mt-2">Transcribe meetings, customer interviews, founder convos. Surface action items, contradictions, and the strongest pain points across every recording.</p>
+      </div>
+      <div class="pill rounded-2xl p-8">
+        <div class="placeholder rounded-lg h-32 mb-5 flex items-center justify-center text-xs text-white/40">[ Screenshot: competitor comparison table ]</div>
+        <div class="text-2xl mb-2">🧪</div>
+        <h4 class="text-xl font-semibold">Research &amp; competitive scans</h4>
+        <p class="text-white/60 mt-2">Pull in articles, competitor sites, market reports. Ask comparison questions and get a structured table back.</p>
+      </div>
+      <div class="pill rounded-2xl p-8">
+        <div class="placeholder rounded-lg h-32 mb-5 flex items-center justify-center text-xs text-white/40">[ Screenshot: stakeholder update draft ]</div>
+        <div class="text-2xl mb-2">🚀</div>
+        <h4 class="text-xl font-semibold">Launch plans &amp; status updates</h4>
+        <p class="text-white/60 mt-2">Combine briefs, timelines, and notes into a single second brain. Generate a stakeholder update in one click — sourced and ready to ship.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FIRST WIN ONBOARDING =================== -->
+<section class="py-24 border-t border-white/5 grad-section">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <div class="chip mb-3">First win</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">From zero to a real win<br>in one session.</h2>
+      <p class="mt-4 text-white/60 max-w-2xl mx-auto">Six steps. No tutorial required. Just a source and a question.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="pill rounded-xl p-5">
+        <span class="feat-num text-3xl">1</span>
+        <div class="placeholder rounded h-28 my-3"></div>
+        <h5 class="font-semibold">Add a source</h5>
+        <p class="text-white/55 text-sm mt-1">PDF, audio, website, or pasted text — drop it in.</p>
+      </div>
+      <div class="pill rounded-xl p-5">
+        <span class="feat-num text-3xl">2</span>
+        <div class="placeholder rounded h-28 my-3"></div>
+        <h5 class="font-semibold">Wait for analysis</h5>
+        <p class="text-white/55 text-sm mt-1">ShipMind embeds and indexes everything locally.</p>
+      </div>
+      <div class="pill rounded-xl p-5">
+        <span class="feat-num text-3xl">3</span>
+        <div class="placeholder rounded h-28 my-3"></div>
+        <h5 class="font-semibold">Ask a grounded question</h5>
+        <p class="text-white/55 text-sm mt-1">Or use a starter prompt built for builders.</p>
+      </div>
+      <div class="pill rounded-xl p-5">
+        <span class="feat-num text-3xl">4</span>
+        <div class="placeholder rounded h-28 my-3"></div>
+        <h5 class="font-semibold">Get a cited answer</h5>
+        <p class="text-white/55 text-sm mt-1">Every claim shows the source it came from.</p>
+      </div>
+      <div class="pill rounded-xl p-5">
+        <span class="feat-num text-3xl">5</span>
+        <div class="placeholder rounded h-28 my-3"></div>
+        <h5 class="font-semibold">Generate an artifact</h5>
+        <p class="text-white/55 text-sm mt-1">Studio turns answers into briefs, emails, tables.</p>
+      </div>
+      <div class="pill rounded-xl p-5">
+        <span class="feat-num text-3xl">6</span>
+        <div class="placeholder rounded h-28 my-3"></div>
+        <h5 class="font-semibold">Save or export</h5>
+        <p class="text-white/55 text-sm mt-1">Notes, copy, or send onward.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== VS COMPARISON =================== -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <div class="chip mb-3">How it compares</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">What ShipMind does.</h2>
+      <p class="mt-4 text-white/60 max-w-2xl mx-auto">One tool for the whole loop — capture, search, cite, and ship, locally.</p>
+    </div>
+
+    <div class="overflow-x-auto pill rounded-2xl">
+      <table class="w-full text-sm">
+        <thead class="text-white/50 text-xs uppercase tracking-wider">
+          <tr class="border-b border-white/5">
+            <th class="text-left p-5 font-medium">Capability</th>
+            <th class="text-left p-5 font-medium" style="background: rgba(167,139,250,0.06)">ShipMind</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/70">
+          <tr class="border-b border-white/5"><td class="p-5">Local-first storage</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Sources live in a local SQLite vault on your disk</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Local AI option (Ollama)</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Run Ollama-compatible models on your machine</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Bring your own keys</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Your provider keys, stored in your OS keychain</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Cited answers (click to source)</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Click any citation to jump to the source</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Audio &amp; video transcription</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Transcribe both audio and video sources</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Contradiction detection</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Surface where your sources disagree</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Studio output modes</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> 10 built-in output formats</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">On-device voice capture</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Capture voice locally via ShipTalk</td></tr>
+          <tr class="border-b border-white/5"><td class="p-5">Multi-agent execution</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Run agents via ShipSpace</td></tr>
+          <tr><td class="p-5">Ecosystem (release pipeline)</td><td class="p-5 bg-purple-500/[.04]"><span class="text-purple-300">✓</span> Ship with ShipRelease</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SAMPLE PROMPTS =================== -->
+<section class="py-24 border-t border-white/5 grad-section">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <div class="chip mb-3">Try this on day one</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">What builders actually ask.</h2>
+      <p class="mt-4 text-white/60">Tap any prompt to copy it. Paste into ShipMind after your first ingest.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-3">
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Summary</span>
+        <p class="text-white/85 mt-2">Summarize the key decisions and open questions across all sources.</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Insight</span>
+        <p class="text-white/85 mt-2">What are the strongest user pain points mentioned in our customer calls?</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Action items</span>
+        <p class="text-white/85 mt-2">Pull every action item with an owner — who is responsible for what?</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Contradiction</span>
+        <p class="text-white/85 mt-2">Where do these sources disagree or contradict each other?</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Update</span>
+        <p class="text-white/85 mt-2">Draft a one-paragraph status update for stakeholders, sourced.</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Comparison</span>
+        <p class="text-white/85 mt-2">Build a comparison table of every competitor mentioned with their pricing.</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Diff</span>
+        <p class="text-white/85 mt-2">What changed in the spec between the v1 and v2 documents?</p>
+      </button>
+      <button class="pill rounded-xl p-4 text-left hover:bg-white/[.04]">
+        <span class="chip">Email</span>
+        <p class="text-white/85 mt-2">Generate a follow-up email summarizing the meeting and assigning next steps.</p>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOUNDER NOTE =================== -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-3xl mx-auto px-6 text-center">
+    <div class="chip mb-3">Built by a builder</div>
+    <p class="text-2xl md:text-3xl text-white/85 leading-relaxed font-light">
+      "I built ShipMind because I was tired of pasting context into a chat window and hoping. I wanted a second brain that actually <em>knew my stuff</em>, kept it on my own machine, and showed me where every answer came from. It worked for me. Now it's open to anyone who wants the same."
+    </p>
+    <div class="mt-8">
+      <div class="placeholder w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center text-xs">[ photo ]</div>
+      <div class="font-semibold text-white">Jake</div>
+      <div class="text-sm text-white/50">Founder · MakeShipHappen</div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FAQ =================== -->
+<section class="py-24 border-t border-white/5">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <div class="chip mb-3">FAQ</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">Questions builders ask first.</h2>
+    </div>
+
+    <div class="space-y-3">
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>Is ShipMind really local-first, or is that just marketing?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">Really local. Your sources are stored in a SQLite file on your own disk — we'll show you the path. Local AI runs through Ollama (Llama models) by default. You can turn off network and ShipMind keeps working. Cloud providers (OpenAI, Anthropic) are opt-in and use <em>your</em> API keys; we never see them or store them.</p>
+      </details>
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>What file types can I ingest?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">PDF, Markdown, plain text, .docx, audio (mp3/m4a/wav), video (mp4/mov), CSV, JSON, log files, source code, web pages by URL, YouTube URLs (transcribed directly), and more. Folder drops are supported.</p>
+      </details>
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>Do I need to bring my own AI keys?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">No. ShipMind ships with local Llama models via Ollama, so you can run end-to-end without any cloud key. Bring your own keys only if you want to use a frontier model on certain queries.</p>
+      </details>
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>Will it run offline?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">Yes — ingestion, indexing, transcription (Whisper), and answers all run locally. Internet is only required if you opt into a cloud provider.</p>
+      </details>
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>What about Windows and Linux?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">macOS (Apple Silicon + Intel) ships first. Windows and Linux builds are next on the roadmap — sign up and we'll email you when each one drops.</p>
+      </details>
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>Can I export my data?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">Always. Your sources live on disk, so they're already exportable by definition. Generated artifacts (briefs, summaries, tables) export as Markdown, plain text, or copy-to-clipboard.</p>
+      </details>
+      <details class="pill rounded-xl p-5">
+        <summary class="flex items-center justify-between font-medium text-white">
+          <span>What's free vs. paid?</span>
+          <span class="faq-icon text-white/40 text-2xl leading-none">+</span>
+        </summary>
+        <p class="text-white/65 mt-4">During beta, ShipMind is free with the local model. Paid tiers will unlock larger ingest limits, premium model routing, and ecosystem features (ShipSpace, ShipRelease). See pricing for the latest.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PRICING TEASER =================== -->
+<section class="py-24 border-t border-white/5 grad-section">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <div class="chip mb-3">Pricing</div>
+    <h2 class="text-4xl md:text-5xl font-semibold tracking-tight">Start free. Add the rest as you need it.</h2>
+    <p class="mt-4 text-white/60">You own the output. Your keys stay yours.</p>
+
+    <div class="mt-12 grid md:grid-cols-3 gap-5 text-left">
+      <div class="pill rounded-2xl p-6">
+        <div class="chip text-white/50">Builder</div>
+        <div class="text-3xl font-semibold mt-3">Free</div>
+        <p class="text-white/55 text-sm mt-2">During beta. Local model included.</p>
+        <ul class="mt-5 space-y-2 text-sm text-white/70">
+          <li>· Unlimited local sources</li>
+          <li>· Local Whisper transcription</li>
+          <li>· Local Llama answering</li>
+          <li>· Studio output modes</li>
+        </ul>
+      </div>
+      <div class="pill rounded-2xl p-6" style="border-color: rgba(167,139,250,0.30); background: rgba(167,139,250,0.05)">
+        <div class="chip">Pro · Most popular</div>
+        <div class="text-3xl font-semibold mt-3">$ TBD<span class="text-white/40 text-base font-normal"> /mo</span></div>
+        <p class="text-white/55 text-sm mt-2">When you want frontier models in the loop.</p>
+        <ul class="mt-5 space-y-2 text-sm text-white/85">
+          <li>· Everything in Builder</li>
+          <li>· Premium model routing</li>
+          <li>· Larger ingest limits</li>
+          <li>· Priority support</li>
+        </ul>
+      </div>
+      <div class="pill rounded-2xl p-6">
+        <div class="chip text-white/50">Team</div>
+        <div class="text-3xl font-semibold mt-3">$ TBD<span class="text-white/40 text-base font-normal"> /seat</span></div>
+        <p class="text-white/55 text-sm mt-2">For small studios shipping together.</p>
+        <ul class="mt-5 space-y-2 text-sm text-white/70">
+          <li>· Shared ecosystem features</li>
+          <li>· ShipSpace + ShipRelease access</li>
+          <li>· SSO &amp; admin</li>
+          <li>· Founder support</li>
+        </ul>
+      </div>
+    </div>
+    <a href="#" class="inline-block mt-10 text-white/70 hover:text-white text-sm">See full pricing →</a>
+    <div class="design-note text-left max-w-3xl mx-auto">📝 NOTE: Replace "$ TBD" with your real numbers. If you don't have them yet, an honest "Pricing announced at v1" beats a placeholder for trust.</div>
+  </div>
+</section>
+
+<!-- =================== FINAL CTA =================== -->
+<section class="py-32 border-t border-white/5 text-center">
+  <div class="max-w-3xl mx-auto px-6">
+    <h2 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight">
+      Stop pasting context.<br>
+      <span class="text-white/50">Start building from it.</span>
+    </h2>
+    <p class="mt-6 text-white/65 text-lg">
+      ShipMind is the front door into the MakeShipHappen ecosystem — a private second brain
+      that turns scattered sources into the work that ships your product.
+    </p>
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+      <button class="cta px-7 py-3.5 rounded-full font-semibold">↓ Download ShipMind for macOS</button>
+      <button class="cta-ghost px-7 py-3.5 rounded-full">See the full platform →</button>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="border-t border-white/5 py-10">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/40">
+    <div class="font-semibold text-white/70">MakeShipHappen<span class="text-purple-400">.Ai</span></div>
+    <div class="flex items-center gap-6">
+      <a href="#" class="hover:text-white">Privacy</a>
+      <a href="#" class="hover:text-white">Terms</a>
+      <a href="#" class="hover:text-white">Contact</a>
+    </div>
+    <div>© 2026 MakeShipHappen.Ai · Built with makeshiphappenAi.</div>
+  </div>
+</footer>
+
+</body>
+</html>

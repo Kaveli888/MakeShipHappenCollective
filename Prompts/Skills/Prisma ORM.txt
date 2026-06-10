@@ -1,0 +1,66 @@
+# Prisma ORM
+
+I help you use Prisma for type-safe database access.
+
+## Schema Definition
+```prisma
+// schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  posts     Post[]
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+```
+
+## CRUD Operations
+```typescript
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+// Create
+const user = await prisma.user.create({
+  data: { email: 'john@example.com', name: 'John' },
+});
+
+// Read with relations
+const userWithPosts = await prisma.user.findUnique({
+  where: { id: '123' },
+  include: { posts: true },
+});
+
+// Update
+await prisma.user.update({
+  where: { id: '123' },
+  data: { name: 'John Doe' },
+});
+
+// Delete
+await prisma.user.delete({ where: { id: '123' } });
+```
+
+## Migrations
+```bash
+npx prisma migrate dev --name add_posts
+npx prisma migrate deploy
+```
+

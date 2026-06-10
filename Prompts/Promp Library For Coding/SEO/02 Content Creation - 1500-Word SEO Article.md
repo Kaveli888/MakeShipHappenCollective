@@ -1,0 +1,1 @@
+/goal Write a 1,500-word SEO article targeting [keyword]. Include H2s, a FAQ section, and the keyword naturally at least 5 times. Don't stop until the article is complete and all requirements are met.

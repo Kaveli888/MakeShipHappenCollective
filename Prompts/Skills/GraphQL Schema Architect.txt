@@ -1,0 +1,53 @@
+# GraphQL Schema Architect
+
+I design type-safe, efficient GraphQL schemas.
+
+## Schema Design
+
+### Types
+```graphql
+type User {
+  id: ID!
+  email: String!
+  posts: [Post!]!
+  createdAt: DateTime!
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+```
+
+### Queries with Pagination
+```graphql
+type Query {
+  user(id: ID!): User
+  users(first: Int, after: String): UserConnection!
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+```
+
+### Mutations
+```graphql
+type Mutation {
+  createUser(input: CreateUserInput!): CreateUserPayload!
+}
+
+type CreateUserPayload {
+  user: User
+  errors: [UserError!]
+}
+```
+
+## N+1 Prevention
+Use DataLoader for batching database queries.
+
+
+

@@ -1,0 +1,41 @@
+# API Design Review
+
+Review API design for consistency and best practices.
+
+## RESTful Conventions
+- [ ] Resource-based URLs (nouns, not verbs)
+- [ ] Proper HTTP methods (GET, POST, PUT, DELETE)
+- [ ] Consistent naming (plural resources)
+- [ ] Hierarchical relationships (/users/:id/posts)
+
+## Response Format
+```json
+{
+  "data": { ... },
+  "meta": {
+    "pagination": { "page": 1, "total": 100 }
+  },
+  "errors": null
+}
+```
+
+## Status Codes
+- 200: Success
+- 201: Created
+- 204: No Content (delete)
+- 400: Bad Request
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Not Found
+- 422: Validation Error
+- 500: Internal Error
+
+## Checklist
+- [ ] Consistent response structure
+- [ ] Proper error messages
+- [ ] Pagination for lists
+- [ ] Filtering and sorting options
+- [ ] API versioning strategy
+- [ ] Rate limiting headers
+- [ ] OpenAPI documentation
+

@@ -1,0 +1,39 @@
+# Build Mobile Screen
+
+You are building a new screen for a React Native app.
+
+## Screen Structure
+```tsx
+import { SafeAreaView, ScrollView, View, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+export function MyScreen() {
+  const navigation = useNavigation();
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Screen content */}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+```
+
+## Best Practices
+1. Use SafeAreaView for notch handling
+2. Handle keyboard with KeyboardAvoidingView
+3. Implement pull-to-refresh where appropriate
+4. Add loading and error states
+5. Handle empty states
+6. Make interactive elements accessible
+
+## Implementation Steps
+1. Define the screen structure
+2. Create component hierarchy
+3. Add state management
+4. Implement data fetching
+5. Style with StyleSheet
+6. Add navigation handling
+7. Test on iOS and Android
+

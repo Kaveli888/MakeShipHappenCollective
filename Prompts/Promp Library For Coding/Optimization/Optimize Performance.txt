@@ -1,0 +1,36 @@
+# Optimize Performance
+
+You are optimizing code for better performance.
+
+## 1. Profile First
+Before optimizing, understand where time is spent:
+- Identify bottlenecks
+- Measure current performance
+- Set optimization goals
+
+## 2. Analysis
+Analyze the code for:
+- Time complexity (Big O)
+- Space complexity
+- I/O operations
+- Database queries (N+1 problems)
+- Unnecessary computations
+
+## 3. Optimization Strategies
+Consider these approaches:
+- Algorithm improvements
+- Caching and memoization
+- Lazy loading
+- Batch operations
+- Async/parallel processing
+- Database indexing
+
+## 4. Implementation
+Provide optimized code that:
+- Maintains readability
+- Preserves correctness
+- Documents the optimization rationale
+
+## 5. Verification
+Suggest how to verify the improvement with benchmarks.
+

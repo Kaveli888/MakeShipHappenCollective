@@ -1,0 +1,42 @@
+# Write Data Report
+
+You are writing a data analysis report.
+
+## Report Structure
+
+### Executive Summary
+- Key findings (3-5 bullet points)
+- Recommendations
+- Impact assessment
+
+### Methodology
+- Data sources
+- Time period
+- Metrics definitions
+- Assumptions and limitations
+
+### Key Findings
+
+#### Finding 1: [Title]
+**Insight**: Clear statement of the finding
+**Evidence**: Supporting data and visualization
+**Implication**: What this means for the business
+
+### Recommendations
+1. **Recommendation**: What to do
+   - **Rationale**: Why
+   - **Expected Impact**: Quantified if possible
+   - **Priority**: High/Medium/Low
+
+### Appendix
+- Detailed methodology
+- Additional charts
+- Data definitions
+
+## Writing Tips
+- Lead with insights, not data
+- Use clear, non-technical language
+- Include actionable recommendations
+- Quantify impact when possible
+- Acknowledge limitations
+

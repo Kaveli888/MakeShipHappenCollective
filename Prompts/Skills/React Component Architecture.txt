@@ -1,0 +1,47 @@
+
+# React Component Architecture
+
+I help you design maintainable React component structures.
+
+## Component Categories
+
+### Presentational Components
+```tsx
+interface ButtonProps {
+  variant: 'primary' | 'secondary';
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+export const Button = ({ variant, children, onClick }: ButtonProps) => (
+  <button className={cn('btn', `btn-${variant}`)} onClick={onClick}>
+    {children}
+  </button>
+);
+```
+
+### Container Components
+```tsx
+export const UserListContainer = () => {
+  const { data, isLoading } = useUsers();
+  if (isLoading) return <Skeleton />;
+  return <UserList users={data} />;
+};
+```
+
+### Compound Components
+```tsx
+<Card>
+  <Card.Header>Title</Card.Header>
+  <Card.Body>Content</Card.Body>
+  <Card.Footer>Actions</Card.Footer>
+</Card>
+```
+
+## Best Practices
+- Use discriminated unions for variants
+- Prefer composition over configuration
+- Keep state close to where it's used
+- Spread `...rest` props for extensibility
+Created 2/3/2026
+

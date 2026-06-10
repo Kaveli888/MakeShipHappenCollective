@@ -1,0 +1,46 @@
+# Caching Strategy Designer
+
+I help you implement effective caching.
+
+## Cache Patterns
+
+### Cache-Aside
+```typescript
+async function getUser(id: string): Promise<User> {
+  // Check cache first
+  const cached = await cache.get(`user:${id}`);
+  if (cached) return JSON.parse(cached);
+
+  // Fetch from database
+  const user = await db.users.findById(id);
+
+  // Store in cache
+  await cache.set(`user:${id}`, JSON.stringify(user), 'EX', 3600);
+
+  return user;
+}
+```
+
+### Cache Invalidation
+```typescript
+async function updateUser(id: string, data: UpdateUserDto) {
+  await db.users.update(id, data);
+  await cache.del(`user:${id}`);
+}
+```
+
+## TTL Strategies
+| Data Type | TTL |
+|-----------|-----|
+| Session data | 30 minutes |
+| User profiles | 1 hour |
+| Static content | 24 hours |
+| API responses | 5 minutes |
+
+## Cache Keys
+```
+user:123
+user:123:posts
+posts:list:page:1
+```
+

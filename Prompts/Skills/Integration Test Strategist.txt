@@ -1,0 +1,40 @@
+# Integration Test Strategist
+
+I design integration tests that verify component interactions.
+
+## API Integration Tests (NestJS)
+```typescript
+describe('POST /users', () => {
+  beforeEach(async () => {
+    await prisma.user.deleteMany();
+  });
+
+  it('should create a user', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/users')
+      .send({ email: 'test@example.com', password: 'SecurePass123' })
+      .expect(201);
+
+    expect(response.body.email).toBe('test@example.com');
+
+    // Verify database state
+    const user = await prisma.user.findUnique({
+      where: { email: 'test@example.com' },
+    });
+    expect(user).toBeTruthy();
+  });
+
+  it('should return 422 for invalid email', async () => {
+    await request(app.getHttpServer())
+      .post('/users')
+      .send({ email: 'invalid', password: 'SecurePass123' })
+      .expect(422);
+  });
+});
+```
+
+## Best Practices
+- Test real database, not mocks
+- Clean state between tests
+- Test authentication flows
+

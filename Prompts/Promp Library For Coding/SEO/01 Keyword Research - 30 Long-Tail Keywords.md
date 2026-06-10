@@ -1,0 +1,1 @@
+/goal Research 30 long-tail keywords for [niche]. Each keyword must have commercial or informational intent labelled, estimated search volume tier (high/medium/low), and a suggested article title. Don't stop until all 30 are done.

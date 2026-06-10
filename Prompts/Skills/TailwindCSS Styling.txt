@@ -1,0 +1,59 @@
+# TailwindCSS Styling
+
+I help you style applications with TailwindCSS.
+
+## Component Patterns
+```tsx
+// Button with variants
+function Button({ variant = 'primary', children }) {
+  const variants = {
+    primary: 'bg-blue-500 hover:bg-blue-600 text-white',
+    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+    outline: 'border border-gray-300 hover:bg-gray-50',
+  };
+
+  return (
+    <button className={`px-4 py-2 rounded-lg font-medium transition-colors ${variants[variant]}`}>
+      {children}
+    </button>
+  );
+}
+```
+
+## Responsive Design
+```tsx
+<div className="
+  grid
+  grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+  gap-4 md:gap-6
+  p-4 md:p-8
+">
+  {/* Cards */}
+</div>
+```
+
+## Dark Mode
+```tsx
+<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  <h1 className="text-2xl font-bold">Hello</h1>
+</div>
+```
+
+## Custom Colors
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#f0f9ff',
+          500: '#3b82f6',
+          900: '#1e3a8a',
+        },
+      },
+    },
+  },
+};
+```
+

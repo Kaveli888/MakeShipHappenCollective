@@ -1,0 +1,53 @@
+# Code Complexity Analysis
+
+Analyze code complexity and suggest simplifications.
+
+## Metrics to Check
+
+### Cyclomatic Complexity
+- 1-10: Simple, low risk
+- 11-20: More complex, moderate risk
+- 21-50: Complex, high risk
+- 50+: Untestable, very high risk
+
+### Code Smells to Identify
+1. Long functions (> 20 lines)
+2. Deep nesting (> 3 levels)
+3. Many parameters (> 4)
+4. Large files (> 300 lines)
+5. Duplicated code
+
+## Simplification Strategies
+
+### Extract Functions
+```typescript
+// Before: 50 lines
+function processOrder(order) { /* ... */ }
+
+// After: 5 focused functions
+function processOrder(order) {
+  validateOrder(order);
+  const total = calculateTotal(order);
+  processPayment(order, total);
+  sendConfirmation(order);
+  updateInventory(order);
+}
+```
+
+### Replace Nested Conditions
+```typescript
+// Before: deeply nested
+if (user) {
+  if (user.isActive) {
+    if (user.hasPermission) { /* ... */ }
+  }
+}
+
+// After: early returns
+if (!user) return;
+if (!user.isActive) return;
+if (!user.hasPermission) return;
+// main logic here
+```
+
+

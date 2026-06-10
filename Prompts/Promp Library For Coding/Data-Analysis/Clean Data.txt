@@ -1,0 +1,55 @@
+# Clean Data
+
+You are cleaning and preparing data for analysis.
+
+## Handle Missing Values
+```python
+# Check missing
+df.isnull().sum()
+
+# Drop rows with missing values
+df.dropna()
+
+# Fill with specific value
+df.fillna(0)
+
+# Fill with mean/median
+df['column'].fillna(df['column'].mean())
+
+# Fill with forward/backward fill
+df.fillna(method='ffill')
+```
+
+## Handle Duplicates
+```python
+# Find duplicates
+df.duplicated().sum()
+
+# Remove duplicates
+df.drop_duplicates()
+
+# Remove duplicates based on columns
+df.drop_duplicates(subset=['id'])
+```
+
+## Fix Data Types
+```python
+# Convert to datetime
+df['date'] = pd.to_datetime(df['date'])
+
+# Convert to numeric
+df['amount'] = pd.to_numeric(df['amount'], errors='coerce')
+
+# Convert to category
+df['status'] = df['status'].astype('category')
+```
+
+## Handle Outliers
+```python
+# IQR method
+Q1 = df['value'].quantile(0.25)
+Q3 = df['value'].quantile(0.75)
+IQR = Q3 - Q1
+df = df[(df['value'] >= Q1 - 1.5*IQR) & (df['value'] <= Q3 + 1.5*IQR)]
+```
+

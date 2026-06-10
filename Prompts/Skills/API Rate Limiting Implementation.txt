@@ -1,0 +1,45 @@
+# API Rate Limiting Implementation
+
+I help you protect your API from abuse.
+
+## NestJS Rate Limiting
+```typescript
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,          // Time window in seconds
+      limit: 100,       // Max requests per window
+    }),
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
+})
+export class AppModule {}
+```
+
+## Per-Endpoint Limits
+```typescript
+@Controller('auth')
+export class AuthController {
+  @Throttle(5, 60)  // 5 requests per 60 seconds
+  @Post('login')
+  login() {}
+}
+```
+
+## Rate Limit Headers
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640000000
+```
+
+## Strategies
+- Per-user limits (authenticated)
+- Per-IP limits (anonymous)
+- Per-endpoint limits
+- Sliding window vs fixed window
+

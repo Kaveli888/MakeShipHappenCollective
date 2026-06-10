@@ -1,0 +1,55 @@
+# Write Integration Tests
+
+Create integration tests for API endpoints.
+
+## Test Setup
+```typescript
+describe('Users API (e2e)', () => {
+  let app: INestApplication;
+  let db: DatabaseService;
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = module.createNestApplication();
+    db = module.get(DatabaseService);
+    await app.init();
+  });
+
+  beforeEach(async () => {
+    await db.cleanDatabase();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('POST /users', () => {
+    it('should create user with valid data', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .send({ email: 'test@example.com', name: 'Test' })
+        .expect(201);
+
+      expect(response.body).toMatchObject({
+        email: 'test@example.com',
+        name: 'Test',
+      });
+
+      // Verify in database
+      const user = await db.users.findByEmail('test@example.com');
+      expect(user).toBeTruthy();
+    });
+
+    it('should return 422 for invalid email', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .send({ email: 'invalid', name: 'Test' })
+        .expect(422);
+    });
+  });
+});
+```
+

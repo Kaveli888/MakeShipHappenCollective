@@ -1,0 +1,48 @@
+# File Upload Handler
+
+I help you handle file uploads securely.
+
+## NestJS File Upload
+```typescript
+@Controller('files')
+export class FilesController {
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueName = `${uuid()}-${file.originalname}`;
+        cb(null, uniqueName);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      if (!file.mimetype.match(/^image\/(jpg|jpeg|png|gif)$/)) {
+        cb(new BadRequestException('Invalid file type'), false);
+      }
+      cb(null, true);
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  }))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return { filename: file.filename };
+  }
+}
+```
+
+## S3 Upload
+```typescript
+const command = new PutObjectCommand({
+  Bucket: 'my-bucket',
+  Key: `uploads/${filename}`,
+  Body: buffer,
+  ContentType: mimetype,
+});
+await s3Client.send(command);
+```
+
+## Security
+- Validate file types by content, not extension
+- Limit file sizes
+- Scan for malware
+- Store outside web root
+

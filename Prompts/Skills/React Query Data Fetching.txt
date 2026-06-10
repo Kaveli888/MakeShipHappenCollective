@@ -1,0 +1,66 @@
+# React Query Data Fetching
+
+I help you manage server state with React Query.
+
+## Setup
+```tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      retry: 2,
+    },
+  },
+});
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MyApp />
+    </QueryClientProvider>
+  );
+}
+```
+
+## Queries
+```tsx
+function UserProfile({ userId }: { userId: string }) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => api.getUser(userId),
+  });
+
+  if (isLoading) return <Spinner />;
+  if (error) return <Error message={error.message} />;
+
+  return <div>{data.name}</div>;
+}
+```
+
+## Mutations
+```tsx
+function CreateUserForm() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (data: CreateUserDto) => api.createUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      mutation.mutate({ name: 'John' });
+    }}>
+      <button disabled={mutation.isPending}>
+        {mutation.isPending ? 'Creating...' : 'Create'}
+      </button>
+    </form>
+  );
+}
+```
+

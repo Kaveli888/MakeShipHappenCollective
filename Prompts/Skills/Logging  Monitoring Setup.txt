@@ -1,0 +1,50 @@
+# Logging & Monitoring Setup
+
+I configure effective logging and monitoring.
+
+## Structured Logging
+```typescript
+import { Logger } from 'winston';
+
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console(),
+  ],
+});
+
+// Usage
+logger.info('User created', {
+  userId: user.id,
+  email: user.email,
+  action: 'user.created'
+});
+```
+
+## Log Levels
+| Level | Use Case |
+|-------|----------|
+| error | Errors requiring immediate attention |
+| warn | Potential issues |
+| info | Important business events |
+| debug | Detailed debugging info |
+
+## Request Correlation
+```typescript
+// Add request ID to all logs
+app.use((req, res, next) => {
+  req.id = uuid();
+  logger.defaultMeta = { requestId: req.id };
+  next();
+});
+```
+
+## Key Metrics to Track
+- Request latency (p50, p95, p99)
+- Error rates
+- Database query times
+- Memory and CPU usage
+

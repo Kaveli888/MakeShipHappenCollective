@@ -1,0 +1,1 @@
+/goal Identify the top 10 question-based keywords for [topic] that would make great FAQ targets for featured snippets. Include a suggested answer under 50 words for each. Don't stop until all 10 are done.

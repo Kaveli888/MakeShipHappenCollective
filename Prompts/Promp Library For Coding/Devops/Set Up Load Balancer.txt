@@ -1,0 +1,58 @@
+# Set Up Load Balancer
+
+You are configuring a load balancer.
+
+## AWS Application Load Balancer
+```yaml
+# CloudFormation
+LoadBalancer:
+  Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  Properties:
+    Name: my-app-alb
+    Scheme: internet-facing
+    Type: application
+    Subnets:
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
+    SecurityGroups:
+      - !Ref ALBSecurityGroup
+
+HTTPSListener:
+  Type: AWS::ElasticLoadBalancingV2::Listener
+  Properties:
+    LoadBalancerArn: !Ref LoadBalancer
+    Port: 443
+    Protocol: HTTPS
+    Certificates:
+      - CertificateArn: !Ref Certificate
+    DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref TargetGroup
+
+TargetGroup:
+  Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  Properties:
+    Name: my-app-tg
+    Port: 3000
+    Protocol: HTTP
+    VpcId: !Ref VPC
+    TargetType: ip
+    HealthCheckPath: /health
+    HealthCheckIntervalSeconds: 30
+    HealthyThresholdCount: 2
+    UnhealthyThresholdCount: 3
+    HealthCheckTimeoutSeconds: 5
+```
+
+## Health Check Endpoint
+```typescript
+@Get('health')
+healthCheck() {
+  return {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    version: process.env.APP_VERSION,
+  };
+}
+```
+

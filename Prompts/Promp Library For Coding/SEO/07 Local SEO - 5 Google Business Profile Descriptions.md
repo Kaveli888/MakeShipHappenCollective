@@ -1,0 +1,1 @@
+/goal Write optimised Google Business Profile descriptions for 5 different [business type] locations. Each must be under 750 characters, include 3 local keywords, and highlight unique selling points. Don't stop until all 5 are written.

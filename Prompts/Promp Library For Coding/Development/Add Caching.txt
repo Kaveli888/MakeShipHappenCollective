@@ -1,0 +1,55 @@
+# Add Caching
+
+You are implementing caching.
+
+## Redis Caching (NestJS)
+```typescript
+@Injectable()
+export class CacheService {
+  constructor(@Inject('REDIS') private redis: Redis) {}
+
+  async get<T>(key: string): Promise<T | null> {
+    const data = await this.redis.get(key);
+    return data ? JSON.parse(data) : null;
+  }
+
+  async set(key: string, value: unknown, ttlSeconds = 3600) {
+    await this.redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
+  }
+
+  async del(key: string) {
+    await this.redis.del(key);
+  }
+}
+
+// Usage in service
+async getUser(id: string) {
+  const cached = await this.cache.get<User>(`user:${id}`);
+  if (cached) return cached;
+
+  const user = await this.usersRepository.findById(id);
+  await this.cache.set(`user:${id}`, user, 3600);
+  return user;
+}
+```
+
+## Cache Decorator
+```typescript
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(60)
+@Get()
+findAll() {
+  return this.service.findAll();
+}
+```
+
+## Cache Invalidation
+```typescript
+async updateUser(id: string, dto: UpdateUserDto) {
+  const user = await this.usersRepository.update(id, dto);
+  await this.cache.del(`user:${id}`);
+  return user;
+}
+```
+
+

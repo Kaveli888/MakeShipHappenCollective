@@ -1,0 +1,52 @@
+# Add Input Sanitization
+
+You are implementing input sanitization.
+
+## HTML Sanitization
+```typescript
+import DOMPurify from 'isomorphic-dompurify';
+
+// Sanitize HTML content
+function sanitizeHtml(dirty: string): string {
+  return DOMPurify.sanitize(dirty, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'li'],
+    ALLOWED_ATTR: ['href', 'target'],
+  });
+}
+
+// DTO with sanitization
+export class CreatePostDto {
+  @IsString()
+  @MaxLength(255)
+  title: string;
+
+  @IsString()
+  @Transform(({ value }) => sanitizeHtml(value))
+  content: string;
+}
+```
+
+## SQL Injection Prevention
+```typescript
+// Always use parameterized queries
+// ❌ Bad - SQL injection risk
+db.query(`SELECT * FROM users WHERE id = '${userId}'`);
+
+// ✅ Good - parameterized
+db.query('SELECT * FROM users WHERE id = $1', [userId]);
+
+// ✅ Good - ORM
+db.select().from(users).where(eq(users.id, userId));
+```
+
+## XSS Prevention
+```typescript
+// In React - automatic escaping
+<div>{userInput}</div> // Safe
+
+// Never use dangerouslySetInnerHTML with untrusted input
+// If needed, sanitize first
+<div dangerouslySetInnerHTML={{ __html: sanitizeHtml(userInput) }} />
+```
+
+

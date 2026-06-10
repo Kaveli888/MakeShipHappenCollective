@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ShipMind — Settings</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        max-width: 480px;
+        margin: 32px auto;
+        padding: 0 20px;
+        color: #1f2329;
+      }
+      h1 { font-size: 18px; margin-bottom: 8px; }
+      p.help { color: #5b6370; font-size: 13px; margin-top: 0; }
+      label { display: block; font-size: 13px; font-weight: 600; margin-top: 16px; }
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        font-size: 14px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        border: 1px solid #d4d7dc;
+        border-radius: 6px;
+        margin-top: 6px;
+      }
+      .row { display: flex; gap: 8px; margin-top: 16px; }
+      button {
+        appearance: none;
+        border: 1px solid #d4d7dc;
+        background: #fff;
+        padding: 8px 14px;
+        font-size: 13px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button.primary { background: #1f2329; color: #fff; border-color: #1f2329; }
+      #status { margin-top: 12px; font-size: 13px; min-height: 18px; }
+      #status.ok { color: #18794e; }
+      #status.err { color: #b42318; }
+      #saved { color: #18794e; font-size: 13px; margin-top: 8px; min-height: 18px; }
+    </style>
+  </head>
+  <body>
+    <h1>ShipMind — Browser Extension</h1>
+    <p class="help">Find your token in ShipMind → Settings → Browser Extension.</p>
+
+    <label for="token">Ingest token</label>
+    <input id="token" type="text" autocomplete="off" spellcheck="false" placeholder="paste token here" />
+
+    <div class="row">
+      <button id="save" class="primary">Save</button>
+      <button id="test">Test connection</button>
+    </div>
+
+    <div id="saved"></div>
+    <div id="status"></div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

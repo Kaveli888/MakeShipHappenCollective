@@ -1,0 +1,45 @@
+# Add Search
+
+You are implementing search functionality.
+
+## PostgreSQL Full-Text Search
+```sql
+-- Add search column
+ALTER TABLE posts ADD COLUMN search_vector tsvector;
+
+-- Create index
+CREATE INDEX posts_search_idx ON posts USING gin(search_vector);
+
+-- Auto-update trigger
+CREATE TRIGGER posts_search_update
+  BEFORE INSERT OR UPDATE ON posts
+  FOR EACH ROW EXECUTE FUNCTION
+  tsvector_update_trigger(search_vector, 'pg_catalog.english', title, content);
+
+-- Search query
+SELECT * FROM posts
+WHERE search_vector @@ plainto_tsquery('english', $1)
+ORDER BY ts_rank(search_vector, plainto_tsquery('english', $1)) DESC;
+```
+
+## Drizzle Implementation
+```typescript
+async search(query: string, limit = 20) {
+  return db.execute(sql`
+    SELECT * FROM posts
+    WHERE search_vector @@ plainto_tsquery('english', ${query})
+    ORDER BY ts_rank(search_vector, plainto_tsquery('english', ${query})) DESC
+    LIMIT ${limit}
+  `);
+}
+```
+
+## Typeahead
+```typescript
+async autocomplete(prefix: string, limit = 10) {
+  return db.select().from(users)
+    .where(ilike(users.name, `${prefix}%`))
+    .limit(limit);
+}
+```
+

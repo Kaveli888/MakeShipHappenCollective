@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# ShipClick — a free, voice-driven computer-use agent.
+# Brain: your Claude Code subscription. STT: local whisper. Click/type: cliclick. TTS: say.
+#
+# Usage:
+#   ./shipclick "open Safari and search for otters"   # typed task
+#   ./shipclick                                         # voice: speak, press ENTER when done
+#
+# Config (env or config.sh):
+#   SHIPCLICK_MIC     mic device name   (default: "MacBook Pro Microphone")
+#   SHIPCLICK_MODEL   claude model      (default: "sonnet")
+#   SHIPCLICK_VOICE   say voice         (default: "Samantha")
+#   SHIPCLICK_WHISPER whisper model path
+set -uo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$DIR/config.sh" ] && . "$DIR/config.sh"
+
+WORK="${TMPDIR:-/tmp}/shipclick"; mkdir -p "$WORK"
+MIC_NAME="${SHIPCLICK_MIC:-MacBook Pro Microphone}"
+CLAUDE_MODEL="${SHIPCLICK_MODEL:-sonnet}"
+VOICE="${SHIPCLICK_VOICE:-Samantha}"
+WHISPER_MODEL="${SHIPCLICK_WHISPER:-$HOME/.local/share/whisper-cpp/models/ggml-large-v3-turbo.bin}"
+export PATH="$DIR/bin:$PATH"
+
+speak() { say -v "$VOICE" "$1" >/dev/null 2>&1 || say "$1" >/dev/null 2>&1 || true; }
+
+mic_index() {
+  ffmpeg -f avfoundation -list_devices true -i "" 2>&1 \
+    | grep -E "\] ${MIC_NAME}\$" \
+    | grep -oE '\[[0-9]+\]' | tail -1 | tr -d '[]'
+}
+
+transcribe() {
+  local idx; idx="$(mic_index)"
+  if [ -z "$idx" ]; then
+    echo "⚠️  Mic '$MIC_NAME' not found. Set SHIPCLICK_MIC to one of:" >&2
+    ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep -A30 "audio devices" | grep -oE '\] .*' | sed 's/^\] /   /' >&2
+    return 1
+  fi
+  echo "🎙️  Listening on [$idx] $MIC_NAME — speak, then press ENTER to stop..." >&2
+  rm -f "$WORK/rec.wav" "$WORK/rec.txt"
+  ffmpeg -y -f avfoundation -i ":$idx" -ar 16000 -ac 1 "$WORK/rec.wav" >/dev/null 2>&1 &
+  local pid=$!
+  read -r _ </dev/tty
+  kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+  whisper-cli -m "$WHISPER_MODEL" -f "$WORK/rec.wav" -nt -np -otxt -of "$WORK/rec" >/dev/null 2>&1
+  tr '\n' ' ' < "$WORK/rec.txt" | sed -E 's/^ +//; s/ +$//'
+}
+
+# --- get the task ---
+if [ "$#" -gt 0 ]; then
+  TASK="$*"
+else
+  TASK="$(transcribe)" || exit 1
+fi
+TASK="$(printf '%s' "$TASK" | sed -E 's/^ +//; s/ +$//')"
+if [ -z "$TASK" ]; then echo "❌ No task heard." >&2; speak "I didn't catch that."; exit 1; fi
+echo "📝 Task: $TASK" >&2
+speak "On it."
+
+# --- run the agent (brain = your Claude subscription) ---
+CLAUDE_ARGS=(
+  -p "$TASK"
+  --model "$CLAUDE_MODEL"
+  --append-system-prompt "$(cat "$DIR/agent-prompt.md")"
+  --add-dir "$DIR/bin"
+  --max-turns 60
+)
+
+if [ "${SHIPCLICK_UNSAFE_BYPASS:-0}" = "1" ]; then
+  echo "⚠️  SHIPCLICK_UNSAFE_BYPASS=1 enabled; Claude permissions will be bypassed." >&2
+  CLAUDE_ARGS+=(--permission-mode bypassPermissions)
+fi
+
+RESULT="$(unset CLAUDECODE CLAUDE_CODE_SSE_PORT 2>/dev/null; command claude "${CLAUDE_ARGS[@]}" 2>/dev/null)"
+
+RESULT="$(printf '%s' "$RESULT" | sed -E 's/<[^>]+>//g' | tr -s ' \n' ' ' | sed -E 's/^ +//; s/ +$//')"
+echo ""; echo "🤖 $RESULT"
+[ -n "$RESULT" ] && speak "$RESULT"

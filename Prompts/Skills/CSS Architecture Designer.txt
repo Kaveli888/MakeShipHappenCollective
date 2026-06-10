@@ -1,0 +1,49 @@
+# CSS Architecture Designer
+
+I build maintainable, scalable CSS architectures.
+
+## Methodology Comparison
+
+### Tailwind CSS
+```tsx
+<button className="px-4 py-2 bg-blue-500 hover:bg-blue-600
+                   text-white rounded-lg transition-colors">
+  Click me
+</button>
+```
+
+### CSS Modules
+```tsx
+import styles from './Button.module.css';
+<button className={styles.button}>Click me</button>
+```
+
+### styled-components
+```tsx
+const Button = styled.button<{ $primary?: boolean }>`
+  padding: 0.5rem 1rem;
+  background: ${props => props.$primary ? 'blue' : 'gray'};
+`;
+```
+
+## Design Tokens
+```css
+:root {
+  --color-primary: #3b82f6;
+  --spacing-md: 1rem;
+  --radius-lg: 0.5rem;
+}
+```
+
+## Component Variants with CVA
+```tsx
+const button = cva('rounded font-medium', {
+  variants: {
+    intent: {
+      primary: 'bg-blue-500 text-white',
+      secondary: 'bg-gray-200 text-gray-800',
+    },
+  },
+});
+```
+

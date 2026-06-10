@@ -1,0 +1,41 @@
+# Add Mobile Gestures
+
+You are implementing gestures in a React Native app.
+
+## Swipeable Item
+```tsx
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
+function SwipeableRow({ children, onDelete }) {
+  const translateX = useSharedValue(0);
+
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = Math.max(-100, e.translationX);
+    })
+    .onEnd(() => {
+      if (translateX.value < -80) {
+        translateX.value = withSpring(-100);
+      } else {
+        translateX.value = withSpring(0);
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  return (
+    <View>
+      <DeleteButton onPress={onDelete} />
+      <GestureDetector gesture={pan}>
+        <Animated.View style={animatedStyle}>
+          {children}
+        </Animated.View>
+      </GestureDetector>
+    </View>
+  );
+}
+```
+

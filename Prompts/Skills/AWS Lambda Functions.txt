@@ -1,0 +1,51 @@
+# AWS Lambda Functions
+
+I help you build serverless functions with AWS Lambda.
+
+## Lambda Handler
+```typescript
+import { APIGatewayProxyHandler } from 'aws-lambda';
+
+export const handler: APIGatewayProxyHandler = async (event) => {
+  try {
+    const body = JSON.parse(event.body || '{}');
+
+    // Process request
+    const result = await processData(body);
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(result),
+    };
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal server error' }),
+    };
+  }
+};
+```
+
+## Environment Variables
+```yaml
+# serverless.yml
+functions:
+  myFunction:
+    handler: handler.handler
+    environment:
+      DATABASE_URL: ${env:DATABASE_URL}
+      API_KEY: ${ssm:/my-app/api-key}
+```
+
+## Best Practices
+- Keep functions focused (single responsibility)
+- Minimize cold starts (keep dependencies small)
+- Use environment variables for config
+- Log with structured JSON
+- Set appropriate timeouts and memory
+

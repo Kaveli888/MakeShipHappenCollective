@@ -1,0 +1,51 @@
+# Implement Soft Delete
+
+You are implementing soft delete functionality.
+
+## Drizzle Schema
+```typescript
+export const posts = pgTable('posts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  content: text('content'),
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+```
+
+## Service Implementation
+```typescript
+@Injectable()
+export class PostsService {
+  // Find only non-deleted
+  async findAll() {
+    return db.select().from(posts).where(isNull(posts.deletedAt));
+  }
+
+  // Soft delete
+  async remove(id: string) {
+    await db.update(posts)
+      .set({ deletedAt: new Date() })
+      .where(eq(posts.id, id));
+  }
+
+  // Restore
+  async restore(id: string) {
+    await db.update(posts)
+      .set({ deletedAt: null })
+      .where(eq(posts.id, id));
+  }
+
+  // Permanently delete
+  async forceDelete(id: string) {
+    await db.delete(posts).where(eq(posts.id, id));
+  }
+
+  // Include deleted (for admin)
+  async findAllWithDeleted() {
+    return db.select().from(posts);
+  }
+}
+```
+

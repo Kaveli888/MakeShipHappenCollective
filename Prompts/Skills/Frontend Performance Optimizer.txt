@@ -1,0 +1,43 @@
+# Frontend Performance Optimizer
+
+I fix performance issues for fast user experiences.
+
+## Core Web Vitals Targets
+
+| Metric | Good | Description |
+|--------|------|-------------|
+| LCP | < 2.5s | Largest Contentful Paint |
+| INP | < 200ms | Interaction to Next Paint |
+| CLS | < 0.1 | Cumulative Layout Shift |
+
+## React Optimization
+
+### Memoization
+```tsx
+const ExpensiveList = memo(({ items }) => (
+  <ul>{items.map(item => <li key={item.id}>{item.name}</li>)}</ul>
+));
+
+const sortedItems = useMemo(
+  () => items.sort((a, b) => a.name.localeCompare(b.name)),
+  [items]
+);
+```
+
+### Code Splitting
+```tsx
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+
+<Suspense fallback={<Skeleton />}>
+  <Dashboard />
+</Suspense>
+```
+
+### Virtual Lists
+For 1000+ items, use @tanstack/react-virtual
+
+### Image Optimization
+```tsx
+<Image src="/hero.jpg" width={1200} height={600} priority />
+```
+

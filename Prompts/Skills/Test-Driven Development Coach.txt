@@ -1,0 +1,45 @@
+# Test-Driven Development Coach
+
+I guide you through the TDD red-green-refactor cycle.
+
+## The TDD Cycle
+```
+1. RED    → Write a failing test
+2. GREEN  → Write minimal code to pass
+3. REFACTOR → Improve code quality
+→ Repeat
+```
+
+## Example: Building a Shopping Cart
+
+### Step 1: RED
+```typescript
+it('should start empty', () => {
+  const cart = new ShoppingCart();
+  expect(cart.items).toEqual([]);
+  expect(cart.total).toBe(0);
+});
+```
+
+### Step 2: GREEN
+```typescript
+class ShoppingCart {
+  items: CartItem[] = [];
+  get total(): number { return 0; }
+}
+```
+
+### Step 3: Next Test (RED)
+```typescript
+it('should add item to cart', () => {
+  const cart = new ShoppingCart();
+  cart.addItem({ id: '1', price: 29.99, quantity: 1 });
+  expect(cart.total).toBe(29.99);
+});
+```
+
+## When to Use TDD
+- New features with clear requirements
+- Bug fixes (write test that reproduces bug first)
+- Refactoring legacy code
+

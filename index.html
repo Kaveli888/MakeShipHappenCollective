@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<title>Game</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  :root {
+    --bg: #0b1020;
+    --fg: #e8ecf1;
+    --accent: #4cc9f0;
+    --accent-2: #f72585;
+    --panel: rgba(11, 16, 32, 0.78);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #game-canvas {
+    display: block;
+    background: #11172b;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    image-rendering: pixelated;
+    touch-action: none;
+  }
+
+  /* HUD: score + best, always visible while playing */
+  #hud {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 24px;
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  #hud.visible { opacity: 1; }
+  .hud-stat {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 16px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .hud-stat .label {
+    opacity: 0.6;
+    margin-right: 8px;
+    font-size: 11px;
+  }
+  .hud-stat .value {
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  /* Overlays: start screen + game over */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    background: rgba(11, 16, 32, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .overlay.visible { display: flex; }
+  .overlay-card {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 32px 40px;
+    text-align: center;
+    min-width: 280px;
+    max-width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .overlay-card h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    letter-spacing: 0.02em;
+  }
+  .overlay-card p {
+    margin: 0 0 24px;
+    opacity: 0.75;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .overlay-card .stats {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 0 0 24px;
+  }
+  .overlay-card .stats .hud-stat { background: rgba(255, 255, 255, 0.04); }
+
+  button.btn {
+    background: var(--accent);
+    color: #001018;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: transform 100ms ease, box-shadow 200ms ease, background 200ms ease;
+    text-transform: uppercase;
+  }
+  button.btn:hover { background: #6fd6f5; box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4); }
+  button.btn:active { transform: scale(0.97); }
+  button.btn.secondary {
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-left: 8px;
+  }
+  button.btn.secondary:hover { background: rgba(255, 255, 255, 0.06); box-shadow: none; }
+
+  .hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    opacity: 0.45;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Sound toggle */
+  #sound-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--fg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    z-index: 30;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  #sound-toggle:hover { background: rgba(255, 255, 255, 0.06); }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- t2: decorative starfield behind canvas -->
+  <div id="stars-layer" aria-hidden="true"></div>
+
+  <canvas id="game-canvas" width="480" height="720"></canvas>
+
+  <!-- t2: hit flash overlay (t1 toggles .hit on collision) -->
+  <div id="flash" class="flash" aria-hidden="true"></div>
+
+  <!-- t2/t8: container for floating "+1" score popups -->
+  <div id="score-fx" aria-hidden="true"></div>
+
+  <div id="hud" aria-live="polite">
+    <div class="hud-stat"><span class="label">Score</span><span class="value" id="score-value">0</span></div>
+    <div class="hud-stat"><span class="label">Best</span><span class="value" id="best-value">0</span></div>
+  </div>
+
+  <button id="sound-toggle" aria-label="Toggle sound" title="Toggle sound">&#9834;</button>
+
+  <div id="start-overlay" class="overlay visible" role="dialog" aria-label="Start screen">
+    <div class="overlay-card">
+      <h1>Ready?</h1>
+      <p>Tap, click, or press <strong>Space</strong> to play.</p>
+      <button id="start-btn" class="btn">Start</button>
+    </div>
+  </div>
+
+  <div id="gameover-overlay" class="overlay" role="dialog" aria-label="Game over">
+    <div class="overlay-card">
+      <h1>Game Over</h1>
+      <div class="stats">
+        <div class="hud-stat"><span class="label">Score</span><span class="value" id="final-score">0</span></div>
+        <div class="hud-stat"><span class="label">Best</span><span class="value" id="final-best">0</span></div>
+      </div>
+      <button id="restart-btn" class="btn">Play Again</button>
+      <button id="menu-btn" class="btn secondary">Menu</button>
+    </div>
+  </div>
+
+  <div class="hint" id="play-hint">Space / Click / Tap</div>
+</div>
+
+<script src="sounds.js"></script>
+<script src="score.js"></script>
+<script src="obstacles.js"></script>
+<script src="player.js"></script>
+<script src="ui.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

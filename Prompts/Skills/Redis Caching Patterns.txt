@@ -1,0 +1,66 @@
+# Redis Caching Patterns
+
+I help you implement caching with Redis.
+
+## Redis Client
+```typescript
+import Redis from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL);
+
+// Basic operations
+await redis.set('key', 'value');
+await redis.get('key');
+await redis.del('key');
+
+// With expiration
+await redis.setex('key', 3600, 'value'); // 1 hour TTL
+```
+
+## Cache-Aside Pattern
+```typescript
+async function getUser(id: string): Promise<User> {
+  const cacheKey = `user:${id}`;
+
+  // Check cache
+  const cached = await redis.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
+  // Fetch from database
+  const user = await db.user.findUnique({ where: { id } });
+
+  // Store in cache
+  if (user) {
+    await redis.setex(cacheKey, 3600, JSON.stringify(user));
+  }
+
+  return user;
+}
+```
+
+## Cache Invalidation
+```typescript
+async function updateUser(id: string, data: UpdateUserDto) {
+  const user = await db.user.update({ where: { id }, data });
+
+  // Invalidate cache
+  await redis.del(`user:${id}`);
+
+  return user;
+}
+```
+
+## Rate Limiting
+```typescript
+async function checkRateLimit(userId: string, limit: number) {
+  const key = `ratelimit:${userId}`;
+  const count = await redis.incr(key);
+
+  if (count === 1) {
+    await redis.expire(key, 60); // 1 minute window
+  }
+
+  return count <= limit;
+}
+```
+

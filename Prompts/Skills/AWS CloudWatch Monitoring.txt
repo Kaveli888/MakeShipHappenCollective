@@ -1,0 +1,60 @@
+# AWS CloudWatch Monitoring
+
+I help you monitor applications with CloudWatch.
+
+## Custom Metrics
+```typescript
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
+
+const cloudwatch = new CloudWatchClient({ region: process.env.AWS_REGION });
+
+async function publishMetric(name: string, value: number, unit: string) {
+  await cloudwatch.send(new PutMetricDataCommand({
+    Namespace: 'MyApp',
+    MetricData: [{
+      MetricName: name,
+      Value: value,
+      Unit: unit,
+      Dimensions: [
+        { Name: 'Environment', Value: process.env.NODE_ENV },
+      ],
+    }],
+  }));
+}
+
+// Usage
+await publishMetric('OrdersProcessed', 1, 'Count');
+await publishMetric('ProcessingTime', 234, 'Milliseconds');
+```
+
+## Structured Logging
+```typescript
+// CloudWatch-friendly JSON logs
+function log(level: string, message: string, data: object = {}) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...data,
+  }));
+}
+
+log('INFO', 'Order processed', { orderId: '123', amount: 99.99 });
+```
+
+## CloudWatch Alarms
+```yaml
+# CloudFormation
+ErrorAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: HighErrorRate
+    MetricName: Errors
+    Namespace: AWS/Lambda
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 10
+    ComparisonOperator: GreaterThanThreshold
+```
+

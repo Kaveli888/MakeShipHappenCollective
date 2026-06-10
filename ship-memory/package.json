@@ -1,0 +1,15 @@
+{
+  "name": "ship-memory",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ship Memory — a standalone, portable markdown-vault memory engine. Embeds in ShipSpace, plugs into any app, connects to third-party sources.",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @ship-memory/core && npm run build --workspace @ship-memory/mcp && npm run build --workspace @ship-memory/connector-obsidian",
+    "dev": "npm run dev --workspace @ship-memory/core",
+    "mcp": "node packages/mcp/dist/index.js"
+  }
+}

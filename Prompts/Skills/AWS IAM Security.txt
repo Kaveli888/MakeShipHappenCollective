@@ -1,0 +1,57 @@
+# AWS IAM Security
+
+I help you implement secure IAM policies.
+
+## Least Privilege Policy
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::my-bucket/uploads/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/MyTable"
+    }
+  ]
+}
+```
+
+## Role-Based Access
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+## Security Best Practices
+- Never use root credentials
+- Enable MFA for all users
+- Use roles instead of access keys
+- Apply least privilege principle
+- Rotate credentials regularly
+- Use AWS Organizations for multi-account
+- Enable CloudTrail for auditing
+Created 2/3/2026
+
+

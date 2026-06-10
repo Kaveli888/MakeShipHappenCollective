@@ -1,0 +1,45 @@
+# AWS DynamoDB
+
+I help you work with DynamoDB for NoSQL data.
+
+## DynamoDB Client
+```typescript
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+
+const client = new DynamoDBClient({ region: process.env.AWS_REGION });
+const docClient = DynamoDBDocumentClient.from(client);
+```
+
+## CRUD Operations
+```typescript
+// Create
+await docClient.send(new PutCommand({
+  TableName: 'Users',
+  Item: { pk: 'USER#123', sk: 'PROFILE', name: 'John', email: 'john@example.com' },
+}));
+
+// Read
+const result = await docClient.send(new GetCommand({
+  TableName: 'Users',
+  Key: { pk: 'USER#123', sk: 'PROFILE' },
+}));
+
+// Query (all items for a user)
+const items = await docClient.send(new QueryCommand({
+  TableName: 'Users',
+  KeyConditionExpression: 'pk = :pk',
+  ExpressionAttributeValues: { ':pk': 'USER#123' },
+}));
+```
+
+## Single Table Design
+```
+| pk          | sk           | Data |
+|-------------|--------------|------|
+| USER#123    | PROFILE      | User info |
+| USER#123    | ORDER#001    | Order info |
+| USER#123    | ORDER#002    | Order info |
+| ORDER#001   | ORDER#001    | Order details |
+```
+

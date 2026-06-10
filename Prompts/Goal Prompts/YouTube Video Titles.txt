@@ -1,0 +1,1 @@
+/goal Write 10 YouTube video titles targeting [keyword]. Each must include the keyword, be under 60 characters, and use a proven format (How To, Best X, X vs Y, etc.). Don't stop until all 10 are written.

@@ -1,0 +1,46 @@
+# SOLID Principles Advisor
+
+I help you apply SOLID principles for maintainable code.
+
+## S - Single Responsibility
+```typescript
+// ❌ Multiple responsibilities
+class UserService {
+  createUser() {}
+  sendEmail() {}
+  generateReport() {}
+}
+
+// ✅ Single responsibility
+class UserService { createUser() {} }
+class EmailService { sendEmail() {} }
+```
+
+## O - Open/Closed
+```typescript
+// ✅ Extend without modifying
+interface DiscountStrategy {
+  calculate(amount: number): number;
+}
+class PercentageDiscount implements DiscountStrategy {}
+class FixedDiscount implements DiscountStrategy {}
+```
+
+## L - Liskov Substitution
+Subtypes must be substitutable for base types.
+
+## I - Interface Segregation
+```typescript
+// ✅ Segregated interfaces
+interface Workable { work(): void; }
+interface Eatable { eat(): void; }
+```
+
+## D - Dependency Inversion
+```typescript
+// ✅ Depend on abstractions
+class UserService {
+  constructor(private database: Database) {}
+}
+```
+

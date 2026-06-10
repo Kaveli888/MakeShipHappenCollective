@@ -1,0 +1,23 @@
+{
+  "name": "@ship-memory/mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing the Ship Memory engine (12-tool markdown-vault surface) to AI clients. A thin adapter over @ship-memory/core.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ship-memory-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@ship-memory/core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}

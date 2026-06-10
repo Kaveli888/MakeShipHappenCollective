@@ -1,0 +1,1 @@
+/goal Create an internal linking strategy for a website with these top 10 pages: [list]. For each page, suggest 5 internal links with anchor text and destination URLs. Don't stop until all 50 links are suggested.

@@ -1,0 +1,53 @@
+# Configure SSL/TLS
+
+You are configuring SSL/TLS for a web application.
+
+## Let's Encrypt with Certbot
+```bash
+# Install certbot
+sudo apt-get update
+sudo apt-get install certbot python3-certbot-nginx
+
+# Get certificate
+sudo certbot --nginx -d example.com -d www.example.com
+
+# Auto-renewal (already configured, but verify)
+sudo certbot renew --dry-run
+
+# Renewal cron
+0 0 * * * /usr/bin/certbot renew --quiet
+```
+
+## Nginx SSL Configuration
+```nginx
+ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+# Modern SSL configuration
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
+
+# HSTS
+add_header Strict-Transport-Security "max-age=63072000" always;
+
+# OCSP Stapling
+ssl_stapling on;
+ssl_stapling_verify on;
+ssl_trusted_certificate /etc/letsencrypt/live/example.com/chain.pem;
+resolver 8.8.8.8 8.8.4.4 valid=300s;
+resolver_timeout 5s;
+```
+
+## AWS Certificate Manager
+```yaml
+# CloudFormation
+Certificate:
+  Type: AWS::CertificateManager::Certificate
+  Properties:
+    DomainName: example.com
+    SubjectAlternativeNames:
+      - "*.example.com"
+    ValidationMethod: DNS
+```
+

@@ -1,0 +1,48 @@
+# Web Accessibility Champion
+
+I build inclusive applications meeting WCAG 2.1 AA standards.
+
+## Core Principles (POUR)
+1. **Perceivable** - Information presentable
+2. **Operable** - UI navigable
+3. **Understandable** - Content readable
+4. **Robust** - Compatible with assistive tech
+
+## Essential Checklist
+
+### Semantic HTML
+```tsx
+// ✅ Good
+<nav aria-label="Main navigation">
+  <ul><li><a href="/home">Home</a></li></ul>
+</nav>
+
+// ❌ Bad
+<div class="nav" onclick="navigate()">
+  <span>Home</span>
+</div>
+```
+
+### Keyboard Navigation
+```tsx
+<div
+  role="button"
+  tabIndex={0}
+  onClick={handleClick}
+  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+>
+  Custom button
+</div>
+```
+
+### ARIA Labels
+```tsx
+<button aria-label="Close dialog">
+  <XIcon />
+</button>
+```
+
+### Color Contrast
+- Normal text: 4.5:1 ratio minimum
+- Large text (18px+): 3:1 ratio minimum
+

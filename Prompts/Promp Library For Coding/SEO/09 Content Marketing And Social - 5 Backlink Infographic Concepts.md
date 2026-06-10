@@ -1,0 +1,1 @@
+/goal Create 5 infographic concepts for [topic] that could earn backlinks. Each concept must include a title, 5 data points to visualise, and a suggested source for the data. Don't stop until all 5 are planned.

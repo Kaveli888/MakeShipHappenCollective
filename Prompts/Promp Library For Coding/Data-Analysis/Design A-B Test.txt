@@ -1,0 +1,50 @@
+# Design A/B Test
+
+You are designing an A/B test experiment.
+
+## Experiment Design
+1. **Hypothesis**: Clearly state what you expect to happen
+2. **Metric**: Define primary and secondary metrics
+3. **Sample Size**: Calculate required sample size
+4. **Duration**: Determine test duration
+5. **Randomization**: Define how users are assigned
+
+## Sample Size Calculation
+```python
+from statsmodels.stats.power import TTestIndPower
+
+# Parameters
+effect_size = 0.1  # Minimum detectable effect (10% improvement)
+alpha = 0.05       # Significance level
+power = 0.8        # Statistical power
+
+analysis = TTestIndPower()
+sample_size = analysis.solve_power(
+    effect_size=effect_size,
+    alpha=alpha,
+    power=power,
+    alternative='two-sided'
+)
+print(f"Required sample size per group: {int(sample_size)}")
+```
+
+## Analysis
+```python
+from scipy import stats
+
+# Compare conversion rates
+control_conversions = 500
+control_total = 10000
+treatment_conversions = 550
+treatment_total = 10000
+
+# Chi-square test
+contingency = [[control_conversions, control_total - control_conversions],
+               [treatment_conversions, treatment_total - treatment_conversions]]
+chi2, p_value, dof, expected = stats.chi2_contingency(contingency)
+
+print(f"Control rate: {control_conversions/control_total:.2%}")
+print(f"Treatment rate: {treatment_conversions/treatment_total:.2%}")
+print(f"P-value: {p_value:.4f}")
+```
+

@@ -1,0 +1,42 @@
+# Database Schema Review
+
+Review database schema for best practices.
+
+## Naming Conventions
+- [ ] Table names: snake_case, plural
+- [ ] Column names: snake_case
+- [ ] Foreign keys: referenced_table_id
+- [ ] Indexes: idx_table_column
+
+## Data Integrity
+- [ ] Primary keys on all tables
+- [ ] Foreign key constraints
+- [ ] NOT NULL where required
+- [ ] Unique constraints where needed
+
+## Performance
+- [ ] Indexes on foreign keys
+- [ ] Indexes on frequently queried columns
+- [ ] Composite indexes for common queries
+- [ ] No over-indexing
+
+## Common Issues
+```sql
+-- Missing index
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+
+-- Missing NOT NULL
+ALTER TABLE users ALTER COLUMN email SET NOT NULL;
+
+-- Missing foreign key
+ALTER TABLE orders
+  ADD CONSTRAINT fk_orders_user
+  FOREIGN KEY (user_id) REFERENCES users(id);
+```
+
+## Normalization
+- 1NF: No repeating groups
+- 2NF: No partial dependencies
+- 3NF: No transitive dependencies
+- Denormalize for performance when justified
+

@@ -1,0 +1,57 @@
+# Python Data Analysis
+
+I help you analyze data with Python and pandas.
+
+## Loading Data
+```python
+import pandas as pd
+import numpy as np
+
+# Read from various sources
+df = pd.read_csv('data.csv')
+df = pd.read_json('data.json')
+df = pd.read_sql(query, connection)
+
+# Quick overview
+df.head()
+df.info()
+df.describe()
+```
+
+## Data Cleaning
+```python
+# Handle missing values
+df.dropna()
+df.fillna(0)
+df.fillna(df.mean())
+
+# Remove duplicates
+df.drop_duplicates()
+
+# Convert types
+df['date'] = pd.to_datetime(df['date'])
+df['amount'] = df['amount'].astype(float)
+```
+
+## Aggregation & Grouping
+```python
+# Group by
+df.groupby('category')['amount'].sum()
+df.groupby(['year', 'month']).agg({
+    'revenue': 'sum',
+    'orders': 'count',
+    'avg_order': 'mean'
+})
+
+# Pivot tables
+pd.pivot_table(df, values='sales', index='region', columns='product')
+```
+
+## Filtering
+```python
+# Boolean indexing
+df[df['amount'] > 100]
+df[(df['status'] == 'active') & (df['amount'] > 50)]
+df.query('amount > 100 and status == "active"')
+```
+

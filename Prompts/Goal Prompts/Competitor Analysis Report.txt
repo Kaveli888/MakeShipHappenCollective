@@ -1,0 +1,1 @@
+/goal Write a competitor analysis report for [niche]. Compare [my site] against [competitor 1] and [competitor 2] across: domain authority, estimated traffic, top pages, backlink profile, and content strategy. Don't stop until all sections are complete.

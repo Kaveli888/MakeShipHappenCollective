@@ -1,0 +1,45 @@
+# Build Dashboard Query
+
+You are writing SQL queries for a dashboard.
+
+## Metrics Query
+```sql
+WITH daily_metrics AS (
+  SELECT
+    DATE(created_at) as date,
+    COUNT(*) as total_orders,
+    COUNT(DISTINCT user_id) as unique_customers,
+    SUM(amount) as revenue,
+    AVG(amount) as avg_order_value
+  FROM orders
+  WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+  GROUP BY DATE(created_at)
+)
+SELECT
+  date,
+  total_orders,
+  unique_customers,
+  revenue,
+  avg_order_value,
+  SUM(revenue) OVER (ORDER BY date) as cumulative_revenue,
+  total_orders - LAG(total_orders) OVER (ORDER BY date) as orders_change
+FROM daily_metrics
+ORDER BY date;
+```
+
+## Comparison Query
+```sql
+SELECT
+  DATE_TRUNC('month', created_at) as month,
+  SUM(amount) as revenue,
+  LAG(SUM(amount)) OVER (ORDER BY DATE_TRUNC('month', created_at)) as prev_month,
+  ROUND(
+    (SUM(amount) - LAG(SUM(amount)) OVER (ORDER BY DATE_TRUNC('month', created_at))) /
+    LAG(SUM(amount)) OVER (ORDER BY DATE_TRUNC('month', created_at)) * 100,
+    2
+  ) as growth_pct
+FROM orders
+GROUP BY DATE_TRUNC('month', created_at)
+ORDER BY month;
+```
+

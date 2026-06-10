@@ -1,0 +1,48 @@
+# Build Search Feature
+
+You are implementing search functionality.
+
+## PostgreSQL Full-Text Search
+```sql
+-- Add search column
+ALTER TABLE posts ADD COLUMN search_vector tsvector;
+
+-- Create GIN index
+CREATE INDEX posts_search_idx ON posts USING gin(search_vector);
+
+-- Auto-update trigger
+CREATE OR REPLACE FUNCTION posts_search_trigger()
+RETURNS trigger AS $$
+BEGIN
+  NEW.search_vector :=
+    setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.content, '')), 'B');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER posts_search_update
+  BEFORE INSERT OR UPDATE ON posts
+  FOR EACH ROW EXECUTE FUNCTION posts_search_trigger();
+```
+
+## Search Service
+```typescript
+async search(query: string, limit = 20) {
+  return db.execute(sql`
+    SELECT
+      id,
+      title,
+      content,
+      ts_rank(search_vector, plainto_tsquery('english', ${query})) as rank,
+      ts_headline('english', content, plainto_tsquery('english', ${query}),
+        'StartSel=<mark>, StopSel=</mark>, MaxWords=50, MinWords=25'
+      ) as snippet
+    FROM posts
+    WHERE search_vector @@ plainto_tsquery('english', ${query})
+    ORDER BY rank DESC
+    LIMIT ${limit}
+  `);
+}
+```
+

@@ -1,0 +1,46 @@
+# Architect Solution
+
+Design the architecture for a new feature or system.
+
+## Requirements Analysis
+1. What problem are we solving?
+2. Who are the users?
+3. What are the constraints?
+4. What are the non-functional requirements?
+
+## System Components
+Define the key components:
+- Frontend (React, Next.js)
+- Backend API (NestJS)
+- Database (PostgreSQL)
+- Cache (Redis)
+- Queue (BullMQ)
+- External services
+
+## Data Flow
+```
+User → Frontend → API → Service → Repository → Database
+                    ↓
+                  Cache
+                    ↓
+                  Queue → Worker → External Service
+```
+
+## API Design
+- Define resources and endpoints
+- Plan authentication/authorization
+- Consider rate limiting
+
+## Database Schema
+- Define entities and relationships
+- Plan for scaling
+- Consider indexes
+
+## Trade-offs
+Document decisions and alternatives:
+- Why this approach?
+- What are the limitations?
+- What could be improved later?
+
+Provide a clear, implementable architecture plan.
+

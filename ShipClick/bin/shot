@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# shot — capture the main screen and downscale to LOGICAL POINT resolution so that
+# pixel coordinates in the image == the coordinates cliclick expects (Retina-safe).
+set -euo pipefail
+WORK="${TMPDIR:-/tmp}/shipclick"; mkdir -p "$WORK"
+OUT="$WORK/screen.png"
+
+screencapture -x -D 1 "$OUT"
+
+# Logical screen size in points (Finder desktop bounds => {0, 0, W, H})
+bounds=$(osascript -e 'tell application "Finder" to get bounds of window of desktop' 2>/dev/null || true)
+W=$(printf '%s' "$bounds" | awk -F', *' '{print $3}')
+H=$(printf '%s' "$bounds" | awk -F', *' '{print $4}')
+if [ -n "${W:-}" ] && [ -n "${H:-}" ]; then
+  # sips -z height width
+  sips -z "$H" "$W" "$OUT" >/dev/null 2>&1 || true
+fi
+echo "$OUT"

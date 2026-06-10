@@ -1,0 +1,55 @@
+# AWS CDK Infrastructure
+
+I help you define infrastructure as code with CDK.
+
+## CDK Stack
+```typescript
+import * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
+
+export class MyAppStack extends cdk.Stack {
+  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    // VPC
+    const vpc = new ec2.Vpc(this, 'VPC', {
+      maxAzs: 2,
+      natGateways: 1,
+    });
+
+    // ECS Cluster
+    const cluster = new ecs.Cluster(this, 'Cluster', { vpc });
+
+    // Fargate Service with ALB
+    new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'Service', {
+      cluster,
+      taskImageOptions: {
+        image: ecs.ContainerImage.fromRegistry('my-app:latest'),
+        containerPort: 3000,
+        environment: {
+          NODE_ENV: 'production',
+        },
+      },
+      desiredCount: 2,
+      publicLoadBalancer: true,
+    });
+  }
+}
+```
+
+## Deploy
+```bash
+npx cdk synth    # Generate CloudFormation
+npx cdk diff     # Preview changes
+npx cdk deploy   # Deploy stack
+npx cdk destroy  # Tear down
+```
+
+## Best Practices
+- Use constructs for reusable patterns
+- Separate stacks by lifecycle
+- Use cdk.context.json for environment config
+- Enable cdk-nag for security checks
+

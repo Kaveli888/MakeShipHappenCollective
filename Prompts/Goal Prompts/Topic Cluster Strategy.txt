@@ -1,0 +1,1 @@
+/goal Map out a topic cluster strategy for [niche]. Include 1 pillar page and 8 cluster pages for each of 3 main topics. Total: 3 pillar pages and 24 cluster pages. Don't stop until all are mapped with keywords.

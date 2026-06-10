@@ -1,0 +1,1 @@
+/goal Write a complete content brief for an article targeting [keyword]. Include H1, 5 H2s, primary keyword, 5 secondary keywords, 500-word outline, FAQ ideas, and internal link suggestions. Don't stop until all sections are filled.

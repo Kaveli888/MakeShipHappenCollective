@@ -1,0 +1,25 @@
+{
+  "name": "shipmind-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing the ShipMind second-brain SQLite database to AI agents.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "shipmind-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "better-sqlite3": "^11.3.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}

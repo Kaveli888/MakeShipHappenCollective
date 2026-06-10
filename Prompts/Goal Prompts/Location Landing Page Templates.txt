@@ -1,0 +1,1 @@
+/goal Create 10 location-specific landing page templates for [business type] targeting [list of cities]. Each must have a unique H1, intro paragraph, and local keyword. Don't stop until all 10 are complete.

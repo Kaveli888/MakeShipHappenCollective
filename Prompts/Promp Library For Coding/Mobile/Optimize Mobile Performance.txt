@@ -1,0 +1,46 @@
+# Optimize Mobile Performance
+
+You are optimizing React Native app performance.
+
+## Prevent Unnecessary Re-renders
+```tsx
+// Memoize components
+const MemoizedItem = React.memo(function Item({ data }) {
+  return <View>{/* ... */}</View>;
+});
+
+// Memoize callbacks
+const handlePress = useCallback(() => {
+  doSomething(id);
+}, [id]);
+
+// Memoize expensive computations
+const sortedData = useMemo(() => {
+  return data.sort((a, b) => a.name.localeCompare(b.name));
+}, [data]);
+```
+
+## Optimize Images
+```tsx
+import { Image } from 'expo-image';
+
+<Image
+  source={{ uri: imageUrl }}
+  style={styles.image}
+  contentFit="cover"
+  transition={200}
+  cachePolicy="memory-disk"
+/>
+```
+
+## Optimize Lists
+- Use FlatList, not ScrollView for long lists
+- Implement getItemLayout for fixed heights
+- Set proper windowSize and maxToRenderPerBatch
+- Use keyExtractor
+
+## Reduce Bundle Size
+- Use Hermes engine
+- Enable ProGuard for Android
+- Analyze bundle with react-native-bundle-visualizer
+

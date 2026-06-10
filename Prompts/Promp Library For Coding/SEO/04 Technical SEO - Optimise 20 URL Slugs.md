@@ -1,0 +1,1 @@
+/goal Review this list of 20 URLs and suggest an optimised URL slug for each. Each slug must be under 60 characters, include the target keyword, and use hyphens. Don't stop until all 20 are rewritten.

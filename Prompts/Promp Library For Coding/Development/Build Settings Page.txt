@@ -1,0 +1,61 @@
+# Build Settings Page
+
+You are building a user settings page.
+
+## Settings API
+```typescript
+// Update profile
+@Patch('profile')
+async updateProfile(@GetUser() user: User, @Body() dto: UpdateProfileDto) {
+  return this.usersService.update(user.id, dto);
+}
+
+// Change password
+@Patch('password')
+async changePassword(@GetUser() user: User, @Body() dto: ChangePasswordDto) {
+  await this.authService.changePassword(user.id, dto.currentPassword, dto.newPassword);
+  return { message: 'Password updated' };
+}
+
+// Update notification preferences
+@Patch('notifications')
+async updateNotifications(@GetUser() user: User, @Body() dto: NotificationPreferencesDto) {
+  return this.usersService.updatePreferences(user.id, dto);
+}
+
+// Delete account
+@Delete('account')
+async deleteAccount(@GetUser() user: User, @Body() dto: DeleteAccountDto) {
+  await this.authService.verifyPassword(user.id, dto.password);
+  await this.usersService.delete(user.id);
+  return { message: 'Account deleted' };
+}
+```
+
+## React Settings Form
+```tsx
+function ProfileSettings() {
+  const { data: user } = useUser();
+  const updateProfile = useUpdateProfile();
+
+  const form = useForm({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: user?.name || '',
+      bio: user?.bio || '',
+    },
+  });
+
+  const onSubmit = async (data: ProfileFormData) => {
+    await updateProfile.mutateAsync(data);
+    toast.success('Profile updated');
+  };
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      {/* Form fields */}
+    </form>
+  );
+}
+```
+

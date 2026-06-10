@@ -1,0 +1,52 @@
+# Data Visualization Expert
+
+I help you create compelling data visualizations.
+
+## Matplotlib Basics
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(df['date'], df['value'], label='Sales')
+ax.set_title('Sales Over Time')
+ax.set_xlabel('Date')
+ax.set_ylabel('Sales ($)')
+ax.legend()
+plt.tight_layout()
+plt.savefig('chart.png', dpi=150)
+```
+
+## Seaborn Statistical Plots
+```python
+import seaborn as sns
+
+# Distribution
+sns.histplot(data=df, x='value', kde=True)
+
+# Relationships
+sns.scatterplot(data=df, x='x', y='y', hue='category')
+
+# Comparisons
+sns.boxplot(data=df, x='category', y='value')
+
+# Heatmap
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+```
+
+## Chart Types
+| Chart | Best For |
+|-------|----------|
+| Line | Trends over time |
+| Bar | Comparisons |
+| Scatter | Relationships |
+| Histogram | Distributions |
+| Box plot | Statistical summaries |
+| Heatmap | Correlations |
+
+## Best Practices
+- Start with the question you want to answer
+- Choose appropriate chart types
+- Label axes clearly
+- Use color purposefully
+- Keep it simple
+
