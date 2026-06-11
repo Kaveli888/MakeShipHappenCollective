@@ -1,0 +1,4 @@
+node_modules/
+out/*
+!out/shipspace-promo-v3-scored.mp4
+!out/score.wav
