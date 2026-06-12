@@ -28,7 +28,10 @@ export interface Memory {
 }
 
 /** Lightweight memory record without the body — for listings. */
-export type MemoryMeta = Omit<Memory, "body">;
+export interface MemoryMeta extends Omit<Memory, "body"> {
+  /** First ~120 chars of prose after the H1 — list previews (iOS-Notes style). */
+  snippet: string;
+}
 
 /** A resolved hub (vault). */
 export interface Hub {

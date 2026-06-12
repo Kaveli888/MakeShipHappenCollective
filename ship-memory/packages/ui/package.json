@@ -1,0 +1,22 @@
+{
+  "name": "@ship-memory/ui",
+  "version": "0.1.0",
+  "description": "Embeddable Ship Memory notepad components (Obsidian × iOS Notes). Shipped as source — the host bundler (Vite in ShipMemory.app, later ShipSpace) transforms it; no build step here.",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "^6.10.0",
+    "@codemirror/language-data": "^6.5.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.36.0",
+    "@ship-memory/core": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  }
+}

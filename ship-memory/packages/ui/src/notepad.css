@@ -1,0 +1,248 @@
+/* ShipMemory notepad — iOS Notes feel: light chrome, gold accent, zero ceremony.
+   Light/dark follow the system. Hosts can override the variables. */
+
+:root {
+  --smui-accent: #d99e1b;
+  --smui-selection: rgba(217, 158, 27, 0.25);
+  --smui-bg: #ffffff;
+  --smui-sidebar-bg: #f4f3f1;
+  --smui-ink: #1c1c1e;
+  --smui-ink-2: #6e6e73;
+  --smui-row-selected: #e9e2cf;
+  --smui-border: rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --smui-bg: #1e1e1e;
+    --smui-sidebar-bg: #262626;
+    --smui-ink: #f2f2f2;
+    --smui-ink-2: #98989e;
+    --smui-row-selected: #4a4434;
+    --smui-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--smui-ink);
+  background: var(--smui-bg);
+  overflow: hidden;
+  user-select: none;
+}
+
+.smui-root {
+  display: flex;
+  height: 100vh;
+}
+
+/* Traffic lights sit over this strip (titleBarStyle Overlay). */
+.smui-titlebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 38px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 14px;
+}
+
+.smui-savestate {
+  font-size: 11px;
+  color: var(--smui-ink-2);
+  pointer-events: none;
+}
+
+.smui-sidebar {
+  width: 300px;
+  min-width: 230px;
+  display: flex;
+  flex-direction: column;
+  background: var(--smui-sidebar-bg);
+  border-right: 1px solid var(--smui-border);
+  padding-top: 44px;
+}
+
+.smui-sidebar-header {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+
+.smui-search {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--smui-ink);
+  outline: none;
+}
+
+.smui-search::placeholder {
+  color: var(--smui-ink-2);
+}
+
+.smui-new-btn {
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+.smui-new-btn:hover {
+  background: rgba(127, 127, 127, 0.16);
+}
+
+.smui-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 16px;
+}
+
+.smui-list-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--smui-ink-2);
+  font-size: 13px;
+}
+
+.smui-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--smui-ink-2);
+  margin: 14px 8px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.smui-row {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: default;
+}
+
+.smui-row:hover {
+  background: rgba(127, 127, 127, 0.1);
+}
+
+.smui-row.is-selected {
+  background: var(--smui-row-selected);
+}
+
+.smui-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.smui-row-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-row-sub {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--smui-ink-2);
+  margin-top: 2px;
+}
+
+.smui-row-snippet {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-row-actions {
+  display: none;
+  gap: 2px;
+}
+
+.smui-row:hover .smui-row-actions {
+  display: flex;
+}
+
+.smui-icon-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 2px 4px;
+  opacity: 0.7;
+}
+
+.smui-icon-btn:hover {
+  opacity: 1;
+  background: rgba(127, 127, 127, 0.18);
+}
+
+.smui-icon-btn.is-on {
+  opacity: 1;
+}
+
+.smui-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 44px 0 0;
+}
+
+.smui-note-date {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--smui-ink-2);
+  padding: 2px 0 0;
+}
+
+.smui-cm {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 28px;
+  box-sizing: border-box;
+  user-select: text;
+}
+
+.smui-cm .cm-editor {
+  height: 100%;
+}
+
+.smui-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--smui-ink-2);
+}
+
+.smui-empty-hint {
+  font-size: 12px;
+}

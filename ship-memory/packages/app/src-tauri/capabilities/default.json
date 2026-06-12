@@ -1,0 +1,30 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Main window: full read/write inside ~/ShipMemory only.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "fs:allow-exists",
+    "fs:allow-stat",
+    "fs:allow-lstat",
+    "fs:allow-mkdir",
+    "fs:allow-read-dir",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-remove",
+    "fs:allow-watch",
+    "fs:allow-unwatch",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME/ShipMemory" },
+        { "path": "$HOME/ShipMemory/**" },
+        { "path": "$HOME/ShipMemory/.shipmemory" },
+        { "path": "$HOME/ShipMemory/.shipmemory/**" }
+      ],
+      "requireLiteralLeadingDot": false
+    }
+  ]
+}
