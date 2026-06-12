@@ -32,9 +32,11 @@ being a standalone product.
 
 | Package | What it is | Status |
 |---|---|---|
-| `@ship-memory/core` | Headless engine — vault store, frontmatter, `[[links]]`, backlinks, search, connector seam. Zero deps. | ✅ scaffolded |
-| `@ship-memory/mcp` | Thin MCP server exposing the 12-tool surface to AI clients. | ✅ scaffolded |
+| `@ship-memory/core` | Headless engine — vault store, frontmatter, `[[links]]`, backlinks, search, connector seam. Zero deps. I/O flows through an injectable async `VaultFs` (node impl at `@ship-memory/core/node`). | ✅ built |
+| `@ship-memory/mcp` | Thin MCP server exposing the 12-tool surface to AI clients. | ✅ built |
 | `@ship-memory/connector-obsidian` | Imports an Obsidian vault — notes, frontmatter, tags, normalized `[[links]]` — idempotently. | ✅ built |
+| `@ship-memory/ui` | Embeddable notepad components (`<Notepad engine={…}/>`) — Obsidian × iOS Notes. Source-form; the host bundler compiles it. | ✅ MVP |
+| `@ship-memory/app` | **ShipMemory.app** — Tauri shell around `@ship-memory/ui` over the `~/ShipMemory` hub. `npm run app` to dev (port 1440). | ✅ MVP |
 | REST adapter | HTTP door for non-AI apps. Same core. | ⬜ next, build when a consumer needs it |
 | more connectors | Notion, Drive, Gmail → notes via the same seam. | ⬜ seam defined |
 
