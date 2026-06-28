@@ -92,8 +92,20 @@ async function publishOne(cfg: RunnerConfig, targetId: string): Promise<OneResul
     return { platform: "?", outcome: "failure", errorCode: "no_context", errorMessage: "target not found" };
   }
   const platform = ctx.target.platform;
-  if (!ctx.media) {
-    return { platform, outcome: "failure", errorCode: "no_media", errorMessage: "post has no media attached" };
+  const caption = ctx.target.captionOverride ?? ctx.post.masterCaption ?? "";
+  // Text-only posts are allowed on platforms whose API accepts them; everything
+  // else needs media. The router enforces per-platform too, but reject early here
+  // so a contentless job fails with a clear reason instead of hitting an API.
+  const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin"]);
+  if (!ctx.media && !(TEXT_CAPABLE.has(platform) && caption.trim())) {
+    return {
+      platform,
+      outcome: "failure",
+      errorCode: "no_content",
+      errorMessage: caption.trim()
+        ? `${platform} requires a video — attach one or pick a text-capable network.`
+        : "post has no media or text to publish",
+    };
   }
   if (!ctx.account || !ctx.account.tokensEnc || ctx.account.status !== "connected") {
     return {
@@ -128,19 +140,27 @@ async function publishOne(cfg: RunnerConfig, targetId: string): Promise<OneResul
   }
   const accessToken = bundle.access_token;
 
-  const title = ctx.target.titleOverride ?? ctx.media.title ?? "Untitled";
-  const caption = ctx.target.captionOverride ?? ctx.post.masterCaption ?? "";
+  const title = ctx.target.titleOverride ?? ctx.media?.title ?? "Untitled";
+  // LinkedIn author URN is built from the stored person id (OIDC sub).
+  const authorUrn =
+    platform === "linkedin" && ctx.account.externalAccountId
+      ? `urn:li:person:${ctx.account.externalAccountId}`
+      : undefined;
 
   const res = await publish(
     {
       platform,
-      media: { bytes: ctx.media.bytes, mimeType: ctx.media.mimeType },
+      media: ctx.media ? { bytes: ctx.media.bytes, mimeType: ctx.media.mimeType } : undefined,
       title,
       caption,
       hashtags: ctx.target.hashtags,
       privacy: ctx.target.privacy ?? "private",
       categoryId: ctx.target.categoryId,
       accessToken,
+      pageId: ctx.target.pageId,
+      igUserId: ctx.target.igUserId,
+      mediaUrl: ctx.target.mediaUrl,
+      authorUrn,
     },
     cfg.fetchImpl,
   );

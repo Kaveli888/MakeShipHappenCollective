@@ -92,12 +92,13 @@ export class SupabaseStore implements JobStore {
 
     const { data: acct } = await this.db
       .from("platform_accounts")
-      .select("id, tokens_enc, scopes, status")
+      .select("id, tokens_enc, scopes, status, external_account_id")
       .eq("workspace_id", post.workspace_id)
       .eq("platform", t.platform)
       .eq("status", "connected")
       .maybeSingle();
 
+    const opts = t.options ?? {};
     return {
       target: {
         id: t.id,
@@ -107,12 +108,21 @@ export class SupabaseStore implements JobStore {
         titleOverride: t.title_override,
         hashtags: t.hashtags ?? [],
         privacy: t.privacy,
-        categoryId: (t.options ?? {}).categoryId,
+        categoryId: opts.categoryId,
+        pageId: opts.pageId,
+        igUserId: opts.igUserId,
+        mediaUrl: opts.mediaUrl,
       },
       post: { id: post.id, masterCaption: post.master_caption },
       media,
       account: acct
-        ? { id: acct.id, tokensEnc: acct.tokens_enc, scopes: acct.scopes ?? [], status: acct.status }
+        ? {
+            id: acct.id,
+            tokensEnc: acct.tokens_enc,
+            scopes: acct.scopes ?? [],
+            status: acct.status,
+            externalAccountId: acct.external_account_id,
+          }
         : null,
     };
   }

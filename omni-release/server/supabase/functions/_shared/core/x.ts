@@ -144,6 +144,15 @@ export async function publishVideo(
   return createPost(accessToken, text, [mediaId], fetchImpl);
 }
 
+/** Text-only post (no media). */
+export async function publishText(
+  accessToken: string,
+  text: string,
+  fetchImpl: FetchImpl,
+): Promise<XPostResult> {
+  return createPost(accessToken, text, [], fetchImpl);
+}
+
 function readProcessing(json: unknown): { state?: string; check_after_secs?: number } | null {
   const j = json as StatusResponse;
   return j.data?.processing_info ?? j.processing_info ?? null;

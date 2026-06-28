@@ -190,8 +190,8 @@ export async function uploadMediaToStorage(workspaceId: string, mediaId: string)
 
 export interface CloudScheduleInput {
   workspaceId: string;
-  /** Local media id (read for bytes + metadata, uploaded to Storage). */
-  mediaId: string;
+  /** Local media id (uploaded to Storage). Omit for text-only posts. */
+  mediaId?: string;
   platform: string;
   title: string;
   caption: string;
@@ -210,20 +210,24 @@ export async function scheduleToCloud(input: CloudScheduleInput): Promise<string
   const client = sb();
   if (!client) throw new Error("cloud not configured");
 
-  const up = await resumableUpload(input.workspaceId, input.mediaId);
-
-  const media = await insertReturningId(client, "media_assets", {
-    workspace_id: input.workspaceId,
-    storage_key: up.storageKey,
-    filename: up.filename,
-    mime_type: up.mimeType,
-    byte_size: up.byteSize,
-    status: "ready",
-  });
+  // Text-only posts (X / Facebook / LinkedIn) carry no media; skip the upload
+  // and create a post with no media_asset_id.
+  let mediaAssetId: string | null = null;
+  if (input.mediaId) {
+    const up = await resumableUpload(input.workspaceId, input.mediaId);
+    mediaAssetId = await insertReturningId(client, "media_assets", {
+      workspace_id: input.workspaceId,
+      storage_key: up.storageKey,
+      filename: up.filename,
+      mime_type: up.mimeType,
+      byte_size: up.byteSize,
+      status: "ready",
+    });
+  }
 
   const post = await insertReturningId(client, "posts", {
     workspace_id: input.workspaceId,
-    media_asset_id: media,
+    media_asset_id: mediaAssetId,
     master_caption: input.caption,
   });
 

@@ -24,7 +24,7 @@ export async function syncConnector(
   ctx: ConnectorContext = {},
 ): Promise<SyncReport> {
   const notes = await connector.pull(ctx);
-  const { created, updated } = mem.ingestMany(
+  const { created, updated } = await mem.ingestMany(
     connector.id,
     notes.map((n) => ({
       title: n.title,

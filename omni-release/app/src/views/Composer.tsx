@@ -381,9 +381,11 @@ export default function Composer({
       );
       return;
     }
-    // The primary attached video. YouTube publishes video uploads — not text-only
-    // posts — so a video is required for a real publish.
+    // The primary attached video, if any. Media-required networks (YouTube,
+    // Instagram, TikTok) need it; text-capable ones (X, Facebook, LinkedIn) post
+    // text alone.
     const primaryMediaId = bundle?.post.media_asset_id ?? selected[0] ?? null;
+    const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin"]);
 
     setBusy(true);
     setNotice(null);
@@ -398,16 +400,21 @@ export default function Composer({
 
       for (const t of targets) {
         if (!cloud.connected.has(t.platform)) {
-          blocked.push(`${t.platform}: not connected — connect it in Platforms (only YouTube is live right now)`);
+          blocked.push(`${t.platform}: not connected — connect it in Platforms first`);
           continue;
         }
-        if (!primaryMediaId) {
-          blocked.push(`${t.platform}: attach a video first (YouTube publishes video uploads, not text-only posts)`);
+        const textOnly = TEXT_CAPABLE.has(t.platform);
+        if (!primaryMediaId && !textOnly) {
+          blocked.push(`${t.platform}: attach a video first (this network can't post text-only)`);
+          continue;
+        }
+        if (!primaryMediaId && !(t.caption_override?.trim() || master.caption.trim())) {
+          blocked.push(`${t.platform}: write some text or attach a video first`);
           continue;
         }
         await scheduleToCloud({
           workspaceId: cloud.workspaceId,
-          mediaId: primaryMediaId,
+          mediaId: primaryMediaId ?? undefined,
           platform: t.platform,
           title: t.title_override?.trim() || fallbackTitle,
           caption: t.caption_override?.trim() || master.caption,

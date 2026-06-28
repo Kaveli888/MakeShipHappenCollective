@@ -92,6 +92,24 @@ export async function uploadFacebookVideo(
   return { externalId: videoId, url: `https://www.facebook.com/${videoId}` };
 }
 
+/**
+ * Text-only Page post (status update) → POST /{page_id}/feed with `message`.
+ * `pageToken` must be the Page access token with pages_manage_posts.
+ */
+export async function publishFacebookText(
+  pageId: string,
+  pageToken: string,
+  message: string,
+  fetchImpl: FetchImpl,
+): Promise<MetaPublishResult> {
+  const form = new URLSearchParams({ message, access_token: pageToken });
+  const res = await fetchImpl(`${GRAPH}/${encodeURIComponent(pageId)}/feed`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`facebook text post failed: ${res.status} ${await safeText(res)}`);
+  const id = ((await res.json()) as { id?: string }).id;
+  if (!id) throw new Error("facebook text post: response missing id");
+  return { externalId: id, url: `https://www.facebook.com/${id}` };
+}
+
 /* ------------------------------- Instagram -------------------------------- */
 
 /**
