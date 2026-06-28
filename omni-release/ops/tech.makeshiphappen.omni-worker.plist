@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>tech.makeshiphappen.omni-worker</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/jake/.nvm/versions/node/v20.20.0/bin/node</string>
+        <string>--env-file=.env</string>
+        <string>--import</string>
+        <string>tsx</string>
+        <string>src/worker/index.ts</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/jake/Documents/Ship Ecosystem/MakeShipHappenCollective/omni-release/server</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    <key>StandardOutPath</key>
+    <string>/Users/jake/Documents/Ship Ecosystem/MakeShipHappenCollective/omni-release/logs/worker.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/jake/Documents/Ship Ecosystem/MakeShipHappenCollective/omni-release/logs/worker.err.log</string>
+</dict>
+</plist>
