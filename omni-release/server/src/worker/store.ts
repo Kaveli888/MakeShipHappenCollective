@@ -23,11 +23,24 @@ export interface TargetCtx {
     hashtags: string[];
     privacy: "public" | "unlisted" | "private" | null;
     categoryId?: string;
+    /** Facebook: target Page id (from target.options). */
+    pageId?: string;
+    /** Instagram: IG business account id (from target.options). */
+    igUserId?: string;
+    /** Instagram: public media URL the Graph API can pull (from target.options). */
+    mediaUrl?: string;
   };
   post: { id: string; masterCaption: string | null };
   media: (MediaBytes & { title?: string | null }) | null;
   /** Encrypted token bundle + scopes for the connected account, if any. */
-  account: { id: string; tokensEnc: string | null; scopes: string[]; status: string } | null;
+  account: {
+    id: string;
+    tokensEnc: string | null;
+    scopes: string[];
+    status: string;
+    /** Platform-side id (LinkedIn person id, etc.) for building author URNs. */
+    externalAccountId?: string | null;
+  } | null;
 }
 
 export interface FinishAttemptInput {

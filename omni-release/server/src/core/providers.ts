@@ -11,6 +11,7 @@ export type PlatformId =
   | "instagram"
   | "facebook"
   | "x"
+  | "linkedin"
   | "twitch";
 
 export interface OAuthProvider {
@@ -103,6 +104,18 @@ export const PROVIDERS: Record<PlatformId, OAuthProvider> = {
     clientIdEnv: "X_CLIENT_ID",
     clientSecretEnv: "X_CLIENT_SECRET",
     profile: { url: "https://api.twitter.com/2/users/me?user.fields=profile_image_url,name,username" },
+  },
+  linkedin: {
+    id: "linkedin",
+    label: "LinkedIn",
+    authorizeUrl: "https://www.linkedin.com/oauth/v2/authorization",
+    tokenUrl: "https://www.linkedin.com/oauth/v2/accessToken",
+    scopes: ["openid", "profile", "email", "w_member_social"],
+    usesPkce: false,
+    verified: false,
+    clientIdEnv: "LINKEDIN_CLIENT_ID",
+    clientSecretEnv: "LINKEDIN_CLIENT_SECRET",
+    profile: { url: "https://api.linkedin.com/v2/userinfo" },
   },
   twitch: {
     id: "twitch",

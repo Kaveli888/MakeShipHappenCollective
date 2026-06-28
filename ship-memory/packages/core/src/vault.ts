@@ -1,62 +1,62 @@
 /**
  * Vault store — the only module that touches the filesystem.
  *
- * A "hub" is a `.shipmemory/` directory of `.md` notes. Keeping all disk I/O
- * here means the engine stays pure logic and an alternate backend (S3, a DB, a
- * remote API) can implement the same small surface later without rewriting the
- * engine.
+ * A "hub" is a `.shipmemory/` directory of `.md` notes. All disk I/O funnels
+ * through the injected {@link VaultFs}, so the same engine runs on node (MCP,
+ * CLIs), inside a Tauri webview (ShipMemory.app), or over any future backend
+ * (S3, REST) — without the engine knowing which.
+ *
+ * Paths are absolute `/`-separated strings; see `./path.js`.
  */
 
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import type { VaultFs } from "./fs.js";
+import { dirnamePath, joinPath, normalizePath } from "./path.js";
 import { parseFrontmatter, serializeFrontmatter } from "./frontmatter.js";
 import { extractLinks } from "./links.js";
 import { slugify } from "./slug.js";
 import { HUB_DIRNAME, type Memory } from "./types.js";
 
-export function findHub(startDir: string): string | null {
-  let dir = resolve(startDir);
+export async function findHub(
+  fs: VaultFs,
+  startDir: string,
+): Promise<string | null> {
+  let dir = normalizePath(startDir);
   // Already inside a hub.
-  if (dir.endsWith(HUB_DIRNAME) && existsSync(dir)) return dir;
+  if (dir.endsWith(HUB_DIRNAME) && (await fs.exists(dir))) return dir;
   while (true) {
-    const candidate = join(dir, HUB_DIRNAME);
-    if (existsSync(candidate) && statSync(candidate).isDirectory()) {
+    const candidate = joinPath(dir, HUB_DIRNAME);
+    if (
+      (await fs.exists(candidate)) &&
+      (await fs.stat(candidate)).isDirectory
+    ) {
       return candidate;
     }
-    const parent = dirname(dir);
+    const parent = dirnamePath(dir);
     if (parent === dir) return null;
     dir = parent;
   }
 }
 
-export function initHub(dir: string): string {
-  const root =
-    resolve(dir).endsWith(HUB_DIRNAME)
-      ? resolve(dir)
-      : join(resolve(dir), HUB_DIRNAME);
-  mkdirSync(root, { recursive: true });
+export async function initHub(fs: VaultFs, dir: string): Promise<string> {
+  const normalized = normalizePath(dir);
+  const root = normalized.endsWith(HUB_DIRNAME)
+    ? normalized
+    : joinPath(normalized, HUB_DIRNAME);
+  await fs.mkdir(root);
   return root;
 }
 
-function noteFiles(hubRoot: string): string[] {
-  if (!existsSync(hubRoot)) return [];
-  return readdirSync(hubRoot)
+async function noteFiles(fs: VaultFs, hubRoot: string): Promise<string[]> {
+  if (!(await fs.exists(hubRoot))) return [];
+  return (await fs.readdir(hubRoot))
     .filter((f) => f.endsWith(".md"))
-    .map((f) => join(hubRoot, f));
+    .map((f) => joinPath(hubRoot, f));
 }
 
-export function loadMemory(path: string): Memory {
-  const raw = readFileSync(path, "utf8");
+export async function loadMemory(fs: VaultFs, path: string): Promise<Memory> {
+  const raw = await fs.readFile(path);
   const { frontmatter, body } = parseFrontmatter(raw);
-  const stat = statSync(path);
+  const stat = await fs.stat(path);
   const slug = basenameSlug(path);
   const title = titleOf(body, frontmatter, slug);
   return {
@@ -71,35 +71,41 @@ export function loadMemory(path: string): Memory {
   };
 }
 
-export function loadAll(hubRoot: string): Memory[] {
-  return noteFiles(hubRoot).map(loadMemory);
+export async function loadAll(fs: VaultFs, hubRoot: string): Promise<Memory[]> {
+  const files = await noteFiles(fs, hubRoot);
+  return Promise.all(files.map((f) => loadMemory(fs, f)));
 }
 
 export function pathForSlug(hubRoot: string, slug: string): string {
-  return join(hubRoot, `${slug}.md`);
+  return joinPath(hubRoot, `${slug}.md`);
 }
 
-export function writeMemory(
+export async function writeMemory(
+  fs: VaultFs,
   hubRoot: string,
   slug: string,
   frontmatter: Record<string, unknown>,
   body: string,
-): string {
+): Promise<string> {
   const path = pathForSlug(hubRoot, slug);
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, serializeFrontmatter(frontmatter, body), "utf8");
+  await fs.mkdir(dirnamePath(path));
+  await fs.writeFile(path, serializeFrontmatter(frontmatter, body));
   return path;
 }
 
-export function removeMemory(path: string): void {
-  if (existsSync(path)) unlinkSync(path);
+export async function removeMemory(fs: VaultFs, path: string): Promise<void> {
+  await fs.remove(path);
 }
 
-export function uniqueSlug(hubRoot: string, title: string): string {
+export async function uniqueSlug(
+  fs: VaultFs,
+  hubRoot: string,
+  title: string,
+): Promise<string> {
   const base = slugify(title);
   let slug = base;
   let n = 2;
-  while (existsSync(pathForSlug(hubRoot, slug))) {
+  while (await fs.exists(pathForSlug(hubRoot, slug))) {
     slug = `${base}-${n++}`;
   }
   return slug;

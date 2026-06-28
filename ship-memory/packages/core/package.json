@@ -7,7 +7,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./node": {
+      "types": "./dist/node-fs.d.ts",
+      "default": "./dist/node-fs.js"
+    }
   },
   "files": [
     "dist"

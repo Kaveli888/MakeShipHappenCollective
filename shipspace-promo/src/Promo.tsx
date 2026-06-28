@@ -12,153 +12,56 @@ import {
 } from 'remotion';
 
 export const PROMO_FPS = 30;
-export const PROMO_DURATION = 450; // 15s
+export const PROMO_DURATION = 1800; // 60s
 
-// ─── Brand tokens (from makeshiphappen.tech) ─────────────────────────────────
-const PURPLE = '#A78BFA';
-const PINK = '#F472B6';
-const ORANGE = '#FB923C';
-const GREEN = '#34D399';
-const BG = '#000000';
+const BG = '#0A0A0A';
+const GRAPHITE = '#101314';
+const PANEL = '#152020';
+const GREEN = '#22C55E';
+const TEAL = '#14B8A6';
+const WHITE = '#F8FAFC';
+const MUTED = 'rgba(248,250,252,0.62)';
 const FONT =
-	"-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif";
-const MONO = "'SF Mono', Menlo, Monaco, 'Courier New', monospace";
-const GRADIENT = `linear-gradient(100deg, ${PURPLE} 0%, ${PINK} 50%, ${ORANGE} 100%)`;
+	"-apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif";
+const MONO = "'SF Mono', Menlo, Monaco, Consolas, monospace";
+const ease = Easing.bezier(0.16, 1, 0.3, 1);
 
-const easeOut = Easing.bezier(0.16, 1, 0.3, 1);
-
-// ─── Cinematic layers ────────────────────────────────────────────────────────
-const FilmGrain: React.FC = () => {
-	const frame = useCurrentFrame();
-	const ox = (frame * 97) % 512;
-	const oy = (frame * 61) % 512;
-	return (
-		<AbsoluteFill
-			style={{
-				pointerEvents: 'none',
-				opacity: 0.045,
-				mixBlendMode: 'overlay',
-				backgroundImage: `url(${staticFile('noise.png')})`,
-				backgroundRepeat: 'repeat',
-				backgroundPosition: `${ox}px ${oy}px`,
-			}}
-		/>
-	);
-};
-
-const Vignette: React.FC = () => (
-	<AbsoluteFill
-		style={{
-			pointerEvents: 'none',
-			background:
-				'radial-gradient(ellipse 130% 115% at 50% 48%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.85) 100%)',
-		}}
-	/>
-);
-
-// Anamorphic horizontal lens flare — flashes at cuts / reveals
-const Flare: React.FC<{at: number; color?: string; peak?: number}> = ({
-	at,
-	color = '#cfd6ff',
-	peak = 0.9,
-}) => {
-	const frame = useCurrentFrame();
-	const o = interpolate(frame, [at - 4, at, at + 14], [0, peak, 0], {
+const fade = (frame: number, start: number, end: number) =>
+	interpolate(frame, [start, end], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
+		easing: ease,
 	});
-	const w = interpolate(frame, [at - 4, at + 14], [40, 130], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	if (o <= 0.01) return null;
+
+const Background: React.FC = () => {
+	const frame = useCurrentFrame();
 	return (
-		<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', pointerEvents: 'none'}}>
+		<AbsoluteFill style={{background: BG, overflow: 'hidden'}}>
 			<div
 				style={{
-					width: `${w}%`,
-					height: 3,
-					background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-					opacity: o,
-					filter: 'blur(2px)',
-					boxShadow: `0 0 60px 8px ${color}`,
+					position: 'absolute',
+					inset: -220,
+					background:
+						'radial-gradient(circle at 48% 38%, rgba(20,184,166,0.16), transparent 32%), radial-gradient(circle at 70% 64%, rgba(34,197,94,0.12), transparent 34%), linear-gradient(135deg, #0A0A0A 0%, #101314 58%, #07100f 100%)',
+					transform: `translateY(${Math.sin(frame / 120) * 18}px) scale(1.04)`,
 				}}
 			/>
 			<div
 				style={{
 					position: 'absolute',
-					width: 320,
-					height: 320,
-					borderRadius: '50%',
-					background: `radial-gradient(circle, ${color}55 0%, transparent 65%)`,
-					opacity: o,
+					inset: 0,
+					backgroundImage:
+						'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px)',
+					backgroundSize: '78px 78px',
+					opacity: 0.18,
+					transform: `perspective(900px) rotateX(62deg) translateY(${frame * 0.32}px)`,
+					transformOrigin: '50% 70%',
 				}}
 			/>
-		</AbsoluteFill>
-	);
-};
-
-// White flash cut (2-3 frames) — commercial transition
-const FlashCut: React.FC<{at: number}> = ({at}) => {
-	const frame = useCurrentFrame();
-	const o = interpolate(frame, [at - 2, at, at + 5], [0, 0.55, 0], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	if (o <= 0.01) return null;
-	return <AbsoluteFill style={{background: 'white', opacity: o, pointerEvents: 'none'}} />;
-};
-
-// Specular sweep across a card surface
-const Sweep: React.FC<{delay: number; duration?: number; intensity?: number}> = ({
-	delay,
-	duration = 36,
-	intensity = 0.14,
-}) => {
-	const frame = useCurrentFrame();
-	const x = interpolate(frame, [delay, delay + duration], [-60, 160], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				inset: 0,
-				overflow: 'hidden',
-				borderRadius: 'inherit',
-				pointerEvents: 'none',
-			}}
-		>
-			<div
-				style={{
-					position: 'absolute',
-					top: '-30%',
-					bottom: '-30%',
-					left: `${x}%`,
-					width: '34%',
-					transform: 'rotate(14deg)',
-					background: `linear-gradient(90deg, transparent, rgba(255,255,255,${intensity}), transparent)`,
-				}}
-			/>
-		</div>
-	);
-};
-
-// Drifting bokeh dust particles
-const Particles: React.FC<{count?: number}> = ({count = 16}) => {
-	const frame = useCurrentFrame();
-	const {width, height} = useVideoConfig();
-	return (
-		<AbsoluteFill style={{pointerEvents: 'none'}}>
-			{Array.from({length: count}, (_, i) => {
-				const seedX = Math.abs(Math.sin(i * 999.7)) * width;
-				const seedY = Math.abs(Math.sin(i * 432.1)) * height;
-				const size = 2 + Math.abs(Math.sin(i * 77.7)) * 5;
-				const speed = 0.15 + Math.abs(Math.sin(i * 13.3)) * 0.35;
-				const y = ((seedY - frame * speed) % (height + 80)) + (seedY - frame * speed < -80 ? height + 80 : 0);
-				const x = seedX + Math.sin(frame / 50 + i) * 24;
-				const tw = 0.25 + Math.abs(Math.sin(frame / 22 + i * 2)) * 0.5;
+			{Array.from({length: 34}, (_, i) => {
+				const x = (Math.sin(i * 92.71) * 0.5 + 0.5) * 1920;
+				const y = ((Math.cos(i * 41.37) * 0.5 + 0.5) * 1080 + frame * (0.12 + i * 0.003)) % 1120;
+				const s = 1.2 + (i % 5) * 0.7;
 				return (
 					<div
 						key={i}
@@ -166,1051 +69,722 @@ const Particles: React.FC<{count?: number}> = ({count = 16}) => {
 							position: 'absolute',
 							left: x,
 							top: y,
-							width: size,
-							height: size,
+							width: s,
+							height: s,
 							borderRadius: '50%',
-							background: 'white',
-							opacity: tw * 0.4,
-							filter: `blur(${size > 4 ? 2.5 : 1}px)`,
+							background: i % 3 === 0 ? TEAL : WHITE,
+							opacity: 0.12 + Math.sin(frame / 30 + i) * 0.05,
+							filter: 'blur(0.6px)',
 						}}
 					/>
+				);
+			})}
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					background:
+						'radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,0.82) 100%)',
+				}}
+			/>
+		</AbsoluteFill>
+	);
+};
+
+const Noise: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill
+			style={{
+				opacity: 0.045,
+				mixBlendMode: 'overlay',
+				backgroundImage: `url(${staticFile('noise.png')})`,
+				backgroundRepeat: 'repeat',
+				backgroundPosition: `${(frame * 47) % 512}px ${(frame * 31) % 512}px`,
+			}}
+		/>
+	);
+};
+
+const Lens: React.FC<{at: number; color?: string}> = ({at, color = TEAL}) => {
+	const frame = useCurrentFrame();
+	const o = interpolate(frame, [at - 8, at, at + 24], [0, 0.75, 0], {
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	if (o < 0.01) return null;
+	return (
+		<AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', opacity: o}}>
+			<div
+				style={{
+					width: '118%',
+					height: 3,
+					background: `linear-gradient(90deg, transparent, ${color}, ${WHITE}, ${color}, transparent)`,
+					filter: 'blur(2px)',
+					boxShadow: `0 0 70px ${color}`,
+				}}
+			/>
+		</AbsoluteFill>
+	);
+};
+
+const Kicker: React.FC<{children: React.ReactNode; delay?: number}> = ({children, delay = 0}) => {
+	const frame = useCurrentFrame();
+	const o = fade(frame, delay, delay + 18);
+	return (
+		<div
+			style={{
+				fontFamily: FONT,
+				fontSize: 20,
+				fontWeight: 700,
+				letterSpacing: '0.28em',
+				textTransform: 'uppercase',
+				color: TEAL,
+				opacity: o,
+				transform: `translateY(${(1 - o) * 18}px)`,
+			}}
+		>
+			{children}
+		</div>
+	);
+};
+
+const BigText: React.FC<{children: React.ReactNode; delay?: number; size?: number}> = ({
+	children,
+	delay = 0,
+	size = 112,
+}) => {
+	const frame = useCurrentFrame();
+	const v = spring({frame: frame - delay, fps: 30, config: {damping: 18, mass: 0.7}});
+	return (
+		<div
+			style={{
+				fontFamily: FONT,
+				fontSize: size,
+				fontWeight: 820,
+				letterSpacing: 0,
+				lineHeight: 0.96,
+				color: WHITE,
+				opacity: interpolate(v, [0, 0.28], [0, 1], {extrapolateRight: 'clamp'}),
+				transform: `translateY(${interpolate(v, [0, 1], [54, 0])}px)`,
+				textShadow: `0 0 70px rgba(20,184,166,0.24)`,
+			}}
+		>
+			{children}
+		</div>
+	);
+};
+
+const Panel: React.FC<{
+	children: React.ReactNode;
+	w?: number;
+	h?: number;
+	accent?: string;
+	style?: React.CSSProperties;
+	delay?: number;
+}> = ({children, w = 460, h = 280, accent = TEAL, style, delay = 0}) => {
+	const frame = useCurrentFrame();
+	const v = spring({frame: frame - delay, fps: 30, config: {damping: 18, mass: 0.75}});
+	return (
+		<div
+			style={{
+				position: 'relative',
+				width: w,
+				height: h,
+				borderRadius: 8,
+				background:
+					'linear-gradient(180deg, rgba(21,32,32,0.82) 0%, rgba(10,14,14,0.92) 100%)',
+				border: '1px solid rgba(255,255,255,0.12)',
+				boxShadow: `0 44px 120px rgba(0,0,0,0.62), 0 0 110px ${accent}22, inset 0 1px 0 rgba(255,255,255,0.11)`,
+				backdropFilter: 'blur(22px)',
+				overflow: 'hidden',
+				opacity: interpolate(v, [0, 0.35], [0, 1], {extrapolateRight: 'clamp'}),
+				transform: `translateY(${interpolate(v, [0, 1], [72, 0])}px) scale(${interpolate(v, [0, 1], [0.94, 1])})`,
+				...style,
+			}}
+		>
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					background: `linear-gradient(116deg, rgba(255,255,255,0.08), transparent 34%, ${accent}0d 100%)`,
+				}}
+			/>
+			{children}
+		</div>
+	);
+};
+
+const HeaderDots: React.FC<{title: string; accent?: string}> = ({title, accent = TEAL}) => (
+	<div
+		style={{
+			height: 52,
+			display: 'flex',
+			alignItems: 'center',
+			gap: 10,
+			padding: '0 18px',
+			borderBottom: '1px solid rgba(255,255,255,0.08)',
+			fontFamily: FONT,
+			fontSize: 17,
+			fontWeight: 700,
+			color: 'rgba(255,255,255,0.72)',
+		}}
+	>
+		<span style={{width: 10, height: 10, borderRadius: 10, background: '#FF5F57'}} />
+		<span style={{width: 10, height: 10, borderRadius: 10, background: '#FEBC2E'}} />
+		<span style={{width: 10, height: 10, borderRadius: 10, background: accent}} />
+		<span style={{marginLeft: 10}}>{title}</span>
+	</div>
+);
+
+const TerminalLines: React.FC<{lines: string[]; start?: number; accent?: string}> = ({
+	lines,
+	start = 0,
+	accent = GREEN,
+}) => {
+	const frame = useCurrentFrame();
+	const visible = Math.max(0, Math.floor((frame - start) / 11));
+	return (
+		<div style={{fontFamily: MONO, fontSize: 18, lineHeight: 1.78, padding: '20px 24px'}}>
+			{lines.slice(0, visible).map((line, i) => (
+				<div
+					key={i}
+					style={{
+						color: line.startsWith('complete') || line.startsWith('passed') ? accent : MUTED,
+						textShadow: line.startsWith('complete') || line.startsWith('passed') ? `0 0 24px ${accent}66` : undefined,
+					}}
+				>
+					{line}
+				</div>
+			))}
+			<span style={{color: accent, opacity: Math.floor(frame / 9) % 2 ? 0.2 : 1}}>▌</span>
+		</div>
+	);
+};
+
+const Connections: React.FC<{active?: number}> = ({active = 1}) => {
+	const frame = useCurrentFrame();
+	return (
+		<svg style={{position: 'absolute', inset: 0, opacity: active}} viewBox="0 0 1920 1080">
+			{[
+				['450 330 C 690 210, 980 210, 1240 330'],
+				['460 560 C 720 660, 1030 660, 1260 560'],
+				['680 430 C 860 350, 1040 350, 1220 430'],
+				['700 560 C 850 485, 1040 485, 1190 560'],
+			].map((d, i) => (
+				<path
+					key={d}
+					d={`M ${d}`}
+					fill="none"
+					stroke={i % 2 ? GREEN : TEAL}
+					strokeWidth="2"
+					strokeDasharray="10 18"
+					strokeDashoffset={-frame * (2 + i)}
+					opacity={0.42}
+					filter="drop-shadow(0 0 10px rgba(20,184,166,0.8))"
+				/>
+			))}
+		</svg>
+	);
+};
+
+const Opening: React.FC<{duration: number}> = ({duration}) => {
+	const frame = useCurrentFrame();
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
+	const cursor = Math.floor(frame / 12) % 2;
+	return (
+		<AbsoluteFill style={{opacity: out}}>
+			<div style={{position: 'absolute', left: 250, top: 320}}>
+				<Kicker delay={18}>SHIPSPACE</Kicker>
+				<BigText delay={42} size={122}>One Workspace.</BigText>
+				<BigText delay={96} size={122}>Every Agent.</BigText>
+				<div
+					style={{
+						marginTop: 34,
+						fontFamily: MONO,
+						fontSize: 30,
+						color: cursor ? GREEN : 'transparent',
+						opacity: fade(frame, 4, 20),
+					}}
+				>
+					_
+				</div>
+			</div>
+			<Panel
+				w={780}
+				h={470}
+				delay={132}
+				style={{
+					position: 'absolute',
+					right: 155,
+					top: 275,
+					transform: `perspective(1200px) rotateY(-14deg) rotateX(7deg) translateY(${Math.sin(frame / 60) * 8}px)`,
+				}}
+			>
+				<HeaderDots title="ShipSpace Command Center" />
+				<div style={{display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', height: 418}}>
+					<div style={{borderRight: '1px solid rgba(255,255,255,0.08)'}}>
+						<TerminalLines
+							start={146}
+							lines={[
+								'$ shipspace swarm deploy',
+								'architect: planning feature map',
+								'builder: opening workspace',
+								'tester: preparing suite',
+								'reviewer: reading diff policy',
+								'complete: swarm online',
+							]}
+						/>
+					</div>
+					<div style={{padding: 22}}>
+						{['Architect', 'Builder', 'Tester', 'Reviewer'].map((name, i) => (
+							<div
+								key={name}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									marginBottom: 18,
+									padding: '14px 16px',
+									borderRadius: 8,
+									background: 'rgba(255,255,255,0.045)',
+									border: '1px solid rgba(255,255,255,0.08)',
+									opacity: fade(frame, 150 + i * 12, 166 + i * 12),
+								}}
+							>
+								<span style={{fontFamily: FONT, color: WHITE, fontWeight: 700}}>{name}</span>
+								<span style={{fontFamily: MONO, fontSize: 12, color: GREEN}}>ONLINE</span>
+							</div>
+						))}
+					</div>
+				</div>
+			</Panel>
+		</AbsoluteFill>
+	);
+};
+
+const Agents: React.FC<{duration: number}> = ({duration}) => {
+	const frame = useCurrentFrame();
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
+	const agents = [
+		['Architect', 'THINKING', 260, 250],
+		['Builder', 'CODING', 1220, 250],
+		['Tester', 'TESTING', 310, 590],
+		['Reviewer', 'REVIEWING', 1180, 590],
+	];
+	return (
+		<AbsoluteFill style={{opacity: out}}>
+			<Connections active={fade(frame, 70, 100)} />
+			<div style={{position: 'absolute', left: 710, top: 130, textAlign: 'center'}}>
+				<Kicker delay={12}>MULTI-AGENT ORCHESTRATION</Kicker>
+				<BigText delay={30} size={82}>Deploy a Swarm.</BigText>
+			</div>
+			{agents.map(([name, status, x, y], i) => (
+				<Panel
+					key={name}
+					w={420}
+					h={210}
+					delay={46 + i * 16}
+					accent={i % 2 ? GREEN : TEAL}
+					style={{position: 'absolute', left: Number(x), top: Number(y)}}
+				>
+					<div style={{padding: 26}}>
+						<div style={{fontFamily: FONT, fontSize: 32, fontWeight: 800, color: WHITE}}>{name}</div>
+						<div
+							style={{
+								marginTop: 28,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								fontFamily: MONO,
+								color: i % 2 ? GREEN : TEAL,
+							}}
+						>
+							<span>{status}</span>
+							<span
+								style={{
+									width: 14,
+									height: 14,
+									borderRadius: 14,
+									background: i % 2 ? GREEN : TEAL,
+									boxShadow: `0 0 28px ${i % 2 ? GREEN : TEAL}`,
+									opacity: 0.45 + Math.sin(frame / 8 + i) * 0.35,
+								}}
+							/>
+						</div>
+						<div style={{marginTop: 22, height: 7, borderRadius: 8, background: 'rgba(255,255,255,0.08)'}}>
+							<div
+								style={{
+									width: `${44 + ((frame * (0.6 + i * 0.16)) % 52)}%`,
+									height: '100%',
+									borderRadius: 8,
+									background: `linear-gradient(90deg, ${TEAL}, ${GREEN})`,
+								}}
+							/>
+						</div>
+					</div>
+				</Panel>
+			))}
+		</AbsoluteFill>
+	);
+};
+
+const Parallel: React.FC<{duration: number}> = ({duration}) => {
+	const frame = useCurrentFrame();
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
+	const feeds = [
+		['Claude', ['$ plan workspace model', 'reading product spec', 'mapping edge cases', 'complete: plan locked']],
+		['Codex', ['$ implement feature', 'editing src/agents', 'running typecheck', 'complete: code ready']],
+		['OpenCode', ['$ verify branch', 'npm test --workspace', 'passed: 128 tests', 'complete: verified']],
+	];
+	return (
+		<AbsoluteFill style={{opacity: out, perspective: 1600}}>
+			<div style={{position: 'absolute', left: 140, top: 112}}>
+				<Kicker delay={12}>PARALLEL EXECUTION</Kicker>
+				<BigText delay={28} size={82}>Claude. Codex. OpenCode.</BigText>
+			</div>
+			<div
+				style={{
+					position: 'absolute',
+					left: 130,
+					top: 320,
+					display: 'flex',
+					gap: 34,
+					transform: `rotateX(8deg) rotateY(${interpolate(frame, [0, duration], [-7, 5])}deg)`,
+					transformStyle: 'preserve-3d',
+				}}
+			>
+				{feeds.map(([name, lines], i) => (
+					<Panel key={String(name)} w={520} h={390} delay={54 + i * 14} accent={i === 1 ? GREEN : TEAL}>
+						<HeaderDots title={String(name)} accent={i === 1 ? GREEN : TEAL} />
+						<TerminalLines lines={lines as string[]} start={74 + i * 12} accent={i === 1 ? GREEN : TEAL} />
+					</Panel>
+				))}
+			</div>
+			<div
+				style={{
+					position: 'absolute',
+					left: 700,
+					bottom: 105,
+					fontFamily: FONT,
+					fontSize: 36,
+					fontWeight: 760,
+					color: WHITE,
+					opacity: fade(frame, 150, 176),
+				}}
+			>
+				Real-time collaboration. One command surface.
+			</div>
+		</AbsoluteFill>
+	);
+};
+
+const Workspace: React.FC<{duration: number}> = ({duration}) => {
+	const frame = useCurrentFrame();
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
+	const names = ['Terminal', 'Kanban', 'Logs', 'Browser', 'Files', 'Agent Chat'];
+	return (
+		<AbsoluteFill style={{opacity: out}}>
+			<div style={{position: 'absolute', left: 150, top: 106}}>
+				<Kicker delay={10}>UNIFIED WORKSPACE</Kicker>
+				<BigText delay={30} size={88}>One Command Center.</BigText>
+			</div>
+			<div style={{position: 'absolute', left: 120, right: 120, top: 300, bottom: 110}}>
+				{names.map((name, i) => {
+					const cols = [
+						[0, 0, 720, 330],
+						[750, 0, 390, 330],
+						[1170, 0, 510, 330],
+						[0, 360, 560, 300],
+						[590, 360, 460, 300],
+						[1080, 360, 600, 300],
+					][i];
+					return (
+						<Panel
+							key={name}
+							w={cols[2]}
+							h={cols[3]}
+							delay={46 + i * 8}
+							accent={i % 2 ? GREEN : TEAL}
+							style={{
+								position: 'absolute',
+								left: cols[0],
+								top: cols[1],
+								transform: `translateY(${Math.sin(frame / 44 + i) * 5}px)`,
+							}}
+						>
+							<HeaderDots title={name} accent={i % 2 ? GREEN : TEAL} />
+							<div style={{padding: 22, fontFamily: i === 0 || i === 2 ? MONO : FONT, color: MUTED}}>
+								{Array.from({length: i === 1 ? 4 : 6}, (_, n) => (
+									<div
+										key={n}
+										style={{
+											height: i === 1 ? 42 : 18,
+											marginBottom: 14,
+											borderRadius: 6,
+											width: `${88 - ((n + i) % 4) * 13}%`,
+											background:
+												i === 1
+													? 'rgba(255,255,255,0.055)'
+													: `linear-gradient(90deg, rgba(255,255,255,0.13), rgba(20,184,166,${0.1 + n * 0.02}))`,
+											opacity: fade(frame, 70 + i * 6 + n * 4, 85 + i * 6 + n * 4),
+										}}
+									/>
+								))}
+							</div>
+						</Panel>
+					);
+				})}
+			</div>
+		</AbsoluteFill>
+	);
+};
+
+const Knowledge: React.FC<{duration: number}> = ({duration}) => {
+	const frame = useCurrentFrame();
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
+	const assets = ['PDFs', 'Audio', 'Video', 'Notes', 'Websites', 'CSV'];
+	return (
+		<AbsoluteFill style={{opacity: out}}>
+			<div style={{position: 'absolute', left: 150, top: 120}}>
+				<Kicker delay={8}>SHIPMIND INTEGRATION</Kicker>
+				<BigText delay={28} size={88}>Your Private Second Brain.</BigText>
+			</div>
+			<div
+				style={{
+					position: 'absolute',
+					left: 740,
+					top: 382,
+					width: 440,
+					height: 440,
+					borderRadius: 440,
+					border: '1px solid rgba(20,184,166,0.45)',
+					boxShadow: `0 0 140px rgba(20,184,166,0.24), inset 0 0 80px rgba(34,197,94,0.10)`,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					fontFamily: FONT,
+					fontSize: 40,
+					fontWeight: 830,
+					color: WHITE,
+					opacity: fade(frame, 50, 80),
+				}}
+			>
+				ShipMind
+			</div>
+			{assets.map((asset, i) => {
+				const angle = (Math.PI * 2 * i) / assets.length + frame / 220;
+				const x = 960 + Math.cos(angle) * 560;
+				const y = 605 + Math.sin(angle) * 280;
+				return (
+					<Panel
+						key={asset}
+						w={190}
+						h={96}
+						delay={70 + i * 10}
+						accent={i % 2 ? GREEN : TEAL}
+						style={{position: 'absolute', left: x - 95, top: y - 48}}
+					>
+						<div
+							style={{
+								height: '100%',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontFamily: FONT,
+								fontSize: 24,
+								fontWeight: 760,
+								color: WHITE,
+							}}
+						>
+							{asset}
+						</div>
+					</Panel>
 				);
 			})}
 		</AbsoluteFill>
 	);
 };
 
-// Chromatic-aberration display text
-const ChromaText: React.FC<{
-	children: React.ReactNode;
-	size: number;
-	weight?: number;
-	spacing?: string;
-	aberration?: number;
-}> = ({children, size, weight = 800, spacing = '-0.03em', aberration = 2}) => (
-	<div
-		style={{
-			fontFamily: FONT,
-			fontWeight: weight,
-			fontSize: size,
-			letterSpacing: spacing,
-			lineHeight: 1.02,
-			color: 'white',
-			textShadow: `${aberration}px 0 rgba(255,60,120,0.28), -${aberration}px 0 rgba(60,160,255,0.28), 0 0 80px rgba(255,255,255,0.18)`,
-		}}
-	>
-		{children}
-	</div>
-);
-
-const CameraDrift: React.FC<{children: React.ReactNode; push?: number}> = ({
-	children,
-	push = 0,
-}) => {
+const Execution: React.FC<{duration: number}> = ({duration}) => {
 	const frame = useCurrentFrame();
-	const x = Math.sin(frame / 53) * 7;
-	const y = Math.cos(frame / 67) * 6;
-	const rot = Math.sin(frame / 90) * 0.25;
-	return (
-		<AbsoluteFill
-			style={{
-				transform: `translate(${x}px, ${y}px) rotate(${rot}deg) scale(${1 + push})`,
-			}}
-		>
-			{children}
-		</AbsoluteFill>
-	);
-};
-
-// ─── Scene 1 · The laptop opens ──────────────────────────────────────────────
-const SCREEN_W = 1320;
-const SCREEN_H = 850;
-
-const ScreenWallpaper: React.FC<{lit: number}> = ({lit}) => {
-	const frame = useCurrentFrame();
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				inset: 0,
-				background: '#060608',
-				overflow: 'hidden',
-				opacity: lit,
-			}}
-		>
-			{/* gradient blob wallpaper in brand colors */}
-			<div
-				style={{
-					position: 'absolute',
-					left: '18%',
-					top: '8%',
-					width: '64%',
-					height: '74%',
-					borderRadius: '50%',
-					background: `radial-gradient(circle at 38% 35%, ${PURPLE}cc 0%, ${PINK}88 45%, ${ORANGE}33 75%, transparent 100%)`,
-					filter: 'blur(46px)',
-					transform: `rotate(${frame * 0.15}deg) scale(${1 + Math.sin(frame / 40) * 0.04})`,
-				}}
-			/>
-			<div
-				style={{
-					position: 'absolute',
-					left: '30%',
-					top: '30%',
-					width: '40%',
-					height: '42%',
-					borderRadius: '50%',
-					background: `radial-gradient(circle, #0a0a10dd 0%, transparent 70%)`,
-					filter: 'blur(30px)',
-				}}
-			/>
-			{/* wireframe globe ghost */}
-			<Img
-				src={staticFile('msh-globe.png')}
-				style={{
-					position: 'absolute',
-					left: '50%',
-					top: '47%',
-					width: 460,
-					height: 460,
-					transform: `translate(-50%, -50%) rotate(${frame * 0.3}deg)`,
-					opacity: 0.5,
-				}}
-			/>
-			{/* dock hint */}
-			<div
-				style={{
-					position: 'absolute',
-					bottom: 26,
-					left: '50%',
-					transform: 'translateX(-50%)',
-					display: 'flex',
-					gap: 13,
-					padding: '12px 20px',
-					borderRadius: 20,
-					background: 'rgba(255,255,255,0.07)',
-					border: '1px solid rgba(255,255,255,0.12)',
-					backdropFilter: 'blur(10px)',
-				}}
-			>
-				{[PURPLE, PINK, ORANGE, GREEN, '#8b9cf7', '#f7d58b'].map((c, i) => (
-					<div
-						key={i}
-						style={{
-							width: 38,
-							height: 38,
-							borderRadius: 10,
-							background: `linear-gradient(135deg, ${c}cc, ${c}55)`,
-						}}
-					/>
-				))}
-			</div>
-			{/* screen glass glare */}
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					background:
-						'linear-gradient(112deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 28%, transparent 45%)',
-				}}
-			/>
-		</div>
-	);
-};
-
-const Laptop: React.FC = () => {
-	const frame = useCurrentFrame();
-	// lid angle: closed (-86deg) → open (0deg)
-	const open = interpolate(frame, [10, 58], [86, 0], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-		easing: Easing.bezier(0.3, 0.9, 0.25, 1),
-	});
-	const lit = interpolate(open, [20, 60], [1, 0], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	// camera push into the screen at the end
-	const push = interpolate(frame, [56, 78], [1, 1.62], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-		easing: Easing.bezier(0.5, 0, 0.8, 1),
-	});
-	const rise = interpolate(frame, [56, 78], [0, 170], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-		easing: Easing.bezier(0.5, 0, 0.8, 1),
-	});
-	const glowSpill = lit * interpolate(open, [0, 40], [1, 0.3], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-
-	const laptop = (reflection: boolean) => (
-		<div
-			style={{
-				position: 'relative',
-				width: SCREEN_W,
-				perspective: 2300,
-				transform: reflection ? 'scaleY(-1)' : undefined,
-				opacity: reflection ? 0.3 : 1,
-				filter: reflection ? 'blur(7px) brightness(0.55)' : undefined,
-			}}
-		>
-			{/* lid + screen, hinged at bottom */}
-			<div
-				style={{
-					width: SCREEN_W,
-					height: SCREEN_H,
-					transformOrigin: 'bottom center',
-					transform: `rotateX(${-open}deg)`,
-					transformStyle: 'preserve-3d',
-					borderRadius: '26px 26px 6px 6px',
-					background: 'linear-gradient(180deg, #2c2c30 0%, #18181b 100%)',
-					border: '1px solid rgba(255,255,255,0.14)',
-					boxShadow: `0 0 ${90 * glowSpill}px rgba(167,139,250,${0.32 * glowSpill})`,
-					padding: 16,
-					backfaceVisibility: 'hidden',
-				}}
-			>
-				<div
-					style={{
-						position: 'relative',
-						width: '100%',
-						height: '100%',
-						borderRadius: 14,
-						background: '#000',
-						overflow: 'hidden',
-						boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.06)`,
-					}}
-				>
-					<ScreenWallpaper lit={lit} />
-					{/* camera notch */}
-					<div
-						style={{
-							position: 'absolute',
-							top: 0,
-							left: '50%',
-							transform: 'translateX(-50%)',
-							width: 150,
-							height: 20,
-							borderRadius: '0 0 12px 12px',
-							background: '#000',
-						}}
-					/>
-				</div>
-			</div>
-			{/* lid back face (visible while closed) with glowing globe */}
-			<div
-				style={{
-					position: 'absolute',
-					top: 0,
-					left: 0,
-					width: SCREEN_W,
-					height: SCREEN_H,
-					transformOrigin: 'bottom center',
-					transform: `rotateX(${-open}deg) translateZ(-2px) scaleY(-1)`,
-					borderRadius: '26px 26px 6px 6px',
-					background: 'linear-gradient(180deg, #232327 0%, #131316 100%)',
-					border: '1px solid rgba(255,255,255,0.10)',
-					backfaceVisibility: 'hidden',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
-			>
-				<Img
-					src={staticFile('msh-globe.png')}
-					style={{
-						width: 230,
-						height: 230,
-						opacity: 0.9,
-						filter: 'drop-shadow(0 0 26px rgba(255,255,255,0.45)) invert(0)',
-					}}
-				/>
-			</div>
-			{/* base / keyboard deck */}
-			<div
-				style={{
-					width: SCREEN_W,
-					height: 360,
-					transformOrigin: 'top center',
-					transform: 'rotateX(76deg)',
-					borderRadius: '6px 6px 30px 30px',
-					background: 'linear-gradient(180deg, #2e2e33 0%, #1c1c20 55%, #121215 100%)',
-					border: '1px solid rgba(255,255,255,0.12)',
-					position: 'relative',
-					overflow: 'hidden',
-				}}
-			>
-				{/* keys */}
-				<div
-					style={{
-						position: 'absolute',
-						left: 90,
-						right: 90,
-						top: 36,
-						height: 175,
-						borderRadius: 12,
-						background:
-							'repeating-linear-gradient(90deg, #0c0c0f 0px, #0c0c0f 72px, #1d1d22 72px, #1d1d22 78px), repeating-linear-gradient(0deg, rgba(0,0,0,0.55) 0px, rgba(0,0,0,0.55) 26px, rgba(40,40,46,0.9) 26px, rgba(40,40,46,0.9) 30px)',
-						opacity: 0.9,
-					}}
-				/>
-				{/* trackpad */}
-				<div
-					style={{
-						position: 'absolute',
-						left: '50%',
-						transform: 'translateX(-50%)',
-						bottom: 22,
-						width: 360,
-						height: 105,
-						borderRadius: 14,
-						background: 'linear-gradient(180deg, #232327, #19191d)',
-						border: '1px solid rgba(255,255,255,0.08)',
-					}}
-				/>
-				{/* screen light spilling onto the deck */}
-				<div
-					style={{
-						position: 'absolute',
-						inset: 0,
-						background: `linear-gradient(180deg, rgba(167,139,250,${0.20 * glowSpill}) 0%, rgba(244,114,182,${0.07 * glowSpill}) 35%, transparent 70%)`,
-					}}
-				/>
-			</div>
-		</div>
-	);
-
-	return (
-		<AbsoluteFill
-			style={{
-				justifyContent: 'center',
-				alignItems: 'center',
-				transform: `scale(${push}) translateY(${rise}px)`,
-			}}
-		>
-			<div style={{position: 'relative', marginTop: -40}}>
-				{laptop(false)}
-				{/* floor reflection */}
-				<div
-					style={{
-						position: 'absolute',
-						top: '100%',
-						left: 0,
-						right: 0,
-						marginTop: -290,
-						WebkitMaskImage: 'linear-gradient(180deg, rgba(0,0,0,0.7), transparent 55%)',
-						maskImage: 'linear-gradient(180deg, rgba(0,0,0,0.7), transparent 55%)',
-					}}
-				>
-					{laptop(true)}
-				</div>
-				{/* floor glow pool */}
-				<div
-					style={{
-						position: 'absolute',
-						top: '96%',
-						left: '50%',
-						transform: 'translateX(-50%)',
-						width: SCREEN_W * 1.4,
-						height: 270,
-						background: `radial-gradient(ellipse, rgba(167,139,250,${0.16 * glowSpill}) 0%, transparent 65%)`,
-						filter: 'blur(18px)',
-					}}
-				/>
-			</div>
-		</AbsoluteFill>
-	);
-};
-
-const OpeningScene: React.FC<{duration: number}> = ({duration}) => {
-	const frame = useCurrentFrame();
-	const inOp = interpolate(frame, [0, 8], [0, 1], {extrapolateRight: 'clamp'});
-	const out = interpolate(frame, [duration - 4, duration], [1, 0], {extrapolateLeft: 'clamp'});
-	return (
-		<AbsoluteFill style={{opacity: inOp * out}}>
-			<Laptop />
-			<Flare at={12} peak={0.5} />
-			<Flare at={56} color="#d8c8ff" peak={0.85} />
-			{/* tagline under laptop */}
-			<div
-				style={{
-					position: 'absolute',
-					bottom: 86,
-					width: '100%',
-					textAlign: 'center',
-					opacity:
-						interpolate(frame, [20, 34], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}) *
-						interpolate(frame, [52, 62], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-				}}
-			>
-				<div
-					style={{
-						fontFamily: FONT,
-						fontSize: 25,
-						fontWeight: 600,
-						letterSpacing: '0.34em',
-						textTransform: 'uppercase',
-						color: 'rgba(255,255,255,0.75)',
-					}}
-				>
-					The Execution Engine
-				</div>
-			</div>
-		</AbsoluteFill>
-	);
-};
-
-// ─── Scene 2 · Describe (inside the screen) ──────────────────────────────────
-const MISSION = 'Run a security audit on ~/ShipSpace.';
-
-const WaveBars: React.FC<{accent: string}> = ({accent}) => {
-	const frame = useCurrentFrame();
-	return (
-		<div style={{display: 'flex', alignItems: 'center', gap: 5, height: 40}}>
-			{Array.from({length: 9}, (_, i) => (
-				<div
-					key={i}
-					style={{
-						width: 5,
-						borderRadius: 3,
-						background: accent,
-						height: 8 + Math.abs(Math.sin(frame / 4.5 + i * 1.7)) * 28,
-						boxShadow: `0 0 10px ${accent}aa`,
-					}}
-				/>
-			))}
-		</div>
-	);
-};
-
-const DescribeScene: React.FC<{duration: number}> = ({duration}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const enter = spring({frame, fps, config: {damping: 16, mass: 0.7}});
-	const out = interpolate(frame, [duration - 5, duration], [1, 0], {extrapolateLeft: 'clamp'});
-	const typed = Math.max(0, Math.floor((frame - 10) / 1.15));
-	const text = MISSION.slice(0, typed);
-	const caretOn = Math.floor(frame / 8) % 2 === 0;
-	const push = interpolate(frame, [0, duration], [1, 1.05]);
-	return (
-		<AbsoluteFill style={{opacity: out, perspective: 1800}}>
-			{/* ambient wallpaper continues behind — deep blurred brand blob */}
-			<div
-				style={{
-					position: 'absolute',
-					left: '22%',
-					top: '12%',
-					width: '56%',
-					height: '64%',
-					borderRadius: '50%',
-					background: `radial-gradient(circle at 40% 38%, ${PURPLE}33 0%, ${PINK}1d 50%, transparent 80%)`,
-					filter: 'blur(70px)',
-				}}
-			/>
-			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', transform: `scale(${push})`}}>
-				<div
-					style={{
-						width: 1240,
-						borderRadius: 26,
-						background: 'linear-gradient(180deg, rgba(22,22,28,0.92) 0%, rgba(10,10,14,0.96) 100%)',
-						border: '1px solid rgba(255,255,255,0.13)',
-						boxShadow: `0 60px 160px rgba(0,0,0,0.9), 0 0 160px ${PURPLE}26, inset 0 1px 0 rgba(255,255,255,0.10)`,
-						overflow: 'hidden',
-						backdropFilter: 'blur(20px)',
-						transform: `rotateX(${interpolate(enter, [0, 1], [10, 3])}deg) rotateY(${-4 + frame * 0.01}deg) translateY(${interpolate(enter, [0, 1], [90, -40])}px) scale(${interpolate(enter, [0, 1], [0.94, 1])})`,
-						transformStyle: 'preserve-3d',
-					}}
-				>
-					<Sweep delay={8} intensity={0.10} />
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 9,
-							padding: '20px 28px',
-							borderBottom: '1px solid rgba(255,255,255,0.08)',
-						}}
-					>
-						{['#FF5F57', '#FEBC2E', '#28C840'].map((c) => (
-							<span key={c} style={{width: 15, height: 15, borderRadius: '50%', background: c}} />
-						))}
-						<span style={{marginLeft: 20, fontFamily: FONT, fontSize: 21, fontWeight: 600, color: 'rgba(255,255,255,0.5)'}}>
-							ShipSpace — New Mission
-						</span>
-						<span
-							style={{
-								marginLeft: 'auto',
-								fontFamily: FONT,
-								fontSize: 15,
-								fontWeight: 700,
-								letterSpacing: '0.18em',
-								color: PURPLE,
-								textTransform: 'uppercase',
-							}}
-						>
-							⌘K
-						</span>
-					</div>
-					<div style={{padding: '58px 64px 64px'}}>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: 28,
-								padding: '34px 42px',
-								borderRadius: 20,
-								background: 'rgba(255,255,255,0.05)',
-								border: `1.5px solid ${PURPLE}77`,
-								boxShadow: `0 0 70px ${PURPLE}22 inset, 0 0 50px ${PURPLE}1c`,
-							}}
-						>
-							<WaveBars accent={PURPLE} />
-							<div style={{fontFamily: MONO, fontSize: 34, color: 'white', whiteSpace: 'pre'}}>
-								{text}
-								<span style={{opacity: caretOn ? 1 : 0, color: PURPLE}}>▍</span>
-							</div>
-						</div>
-						<div style={{marginTop: 30, display: 'flex', gap: 14}}>
-							{['Roster: research · build · review · verify', 'Real files on disk', 'Verdict required'].map(
-								(p, i) => (
-									<span
-										key={p}
-										style={{
-											fontFamily: FONT,
-											fontSize: 19,
-											fontWeight: 600,
-											color: 'rgba(255,255,255,0.6)',
-											padding: '10px 22px',
-											borderRadius: 999,
-											border: '1px solid rgba(255,255,255,0.13)',
-											background: 'rgba(255,255,255,0.04)',
-											opacity: interpolate(frame, [22 + i * 7, 32 + i * 7], [0, 1], {
-												extrapolateLeft: 'clamp',
-												extrapolateRight: 'clamp',
-											}),
-										}}
-									>
-										{p}
-									</span>
-								)
-							)}
-						</div>
-					</div>
-				</div>
-			</AbsoluteFill>
-			{/* kinetic word */}
-			<div
-				style={{
-					position: 'absolute',
-					left: 0,
-					right: 0,
-					bottom: 100,
-					textAlign: 'center',
-					opacity: interpolate(frame, [6, 16], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-					transform: `translateY(${interpolate(spring({frame: frame - 6, fps, config: {damping: 15}}), [0, 1], [50, 0])}px)`,
-				}}
-			>
-				<ChromaText size={108}>
-					Describe<span style={{color: PURPLE}}>.</span>
-				</ChromaText>
-			</div>
-			<FlashCut at={1} />
-		</AbsoluteFill>
-	);
-};
-
-// ─── Scene 3 · Orchestrate ───────────────────────────────────────────────────
-const AGENT_FEEDS: {name: string; accent: string; lines: string[]}[] = [
-	{
-		name: 'Claude Code',
-		accent: PURPLE,
-		lines: [
-			'$ role: implementation',
-			'› scanning src/auth/**',
-			'✓ token rotation patched',
-			'› writing tests…',
-			'✓ 14 tests added',
-			'› staging diff: +212 −41',
-			'✓ implementation ready',
-		],
-	},
-	{
-		name: 'Codex',
-		accent: PINK,
-		lines: [
-			'$ role: review',
-			'› reading branch diff',
-			'⚠ unsafe regex · L142',
-			'› auditing deps…',
-			'✓ 0 vulnerable deps',
-			'› notes → verdict.md',
-			'✓ review complete',
-		],
-	},
-	{
-		name: 'opencode',
-		accent: GREEN,
-		lines: [
-			'$ role: verification',
-			'› npm test --all',
-			'✓ 312 passing',
-			'› e2e: auth flows',
-			'✓ 9/9 scenarios',
-			'› perf baseline held',
-			'✓ verified on disk',
-		],
-	},
-];
-
-const TerminalSlab: React.FC<{
-	feed: (typeof AGENT_FEEDS)[number];
-	index: number;
-	focus: number; // 0..2 which card is sharp
-}> = ({feed, index, focus}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const enter = spring({frame: frame - index * 7, fps, config: {damping: 17, mass: 0.8}});
-	const visible = Math.max(0, Math.floor((frame - 16 - index * 7) / 9));
-	const shown = feed.lines.slice(0, visible);
-	const dist = Math.abs(index - focus);
-	const blur = dist * 2.4;
-	return (
-		<div
-			style={{
-				width: 560,
-				height: 500,
-				flexShrink: 0,
-				borderRadius: 22,
-				position: 'relative',
-				background: 'linear-gradient(180deg, rgba(18,18,24,0.95) 0%, rgba(8,8,12,0.98) 100%)',
-				border: '1px solid rgba(255,255,255,0.12)',
-				boxShadow: `0 50px 130px rgba(0,0,0,0.85), 0 0 110px ${feed.accent}21, inset 0 1px 0 rgba(255,255,255,0.10)`,
-				overflow: 'hidden',
-				opacity: interpolate(enter, [0, 0.5], [0, 1], {extrapolateRight: 'clamp'}),
-				transform: `translateY(${interpolate(enter, [0, 1], [110, 0])}px) translateZ(${-dist * 70}px)`,
-				filter: `blur(${blur}px) brightness(${1 - dist * 0.16})`,
-			}}
-		>
-			<Sweep delay={20 + index * 9} intensity={0.12} />
-			<div
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					gap: 13,
-					padding: '18px 26px',
-					borderBottom: '1px solid rgba(255,255,255,0.07)',
-					background: 'rgba(255,255,255,0.025)',
-				}}
-			>
-				<span
-					style={{
-						width: 11,
-						height: 11,
-						borderRadius: '50%',
-						background: feed.accent,
-						boxShadow: `0 0 14px ${feed.accent}`,
-					}}
-				/>
-				<span style={{fontFamily: FONT, fontSize: 23, fontWeight: 700, color: 'white'}}>{feed.name}</span>
-				<span
-					style={{
-						marginLeft: 'auto',
-						fontFamily: FONT,
-						fontSize: 14,
-						fontWeight: 700,
-						letterSpacing: '0.16em',
-						color: feed.accent,
-						textTransform: 'uppercase',
-						padding: '6px 14px',
-						borderRadius: 999,
-						border: `1px solid ${feed.accent}66`,
-						background: `${feed.accent}14`,
-					}}
-				>
-					running
-				</span>
-			</div>
-			<div style={{padding: '24px 30px', fontFamily: MONO, fontSize: 22, lineHeight: 1.9}}>
-				{shown.map((line, i) => (
-					<div
-						key={i}
-						style={{
-							color: line.startsWith('✓')
-								? GREEN
-								: line.startsWith('⚠')
-								? ORANGE
-								: line.startsWith('$')
-								? 'rgba(255,255,255,0.45)'
-								: 'rgba(255,255,255,0.85)',
-							textShadow: line.startsWith('✓') ? `0 0 18px ${GREEN}55` : undefined,
-						}}
-					>
-						{line}
-					</div>
-				))}
-				{visible < feed.lines.length ? (
-					<span style={{color: feed.accent, opacity: Math.floor(frame / 7) % 2 === 0 ? 1 : 0}}>▍</span>
-				) : null}
-			</div>
-		</div>
-	);
-};
-
-const OrchestrateScene: React.FC<{duration: number}> = ({duration}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const out = interpolate(frame, [duration - 5, duration], [1, 0], {extrapolateLeft: 'clamp'});
-	// rack-focus: camera pans across the three slabs, focus follows
-	const focus = interpolate(frame, [0, 45, 90], [0, 1, 2], {
-		extrapolateRight: 'clamp',
-		easing: Easing.inOut(Easing.quad),
-	});
-	const pan = interpolate(frame, [0, duration], [330, -330], {easing: Easing.inOut(Easing.quad)});
-	return (
-		<AbsoluteFill style={{opacity: out, perspective: 2000}}>
-			<div
-				style={{
-					position: 'absolute',
-					left: '28%',
-					top: '20%',
-					width: '44%',
-					height: '50%',
-					borderRadius: '50%',
-					background: `radial-gradient(circle, ${PINK}1f 0%, transparent 75%)`,
-					filter: 'blur(80px)',
-				}}
-			/>
-			<Particles count={14} />
-			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-				<div
-					style={{
-						display: 'flex',
-						gap: 52,
-						transform: `translateX(${pan}px) translateY(-64px) rotateY(${interpolate(frame, [0, duration], [-9, 6])}deg) rotateX(3.5deg)`,
-						transformStyle: 'preserve-3d',
-					}}
-				>
-					{AGENT_FEEDS.map((feed, i) => (
-						<TerminalSlab key={feed.name} feed={feed} index={i} focus={focus} />
-					))}
-				</div>
-			</AbsoluteFill>
-			<div
-				style={{
-					position: 'absolute',
-					left: 0,
-					right: 0,
-					bottom: 96,
-					textAlign: 'center',
-					opacity: interpolate(frame, [8, 18], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-					transform: `translateY(${interpolate(spring({frame: frame - 8, fps, config: {damping: 15}}), [0, 1], [50, 0])}px)`,
-				}}
-			>
-				<ChromaText size={108}>
-					Orchestrate<span style={{color: PINK}}>.</span>
-				</ChromaText>
-				<div
-					style={{
-						fontFamily: FONT,
-						fontSize: 29,
-						fontWeight: 500,
-						color: 'rgba(255,255,255,0.6)',
-						marginTop: 16,
-						opacity: interpolate(frame, [18, 30], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-					}}
-				>
-					Every agent. In parallel. One window.
-				</div>
-			</div>
-			<FlashCut at={1} />
-			<Flare at={4} color={`${PINK}`} peak={0.35} />
-		</AbsoluteFill>
-	);
-};
-
-// ─── Scene 4 · Ship the Verdict ──────────────────────────────────────────────
-const VerdictScene: React.FC<{duration: number}> = ({duration}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const out = interpolate(frame, [duration - 5, duration], [1, 0], {extrapolateLeft: 'clamp'});
-	const card = spring({frame: frame - 6, fps, config: {damping: 15, mass: 0.85}});
-	const checks = ['Implementation', 'Tests', 'Review', 'Verification'];
-	const push = interpolate(frame, [0, duration], [1, 1.07]);
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
 	return (
 		<AbsoluteFill style={{opacity: out}}>
-			<div
-				style={{
-					position: 'absolute',
-					left: '26%',
-					top: '16%',
-					width: '48%',
-					height: '56%',
-					borderRadius: '50%',
-					background: `radial-gradient(circle, ${GREEN}21 0%, transparent 72%)`,
-					filter: 'blur(85px)',
-				}}
-			/>
-			<Particles count={12} />
-			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', transform: `scale(${push})`, perspective: 1800}}>
-				<div
-					style={{
-						width: 960,
-						borderRadius: 26,
-						position: 'relative',
-						background: 'linear-gradient(180deg, rgba(16,20,18,0.95) 0%, rgba(8,10,9,0.98) 100%)',
-						border: `1px solid ${GREEN}55`,
-						boxShadow: `0 60px 160px rgba(0,0,0,0.9), 0 0 170px ${GREEN}26, inset 0 1px 0 rgba(255,255,255,0.10)`,
-						padding: '50px 60px',
-						transform: `rotateX(${interpolate(card, [0, 1], [12, 2])}deg) translateY(${interpolate(card, [0, 1], [160, -50])}px) scale(${interpolate(card, [0, 1], [0.88, 1])})`,
-						opacity: interpolate(card, [0, 0.3], [0, 1], {extrapolateRight: 'clamp'}),
-					}}
-				>
-					<Sweep delay={14} intensity={0.13} />
-					<div style={{display: 'flex', alignItems: 'center', gap: 24, marginBottom: 34}}>
-						<div
-							style={{
-								width: 64,
-								height: 64,
-								borderRadius: '50%',
-								background: `${GREEN}1f`,
-								border: `2px solid ${GREEN}`,
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								fontSize: 34,
-								color: GREEN,
-								fontWeight: 800,
-								fontFamily: FONT,
-								boxShadow: `0 0 ${interpolate(Math.sin(frame / 9), [-1, 1], [22, 44])}px ${GREEN}77`,
-							}}
-						>
-							✓
-						</div>
-						<div>
-							<div
-								style={{
-									fontFamily: FONT,
-									fontSize: 18,
-									fontWeight: 700,
-									letterSpacing: '0.24em',
-									textTransform: 'uppercase',
-									color: 'rgba(255,255,255,0.5)',
-								}}
-							>
-								Mission verdict
-							</div>
-							<div style={{fontFamily: FONT, fontSize: 46, fontWeight: 800, color: 'white'}}>
-								Ready to <span style={{color: GREEN, textShadow: `0 0 40px ${GREEN}66`}}>ship</span>
-							</div>
-						</div>
-						<div style={{marginLeft: 'auto', fontFamily: MONO, fontSize: 27, textAlign: 'right'}}>
-							<span style={{color: GREEN}}>+342</span> <span style={{color: '#F87171'}}>−87</span>
-							<div style={{fontSize: 18, color: 'rgba(255,255,255,0.45)'}}>12 files · real diff</div>
-						</div>
-					</div>
-					<div style={{display: 'flex', gap: 16}}>
-						{checks.map((c, i) => (
-							<div
-								key={c}
-								style={{
-									flex: 1,
-									fontFamily: FONT,
-									fontSize: 21,
-									fontWeight: 600,
-									color: 'rgba(255,255,255,0.9)',
-									padding: '18px 0',
-									textAlign: 'center',
-									borderRadius: 14,
-									border: `1px solid rgba(255,255,255,0.10)`,
-									background: 'rgba(255,255,255,0.04)',
-									opacity: interpolate(frame, [16 + i * 6, 26 + i * 6], [0, 1], {
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									}),
-									transform: `translateY(${interpolate(frame, [16 + i * 6, 26 + i * 6], [16, 0], {
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									})}px)`,
-								}}
-							>
-								<span style={{color: GREEN, marginRight: 10}}>✓</span>
-								{c}
+			<div style={{position: 'absolute', left: 160, top: 128}}>
+				<Kicker delay={10}>FROM PROMPT TO PRODUCTION</Kicker>
+				<BigText delay={30} size={88}>Build the feature.</BigText>
+			</div>
+			<Panel w={1160} h={560} delay={55} style={{position: 'absolute', left: 380, top: 345}}>
+				<HeaderDots title="ShipSpace Execution" />
+				<div style={{display: 'grid', gridTemplateColumns: '1fr 360px', height: 508}}>
+					<TerminalLines
+						start={78}
+						lines={[
+							'$ user: Build the feature.',
+							'architect: task graph created',
+							'builder: code generated',
+							'tester: suite running',
+							'passed: unit and e2e',
+							'reviewer: diff approved',
+							'complete: deployment ready',
+						]}
+					/>
+					<div style={{borderLeft: '1px solid rgba(255,255,255,0.08)', padding: 26}}>
+						{['Plan', 'Code', 'Test', 'Review', 'Deploy'].map((s, i) => (
+							<div key={s} style={{marginBottom: 28, opacity: fade(frame, 95 + i * 22, 112 + i * 22)}}>
+								<div style={{display: 'flex', justifyContent: 'space-between', fontFamily: FONT, color: WHITE, fontWeight: 760}}>
+									<span>{s}</span>
+									<span style={{color: GREEN}}>complete</span>
+								</div>
+								<div style={{height: 8, borderRadius: 8, background: 'rgba(255,255,255,0.08)', marginTop: 10}}>
+									<div style={{height: 8, borderRadius: 8, width: '100%', background: `linear-gradient(90deg, ${TEAL}, ${GREEN})`}} />
+								</div>
 							</div>
 						))}
 					</div>
 				</div>
-			</AbsoluteFill>
-			<div
+			</Panel>
+		</AbsoluteFill>
+	);
+};
+
+const Ecosystem: React.FC<{duration: number}> = ({duration}) => {
+	const frame = useCurrentFrame();
+	const out = interpolate(frame, [duration - 24, duration], [1, 0], {extrapolateLeft: 'clamp'});
+	const nodes = ['Agents', 'Workspaces', 'Knowledge', 'Execution'];
+	return (
+		<AbsoluteFill style={{opacity: out}}>
+			<Connections active={0.7} />
+			<div style={{position: 'absolute', left: 150, top: 112}}>
+				<Kicker delay={10}>THE BUILDER OPERATING SYSTEM</Kicker>
+				<BigText delay={32} size={86}>Everything connected.</BigText>
+			</div>
+			<Img
+				src={staticFile('shipspace-logo.png')}
 				style={{
 					position: 'absolute',
-					left: 0,
-					right: 0,
-					bottom: 96,
-					textAlign: 'center',
-					opacity: interpolate(frame, [10, 20], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-					transform: `translateY(${interpolate(spring({frame: frame - 10, fps, config: {damping: 15}}), [0, 1], [50, 0])}px)`,
+					left: 790,
+					top: 365,
+					width: 340,
+					height: 340,
+					objectFit: 'contain',
+					filter: `drop-shadow(0 0 80px rgba(34,197,94,0.42))`,
+					opacity: fade(frame, 45, 75),
+					transform: `scale(${1 + Math.sin(frame / 55) * 0.025})`,
 				}}
-			>
-				<ChromaText size={104}>
-					Ship the Verdict<span style={{color: ORANGE}}>.</span>
-				</ChromaText>
-			</div>
-			<FlashCut at={1} />
-			<Flare at={10} color={`${GREEN}`} peak={0.4} />
+			/>
+			{nodes.map((node, i) => {
+				const angle = (Math.PI * 2 * i) / nodes.length - Math.PI / 4;
+				return (
+					<Panel
+						key={node}
+						w={270}
+						h={130}
+						delay={75 + i * 14}
+						style={{
+							position: 'absolute',
+							left: 960 + Math.cos(angle) * 510 - 135,
+							top: 535 + Math.sin(angle) * 265 - 65,
+						}}
+					>
+						<div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: FONT, fontSize: 28, fontWeight: 800, color: WHITE}}>
+							{node}
+						</div>
+					</Panel>
+				);
+			})}
 		</AbsoluteFill>
 	);
 };
 
-// ─── Scene 5 · End card ──────────────────────────────────────────────────────
-const EndCard: React.FC<{duration: number}> = ({duration}) => {
+const Final: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const enter = spring({frame, fps, config: {damping: 16, mass: 0.9}});
-	const titleSpring = spring({frame: frame - 14, fps, config: {damping: 14, mass: 0.7}});
-	const spin = frame * 0.45;
 	return (
 		<AbsoluteFill>
-			<Particles count={18} />
-			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-				<div style={{textAlign: 'center', marginTop: -30}}>
-					<div
-						style={{
-							position: 'relative',
-							width: 430,
-							height: 430,
-							margin: '0 auto',
-							opacity: interpolate(enter, [0, 0.6], [0, 1]),
-							transform: `scale(${interpolate(enter, [0, 1], [0.66, 1])})`,
-						}}
-					>
-						<div
-							style={{
-								position: 'absolute',
-								inset: -130,
-								borderRadius: '50%',
-								background: `radial-gradient(circle, rgba(255,255,255,${interpolate(Math.sin(frame / 16), [-1, 1], [0.05, 0.1])}) 0%, transparent 60%)`,
-							}}
-						/>
-						<Img
-							src={staticFile('msh-globe.png')}
-							style={{
-								position: 'absolute',
-								inset: 35,
-								width: 360,
-								height: 360,
-								transform: `rotate(${spin}deg)`,
-								filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.25))',
-							}}
-						/>
-						<Img
-							src={staticFile('msh-text-ring.png')}
-							style={{position: 'absolute', inset: 0, width: 430, height: 430}}
+			<div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+				<Panel
+					w={980}
+					h={560}
+					delay={16}
+					style={{
+						transform: `perspective(1300px) rotateX(7deg) rotateY(-11deg) translateY(${Math.sin(frame / 60) * 8}px)`,
+					}}
+				>
+					<HeaderDots title="ShipSpace" />
+					<div style={{padding: 42}}>
+						<TerminalLines
+							start={36}
+							lines={[
+								'$ shipspace launch',
+								'agents: online',
+								'workspace: unified',
+								'knowledge: connected',
+								'execution: ready',
+								'complete: start shipping',
+							]}
 						/>
 					</div>
-					<div
-						style={{
-							marginTop: 34,
-							fontFamily: FONT,
-							fontWeight: 800,
-							fontSize: 136,
-							lineHeight: 1,
-							letterSpacing: '-0.03em',
-							backgroundImage: GRADIENT,
-							backgroundClip: 'text',
-							WebkitBackgroundClip: 'text',
-							color: 'transparent',
-							filter: `drop-shadow(0 0 50px ${PURPLE}44)`,
-							opacity: interpolate(titleSpring, [0, 0.4], [0, 1], {extrapolateRight: 'clamp'}),
-							transform: `translateY(${interpolate(titleSpring, [0, 1], [55, 0])}px)`,
-						}}
-					>
-						ShipSpace
-					</div>
-					<div
-						style={{
-							fontFamily: FONT,
-							fontWeight: 600,
-							fontSize: 30,
-							color: 'rgba(255,255,255,0.7)',
-							marginTop: 22,
-							opacity: interpolate(frame, [30, 42], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-						}}
-					>
-						One ADE. Every agent. <span style={{color: 'white', fontWeight: 700}}>Ship the verdict.</span>
-					</div>
-					<div
-						style={{
-							display: 'inline-flex',
-							alignItems: 'center',
-							gap: 14,
-							marginTop: 38,
-							padding: '21px 56px',
-							borderRadius: 999,
-							background: GRADIENT,
-							fontFamily: FONT,
-							fontSize: 29,
-							fontWeight: 700,
-							color: 'white',
-							position: 'relative',
-							overflow: 'hidden',
-							boxShadow: `0 0 90px ${PURPLE}66, 0 18px 50px rgba(0,0,0,0.6)`,
-							opacity: interpolate(frame, [46, 58], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-							transform: `scale(${interpolate(spring({frame: frame - 46, fps, config: {damping: 13}}), [0, 1], [0.85, 1])})`,
-						}}
-					>
-						<Sweep delay={62} duration={28} intensity={0.35} />
-						 Download for macOS →
-					</div>
-					<div
-						style={{
-							fontFamily: FONT,
-							fontWeight: 700,
-							fontSize: 26,
-							letterSpacing: '0.05em',
-							color: 'rgba(255,255,255,0.85)',
-							marginTop: 30,
-							opacity: interpolate(frame, [56, 68], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}),
-						}}
-					>
-						makeshiphappen.tech
-					</div>
+				</Panel>
+			</div>
+			<div style={{position: 'absolute', left: 150, top: 150}}>
+				<BigText delay={22} size={106}>Build Faster.</BigText>
+				<BigText delay={64} size={106}>Ship More.</BigText>
+				<BigText delay={106} size={106}>Make Ship Happen.</BigText>
+			</div>
+			<div style={{position: 'absolute', left: 150, bottom: 112, display: 'flex', alignItems: 'center', gap: 28}}>
+				<Img src={staticFile('shipspace-logo.png')} style={{width: 86, height: 86, objectFit: 'contain', opacity: fade(frame, 126, 145)}} />
+				<div style={{opacity: fade(frame, 134, 152)}}>
+					<div style={{fontFamily: FONT, fontSize: 64, fontWeight: 850, color: WHITE, letterSpacing: 0}}>SHIPSPACE</div>
+					<div style={{fontFamily: FONT, fontSize: 25, fontWeight: 700, color: GREEN, marginTop: 10}}>Subscribe. Download. Start Shipping.</div>
 				</div>
-			</AbsoluteFill>
-			<Flare at={16} peak={0.6} />
-			<FlashCut at={1} />
+			</div>
 		</AbsoluteFill>
 	);
 };
 
-// ─── Film ────────────────────────────────────────────────────────────────────
 export const Promo: React.FC = () => {
 	const frame = useCurrentFrame();
-	const fadeOut = interpolate(frame, [PROMO_DURATION - 10, PROMO_DURATION], [1, 0], {
+	const camera = `translate(${Math.sin(frame / 88) * 10}px, ${Math.cos(frame / 100) * 8}px) scale(${1 + frame / PROMO_DURATION * 0.018})`;
+	const overallFade = interpolate(frame, [PROMO_DURATION - 8, PROMO_DURATION], [1, 0], {
 		extrapolateLeft: 'clamp',
 	});
 	return (
 		<AbsoluteFill style={{background: BG}}>
-			<AbsoluteFill style={{opacity: fadeOut}}>
-				<CameraDrift>
-					<Sequence durationInFrames={80}>
-						<OpeningScene duration={80} />
-					</Sequence>
-					<Sequence from={80} durationInFrames={68}>
-						<DescribeScene duration={68} />
-					</Sequence>
-					<Sequence from={148} durationInFrames={112}>
-						<OrchestrateScene duration={112} />
-					</Sequence>
-					<Sequence from={260} durationInFrames={80}>
-						<VerdictScene duration={80} />
-					</Sequence>
-					<Sequence from={340} durationInFrames={PROMO_DURATION - 340}>
-						<EndCard duration={PROMO_DURATION - 340} />
-					</Sequence>
-				</CameraDrift>
-				<Vignette />
-				<FilmGrain />
+			<Background />
+			<AbsoluteFill style={{transform: camera, opacity: overallFade}}>
+				<Sequence durationInFrames={240}>
+					<Opening duration={240} />
+				</Sequence>
+				<Sequence from={240} durationInFrames={240}>
+					<Agents duration={240} />
+				</Sequence>
+				<Sequence from={480} durationInFrames={240}>
+					<Parallel duration={240} />
+				</Sequence>
+				<Sequence from={720} durationInFrames={240}>
+					<Workspace duration={240} />
+				</Sequence>
+				<Sequence from={960} durationInFrames={240}>
+					<Knowledge duration={240} />
+				</Sequence>
+				<Sequence from={1200} durationInFrames={240}>
+					<Execution duration={240} />
+				</Sequence>
+				<Sequence from={1440} durationInFrames={180}>
+					<Ecosystem duration={180} />
+				</Sequence>
+				<Sequence from={1620} durationInFrames={180}>
+					<Final />
+				</Sequence>
 			</AbsoluteFill>
+			<Lens at={238} />
+			<Lens at={478} color={GREEN} />
+			<Lens at={718} />
+			<Lens at={958} color={GREEN} />
+			<Lens at={1198} />
+			<Lens at={1438} color={GREEN} />
+			<Noise />
 		</AbsoluteFill>
 	);
 };

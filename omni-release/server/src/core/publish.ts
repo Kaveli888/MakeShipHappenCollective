@@ -5,13 +5,15 @@
 // no video-upload API at all, so it fails honestly with a clear reason.
 
 import { uploadVideo, type FetchImpl, type MediaBytes } from "./youtube.js";
-import { publishVideo as xPublishVideo } from "./x.js";
+import { publishVideo as xPublishVideo, publishText as xPublishText } from "./x.js";
 import { publishVideo as tiktokPublishVideo, type TikTokPrivacy } from "./tiktok.js";
-import { uploadFacebookVideo, publishInstagramReel } from "./meta.js";
+import { uploadFacebookVideo, publishFacebookText, publishInstagramReel } from "./meta.js";
+import { publishText as liPublishText, publishVideo as liPublishVideo } from "./linkedin.js";
 
 export interface PublishInput {
   platform: string;
-  media: MediaBytes;
+  /** Omitted for text-only posts (X / Facebook / LinkedIn). */
+  media?: MediaBytes;
   title: string;
   caption: string;
   hashtags: string[];
@@ -25,6 +27,8 @@ export interface PublishInput {
   igUserId?: string;
   /** Instagram: public URL the Graph API can pull the video from (Storage signed URL). */
   mediaUrl?: string;
+  /** LinkedIn: author person URN (urn:li:person:{id}) from the connected account. */
+  authorUrn?: string;
 }
 
 export interface PublishResult {
@@ -46,10 +50,22 @@ function tiktokPrivacy(p?: PublishInput["privacy"]): TikTokPrivacy {
   return p === "public" ? "PUBLIC_TO_EVERYONE" : "SELF_ONLY";
 }
 
+/** A video is attached when media bytes are present. */
+function hasMedia(input: PublishInput): input is PublishInput & { media: MediaBytes } {
+  return !!input.media && input.media.bytes.byteLength > 0;
+}
+
+const NEEDS_VIDEO = (platform: string): PublishResult => ({
+  outcome: "failure",
+  errorCode: "media_required",
+  errorMessage: `${platform} requires a video — text-only posts aren't supported there.`,
+});
+
 export async function publish(input: PublishInput, fetchImpl: FetchImpl): Promise<PublishResult> {
   try {
     switch (input.platform) {
       case "youtube": {
+        if (!hasMedia(input)) return NEEDS_VIDEO("YouTube");
         const res = await uploadVideo(
           input.accessToken,
           input.media,
@@ -67,16 +83,26 @@ export async function publish(input: PublishInput, fetchImpl: FetchImpl): Promis
       }
 
       case "x": {
-        const res = await xPublishVideo(
-          input.accessToken,
-          input.media,
-          withHashtags(input.caption, input.hashtags),
-          fetchImpl,
-        );
+        const text = withHashtags(input.caption, input.hashtags);
+        const res = hasMedia(input)
+          ? await xPublishVideo(input.accessToken, input.media, text, fetchImpl)
+          : await xPublishText(input.accessToken, text, fetchImpl);
         return { outcome: "success", externalId: res.postId, externalUrl: res.url };
       }
 
+      case "linkedin": {
+        if (!input.authorUrn) {
+          return { outcome: "failure", errorCode: "missing_author", errorMessage: "LinkedIn publishing needs the connected account's author URN." };
+        }
+        const text = withHashtags(input.caption, input.hashtags);
+        const res = hasMedia(input)
+          ? await liPublishVideo(input.accessToken, input.authorUrn, input.media, text, fetchImpl)
+          : await liPublishText(input.accessToken, input.authorUrn, text, fetchImpl);
+        return { outcome: "success", externalId: res.externalId, externalUrl: res.url };
+      }
+
       case "tiktok": {
+        if (!hasMedia(input)) return NEEDS_VIDEO("TikTok");
         const res = await tiktokPublishVideo(
           input.accessToken,
           input.media,
@@ -94,17 +120,15 @@ export async function publish(input: PublishInput, fetchImpl: FetchImpl): Promis
         if (!input.pageId) {
           return { outcome: "failure", errorCode: "missing_page_id", errorMessage: "Facebook publishing needs a target Page id." };
         }
-        const res = await uploadFacebookVideo(
-          input.pageId,
-          input.accessToken,
-          input.media,
-          { title: input.title, description: withHashtags(input.caption, input.hashtags) },
-          fetchImpl,
-        );
+        const body = withHashtags(input.caption, input.hashtags);
+        const res = hasMedia(input)
+          ? await uploadFacebookVideo(input.pageId, input.accessToken, input.media, { title: input.title, description: body }, fetchImpl)
+          : await publishFacebookText(input.pageId, input.accessToken, body, fetchImpl);
         return { outcome: "success", externalId: res.externalId, externalUrl: res.url };
       }
 
       case "instagram": {
+        if (!hasMedia(input)) return NEEDS_VIDEO("Instagram");
         if (!input.igUserId || !input.mediaUrl) {
           return {
             outcome: "failure",

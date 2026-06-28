@@ -17,6 +17,7 @@
 
 import { resolve } from "node:path";
 import { ShipMemory, syncConnector } from "@ship-memory/core";
+import { nodeFs } from "@ship-memory/core/node";
 import { createObsidianConnector } from "./index.js";
 
 async function main(): Promise<void> {
@@ -64,7 +65,7 @@ async function main(): Promise<void> {
     since = ms;
   }
 
-  const mem = ShipMemory.create(hubDir); // ensure the hub exists
+  const mem = await ShipMemory.create(hubDir, nodeFs); // ensure the hub exists
   const connector = createObsidianConnector({
     vaultPath,
     ignoreDirs,
@@ -79,7 +80,7 @@ async function main(): Promise<void> {
       {
         ...report,
         hub: mem.root,
-        total: ShipMemory.status(hubDir).count,
+        total: (await ShipMemory.status(hubDir, nodeFs)).count,
       },
       null,
       2,

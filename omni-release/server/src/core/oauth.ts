@@ -162,6 +162,13 @@ export function parseProfile(platform: string, json: any): ProfileInfo {
         display_name: json?.name,
         avatar_url: json?.picture?.data?.url,
       };
+    case "linkedin":
+      // OIDC userinfo: { sub, name, picture, email }
+      return {
+        external_account_id: json?.sub,
+        display_name: json?.name,
+        avatar_url: json?.picture,
+      };
     case "tiktok": {
       const u = json?.data?.user;
       return {
