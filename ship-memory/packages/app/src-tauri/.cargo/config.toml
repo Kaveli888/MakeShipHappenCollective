@@ -1,0 +1,5 @@
+# Build OUTSIDE the iCloud-synced Documents tree. iCloud evicts files under
+# src-tauri/target and cargo then hangs forever in read() — bit ShipTalk on
+# 2026-06-10. Keeping the target dir in $HOME (not synced) sidesteps it.
+[build]
+target-dir = "/Users/jake/.cargo-targets/shipmemory-app"
