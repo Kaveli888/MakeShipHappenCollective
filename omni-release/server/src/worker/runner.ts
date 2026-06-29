@@ -96,6 +96,11 @@ async function publishOne(cfg: RunnerConfig, targetId: string): Promise<OneResul
   // Text-only posts are allowed on platforms whose API accepts them; everything
   // else needs media. The router enforces per-platform too, but reject early here
   // so a contentless job fails with a clear reason instead of hitting an API.
+  // A media row that downloaded to zero bytes means the Storage fetch failed —
+  // fail loudly rather than silently posting a caption-only fallback.
+  if (ctx.media && ctx.media.bytes.byteLength === 0) {
+    return { platform, outcome: "failure", errorCode: "media_download_failed", errorMessage: "attached media downloaded as 0 bytes — check Storage." };
+  }
   const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin"]);
   if (!ctx.media && !(TEXT_CAPABLE.has(platform) && caption.trim())) {
     return {

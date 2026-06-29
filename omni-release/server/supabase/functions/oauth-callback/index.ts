@@ -16,6 +16,7 @@ import {
   type ProfileInfo,
   type RawTokenResponse,
 } from "../_shared/core/oauth.ts";
+import { getProvider } from "../_shared/core/providers.ts";
 
 const env = (k: string) => Deno.env.get(k) ?? "";
 
@@ -39,11 +40,15 @@ Deno.serve(async (req) => {
 
   try {
     const platform = flow.platform as string;
-    const clientId = env(`${platform.toUpperCase()}_CLIENT_ID`) || env("GOOGLE_CLIENT_ID");
+    // Use the provider's declared credential env names. These don't all follow
+    // the {PLATFORM}_CLIENT_ID convention — TikTok's is TIKTOK_CLIENT_KEY,
+    // YouTube's is GOOGLE_CLIENT_ID, Meta's is META_APP_ID, etc.
+    const provider = getProvider(platform);
+    const clientId = env(provider.clientIdEnv);
     const req2 = buildTokenExchange({
       platform,
       clientId,
-      clientSecret: env(`${platform.toUpperCase()}_CLIENT_SECRET`) || env("GOOGLE_CLIENT_SECRET"),
+      clientSecret: env(provider.clientSecretEnv),
       code,
       redirectUri: env("OAUTH_REDIRECT_URI"),
       codeVerifier: flow.code_verifier ?? undefined,
@@ -82,7 +87,7 @@ Deno.serve(async (req) => {
         external_account_id: profile.external_account_id ?? null,
         display_name: profile.display_name ?? null,
         avatar_url: profile.avatar_url ?? null,
-        scopes: (raw.scope ?? "").split(" ").filter(Boolean),
+        scopes: (raw.scope ?? "").split(/[ ,]+/).filter(Boolean),
         tokens_enc,
         token_expires_at: expiresAtIso(raw, Date.now()),
         status: "connected",

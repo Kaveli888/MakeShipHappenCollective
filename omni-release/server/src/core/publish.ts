@@ -6,9 +6,10 @@
 
 import { uploadVideo, type FetchImpl, type MediaBytes } from "./youtube.js";
 import { publishVideo as xPublishVideo, publishText as xPublishText } from "./x.js";
-import { publishVideo as tiktokPublishVideo, type TikTokPrivacy } from "./tiktok.js";
+import { publishVideo as tiktokPublishVideo, uploadToInbox as tiktokUploadToInbox, type TikTokPrivacy } from "./tiktok.js";
 import { uploadFacebookVideo, publishFacebookText, publishInstagramReel } from "./meta.js";
 import { publishText as liPublishText, publishVideo as liPublishVideo } from "./linkedin.js";
+import { getProvider } from "./providers.js";
 
 export interface PublishInput {
   platform: string;
@@ -103,6 +104,14 @@ export async function publish(input: PublishInput, fetchImpl: FetchImpl): Promis
 
       case "tiktok": {
         if (!hasMedia(input)) return NEEDS_VIDEO("TikTok");
+        // Direct Post requires an audited app. Until TikTok approves ours
+        // (provider.verified flips to true), drop the video into the creator's
+        // TikTok inbox as a draft — they open the app to finish posting. There's
+        // no public URL at that point, so externalUrl is omitted.
+        if (!getProvider("tiktok").verified) {
+          const draft = await tiktokUploadToInbox(input.accessToken, input.media, {}, fetchImpl);
+          return { outcome: "success", externalId: draft.publishId, externalUrl: draft.url ?? undefined };
+        }
         const res = await tiktokPublishVideo(
           input.accessToken,
           input.media,

@@ -13,6 +13,7 @@
 import type { FetchImpl, MediaBytes } from "./youtube.js";
 
 const INIT_URL = "https://open.tiktokapis.com/v2/post/publish/video/init/";
+const INBOX_INIT_URL = "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/";
 const STATUS_URL = "https://open.tiktokapis.com/v2/post/publish/status/fetch/";
 
 export interface TikTokInitResult {
@@ -69,6 +70,39 @@ export async function initUpload(
   const publishId = json.data?.publish_id;
   const uploadUrl = json.data?.upload_url;
   if (!publishId || !uploadUrl) throw new Error("tiktok init: response missing publish_id/upload_url");
+  return { publishId, uploadUrl };
+}
+
+/** Initialize an inbox/draft upload. Unlike Direct Post, this needs no app
+ * audit and only the `video.upload` scope — the video lands in the creator's
+ * TikTok inbox and they finish posting (title, privacy, etc.) inside the app.
+ * No `post_info` is sent; the creator sets it in-app. */
+export async function initInboxUpload(
+  accessToken: string,
+  sizeBytes: number,
+  fetchImpl: FetchImpl,
+): Promise<TikTokInitResult> {
+  const body = {
+    source_info: {
+      source: "FILE_UPLOAD",
+      video_size: sizeBytes,
+      chunk_size: sizeBytes,
+      total_chunk_count: 1,
+    },
+  };
+  const res = await fetchImpl(INBOX_INIT_URL, {
+    method: "POST",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`tiktok inbox init failed: ${res.status} ${await safeText(res)}`);
+  const json = (await res.json()) as { data?: { publish_id?: string; upload_url?: string }; error?: { code?: string; message?: string } };
+  if (json.error && json.error.code && json.error.code !== "ok") {
+    throw new Error(`tiktok inbox init error: ${json.error.code} ${json.error.message ?? ""}`);
+  }
+  const publishId = json.data?.publish_id;
+  const uploadUrl = json.data?.upload_url;
+  if (!publishId || !uploadUrl) throw new Error("tiktok inbox init: response missing publish_id/upload_url");
   return { publishId, uploadUrl };
 }
 
@@ -132,6 +166,32 @@ export async function publishVideo(
     await delay(opts.pollIntervalMs ?? 2000);
   }
   throw new Error("tiktok publish timed out");
+}
+
+/** Full inbox/draft flow: init → upload → poll until the draft is in the
+ * creator's inbox. Returns the publish id; there is no public URL yet (the
+ * creator publishes from the app), so `url` is always null. */
+export async function uploadToInbox(
+  accessToken: string,
+  media: MediaBytes,
+  opts: { pollIntervalMs?: number; maxPolls?: number },
+  fetchImpl: FetchImpl,
+): Promise<TikTokPublishResult> {
+  const { publishId, uploadUrl } = await initInboxUpload(accessToken, media.bytes.byteLength, fetchImpl);
+  await uploadBytes(uploadUrl, media, fetchImpl);
+
+  const maxPolls = opts.maxPolls ?? 30;
+  for (let i = 0; i < maxPolls; i++) {
+    const { status } = await fetchStatus(accessToken, publishId, fetchImpl);
+    // Inbox uploads terminate at SEND_TO_USER_INBOX (the draft is now in the
+    // app); accept PUBLISH_COMPLETE too in case the status taxonomy shifts.
+    if (status === "SEND_TO_USER_INBOX" || status === "PUBLISH_COMPLETE") {
+      return { publishId, url: null };
+    }
+    if (status === "FAILED") throw new Error("tiktok inbox upload failed");
+    await delay(opts.pollIntervalMs ?? 2000);
+  }
+  throw new Error("tiktok inbox upload timed out");
 }
 
 async function delay(ms: number): Promise<void> {

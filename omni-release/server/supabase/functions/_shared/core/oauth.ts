@@ -19,9 +19,9 @@ export function buildAuthorizeUrl(input: AuthorizeInput): string {
   const url = new URL(p.authorizeUrl);
   const q = url.searchParams;
   q.set("response_type", "code");
-  q.set("client_id", input.clientId);
+  q.set(p.clientIdParam ?? "client_id", input.clientId);
   q.set("redirect_uri", input.redirectUri);
-  q.set("scope", scopes.join(" "));
+  q.set("scope", scopes.join(p.scopeSeparator ?? " "));
   q.set("state", input.state);
   if (p.usesPkce) {
     if (!input.codeChallenge) throw new Error(`${p.id} requires PKCE codeChallenge`);
@@ -55,9 +55,9 @@ export function buildTokenExchange(input: TokenExchangeInput): HttpRequestSpec {
     grant_type: "authorization_code",
     code: input.code,
     redirect_uri: input.redirectUri,
-    client_id: input.clientId,
     client_secret: input.clientSecret,
   });
+  form.set(p.clientIdParam ?? "client_id", input.clientId);
   if (p.usesPkce) {
     if (!input.codeVerifier) throw new Error(`${p.id} requires PKCE codeVerifier`);
     form.set("code_verifier", input.codeVerifier);
@@ -78,9 +78,9 @@ export function buildRefresh(input: RefreshInput): HttpRequestSpec {
   const form = new URLSearchParams({
     grant_type: "refresh_token",
     refresh_token: input.refreshToken,
-    client_id: input.clientId,
     client_secret: input.clientSecret,
   });
+  form.set(p.clientIdParam ?? "client_id", input.clientId);
   return formPost(p.tokenUrl, form);
 }
 

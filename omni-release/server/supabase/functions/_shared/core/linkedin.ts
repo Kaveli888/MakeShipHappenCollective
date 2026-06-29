@@ -9,8 +9,11 @@
 import type { FetchImpl, MediaBytes } from "./youtube.ts";
 
 const REST = "https://api.linkedin.com/rest";
-// LinkedIn versions its API by YYYYMM; bump as needed (must be a supported month).
-const LINKEDIN_VERSION = "202405";
+// LinkedIn versions its API by YYYYMM and only honors roughly the trailing ~12
+// months. This MUST be kept to a currently-supported month or every call 400s.
+// Override per-deploy via LINKEDIN_API_VERSION without a code change.
+const LINKEDIN_VERSION =
+  (typeof process !== "undefined" && process.env?.LINKEDIN_API_VERSION) || "202505";
 
 export interface LinkedInResult {
   externalId: string;
@@ -115,7 +118,12 @@ export async function publishVideo(
     const slice = media.bytes.subarray(inst.firstByte, inst.lastByte + 1);
     const put = await fetchImpl(inst.uploadUrl, {
       method: "PUT",
-      headers: { "content-type": media.mimeType || "application/octet-stream" },
+      // LinkedIn upload URLs are not self-authenticating — the bearer token is
+      // required on the PUT (unlike S3 pre-signed URLs).
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "content-type": media.mimeType || "application/octet-stream",
+      },
       body: slice as unknown as BodyInit,
     });
     if (!put.ok) throw new Error(`linkedin video upload failed: ${put.status} ${await safeText(put)}`);

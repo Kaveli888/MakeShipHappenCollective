@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { FetchImpl } from "./youtube.js";
 import { chunkBytes, publishVideo as xPublish, X_CHUNK_BYTES } from "./x.js";
-import { publishVideo as tiktokPublish } from "./tiktok.js";
+import { publishVideo as tiktokPublish, uploadToInbox as tiktokInbox } from "./tiktok.js";
 import { uploadFacebookVideo, publishInstagramReel } from "./meta.js";
 import { publish } from "./publish.js";
 
@@ -81,6 +81,46 @@ test("tiktok publishVideo throws when status returns FAILED", async () => {
     () => tiktokPublish("tok", media, { title: "t", pollIntervalMs: 0 }, fetchImpl),
     /tiktok publish failed/,
   );
+});
+
+test("tiktok uploadToInbox posts a draft (inbox endpoint, no public URL)", async () => {
+  const calls: Capture[] = [];
+  const fetchImpl: FetchImpl = async (url, init) => {
+    calls.push({ url, init });
+    if (url.endsWith("/inbox/video/init/")) {
+      return json({ data: { publish_id: "DRAFT1", upload_url: "https://up.tiktok/draft" } });
+    }
+    if (url.startsWith("https://up.tiktok/")) return new Response(null, { status: 200 });
+    if (url.endsWith("/status/fetch/")) return json({ data: { status: "SEND_TO_USER_INBOX" } });
+    return new Response("404", { status: 404 });
+  };
+  const res = await tiktokInbox("tok", media, { pollIntervalMs: 0 }, fetchImpl);
+  assert.equal(res.publishId, "DRAFT1");
+  assert.equal(res.url, null);
+  assert.ok(calls.some((c) => c.url.endsWith("/inbox/video/init/")));
+});
+
+test("publish() routes tiktok to the inbox draft while the app is unaudited", async () => {
+  const calls: Capture[] = [];
+  const fetchImpl: FetchImpl = async (url, init) => {
+    calls.push({ url, init });
+    if (url.endsWith("/inbox/video/init/")) {
+      return json({ data: { publish_id: "DRAFT2", upload_url: "https://up.tiktok/d2" } });
+    }
+    if (url.startsWith("https://up.tiktok/")) return new Response(null, { status: 200 });
+    if (url.endsWith("/status/fetch/")) return json({ data: { status: "SEND_TO_USER_INBOX" } });
+    return new Response("404", { status: 404 });
+  };
+  const res = await publish(
+    { platform: "tiktok", media, title: "t", caption: "c", hashtags: [], accessToken: "tok", privacy: "private" },
+    fetchImpl,
+  );
+  assert.equal(res.outcome, "success");
+  assert.equal(res.externalId, "DRAFT2");
+  assert.equal(res.externalUrl, undefined);
+  // It used the inbox endpoint, not Direct Post.
+  assert.ok(calls.some((c) => c.url.endsWith("/inbox/video/init/")));
+  assert.ok(!calls.some((c) => c.url.endsWith("/post/publish/video/init/")));
 });
 
 /* ---------------------------------- Meta ------------------------------------ */

@@ -23,7 +23,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1430 http://localhost:1430 https://*.supabase.co wss://*.supabase.co; img-src 'self' asset: http://asset.localhost data: blob: https://*.supabase.co https://*.ggpht.com https://*.googleusercontent.com https://*.fbcdn.net https://*.fbsbx.com https://*.cdninstagram.com https://*.twimg.com https://*.tiktokcdn.com https://*.tiktokcdn-us.com https://*.jtvnw.net https://*.rmbl.ws; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1430 http://localhost:1430 https://*.supabase.co wss://*.supabase.co; img-src 'self' asset: http://asset.localhost data: blob: https://*.supabase.co https://*.ggpht.com https://*.googleusercontent.com https://*.fbcdn.net https://*.fbsbx.com https://*.cdninstagram.com https://*.twimg.com https://*.tiktokcdn.com https://*.tiktokcdn-us.com https://*.jtvnw.net https://*.rmbl.ws https://*.licdn.com; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
     }
   },
   "bundle": {

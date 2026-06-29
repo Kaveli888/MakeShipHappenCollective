@@ -17,6 +17,11 @@ function Cell({ on }: { on: boolean }) {
   return <td className={on ? "yes" : "no"}>{on ? "✓" : "—"}</td>;
 }
 
+// Platforms with a real OAuth provider on the backend (server/src/core/providers.ts).
+// Others (e.g. Rumble) are display-only — no public API — so we don't offer a
+// Connect button that would fail.
+const CONNECTABLE = new Set(["youtube", "tiktok", "instagram", "facebook", "x", "linkedin", "twitch"]);
+
 export default function Platforms() {
   const [caps, setCaps] = useState<PlatformCapability[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -164,6 +169,8 @@ export default function Platforms() {
                 <span className="sub">
                   Connected{conn.display_name ? ` as ${conn.display_name}` : ""} · stays signed in (auto-renews)
                 </span>
+              ) : !CONNECTABLE.has(c.platform) ? (
+                <span className="sub">No public API — not connectable.</span>
               ) : (
                 <button
                   className="ghost sm"

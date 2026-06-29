@@ -199,6 +199,11 @@ export interface CloudScheduleInput {
   privacy: string;
   scheduledForIso: string;
   timezone: string;
+  /**
+   * Platform-specific ids the worker reads at publish time (Facebook pageId,
+   * Instagram igUserId + public mediaUrl). Stored on the target's `options`.
+   */
+  options?: Record<string, unknown>;
 }
 
 /**
@@ -238,6 +243,7 @@ export async function scheduleToCloud(input: CloudScheduleInput): Promise<string
     title_override: input.title,
     hashtags: input.hashtags,
     privacy: input.privacy,
+    options: input.options ?? {},
     status: "scheduled",
   });
 

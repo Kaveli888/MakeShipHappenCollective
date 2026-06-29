@@ -78,8 +78,8 @@ pub fn capabilities() -> Vec<PlatformCapability> {
             "Page + admin role + App Review. Native scheduled Page posts. Pairs with Instagram."),
         row(Tiktok, "TikTok",
             [true, true, false, true, true, false, false, true, false, true],
-            vec!["video.upload", "video.publish"],
-            "Direct post needs approved product access; ship draft/inbox fallback first."),
+            vec!["user.info.basic", "video.upload", "video.publish"],
+            "Posts as a draft to your TikTok inbox — open the app to finish. Direct Post unlocks after TikTok app audit."),
         row(X, "X / Twitter",
             [true, true, false, false, false, true, true, true, false, true],
             vec!["tweet.read", "tweet.write", "users.read", "offline.access"],
@@ -93,9 +93,9 @@ pub fn capabilities() -> Vec<PlatformCapability> {
             vec!["clips:edit", "channel:read:stream_key", "analytics:read:games"],
             "No generic VOD upload API. Clips/VOD metadata/embed + stream announce only."),
         row(Rumble, "Rumble",
-            [true, true, false, false, true, false, true, true, true, true],
-            vec!["upload", "video.manage"],
-            "Upload API is partner/approval-gated (no public OAuth self-serve). No native schedule; verify access before building."),
+            [false, false, false, false, false, false, false, false, false, false],
+            vec![],
+            "No public API or OAuth — upload is partner/approval-gated. Display-only until Rumble grants API access."),
     ]
 }
 

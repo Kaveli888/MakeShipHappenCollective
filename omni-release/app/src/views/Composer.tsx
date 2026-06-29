@@ -65,6 +65,52 @@ function loadSavedTexts(): SavedText[] {
 // Soft caption ceiling shown in the editor (matches the longest platform limit).
 const CHAR_LIMIT = 3000;
 
+// Platforms whose API accepts text-only posts (no media). Must match the server
+// router (publish.ts) and worker (runner.ts) text-capable set.
+const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin"]);
+
+// Meta networks need an extra id the worker can't infer from the connected
+// account: Facebook posts to a specific Page (pageId); Instagram needs the IG
+// business-account id plus a publicly reachable media URL (the Graph API pulls
+// the asset by URL). These live on target.options and the worker reads them at
+// publish time — see server worker/runner.ts + core/publish.ts.
+interface MetaOptions {
+  pageId?: string;
+  igUserId?: string;
+  mediaUrl?: string;
+}
+
+// Pull the meta ids out of a target's stored options blob (parsed JSON or null).
+function readMetaOptions(options: unknown): MetaOptions {
+  const o = (options ?? {}) as Record<string, unknown>;
+  return {
+    pageId: typeof o.pageId === "string" ? o.pageId : undefined,
+    igUserId: typeof o.igUserId === "string" ? o.igUserId : undefined,
+    mediaUrl: typeof o.mediaUrl === "string" ? o.mediaUrl : undefined,
+  };
+}
+
+// Build the options blob persisted on the target + sent to the cloud worker.
+// Only the ids the given platform actually reads are included (trimmed).
+function buildMetaOptions(platform: string, m: MetaOptions): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (platform === "facebook" && m.pageId?.trim()) out.pageId = m.pageId.trim();
+  if (platform === "instagram") {
+    if (m.igUserId?.trim()) out.igUserId = m.igUserId.trim();
+    if (m.mediaUrl?.trim()) out.mediaUrl = m.mediaUrl.trim();
+  }
+  return out;
+}
+
+// Whether `platform` is still missing a meta id it requires to publish live.
+// Returns a human reason string, or null when the options are complete/N/A.
+function missingMetaReason(platform: string, opts: Record<string, string>): string | null {
+  if (platform === "facebook" && !opts.pageId) return "needs a Facebook Page ID";
+  if (platform === "instagram" && (!opts.igUserId || !opts.mediaUrl))
+    return "needs an Instagram business account ID + a public media URL";
+  return null;
+}
+
 // Identity shown in the live previews. These are an approximation — the real
 // account name/handle/avatar come from the connected platform at publish time.
 const BRAND = {
@@ -377,7 +423,7 @@ export default function Composer({
     if (!when) return;
     if (!cloud) {
       setError(
-        "You're not signed in to the cloud, so posts can't actually publish. Sign in (top-left) and connect YouTube in Platforms, then schedule.",
+        "You're not signed in to the cloud, so posts can't actually publish. Sign in (top-left) and connect a platform in Platforms, then schedule.",
       );
       return;
     }
@@ -385,7 +431,6 @@ export default function Composer({
     // Instagram, TikTok) need it; text-capable ones (X, Facebook, LinkedIn) post
     // text alone.
     const primaryMediaId = bundle?.post.media_asset_id ?? selected[0] ?? null;
-    const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin"]);
 
     setBusy(true);
     setNotice(null);
@@ -412,6 +457,12 @@ export default function Composer({
           blocked.push(`${t.platform}: write some text or attach a video first`);
           continue;
         }
+        const metaOpts = buildMetaOptions(t.platform, readMetaOptions(t.options));
+        const metaMissing = missingMetaReason(t.platform, metaOpts);
+        if (metaMissing) {
+          blocked.push(`${t.platform}: ${metaMissing} — set it on the network card below, then Save`);
+          continue;
+        }
         await scheduleToCloud({
           workspaceId: cloud.workspaceId,
           mediaId: primaryMediaId ?? undefined,
@@ -422,6 +473,7 @@ export default function Composer({
           privacy,
           scheduledForIso: whenIso,
           timezone: LOCAL_TZ,
+          options: metaOpts,
         });
         live.push(t.platform);
       }
@@ -1198,6 +1250,7 @@ function PlatformRow({
   const [title, setTitle] = useState(target?.title_override ?? "");
   const [hashtags, setHashtags] = useState((target?.hashtags ?? []).join(" "));
   const [privacy, setPrivacy] = useState(target?.privacy ?? "public");
+  const [meta, setMeta] = useState<MetaOptions>(() => readMetaOptions(target?.options));
   const [when, setWhen] = useState(defaultScheduleInput());
   const [open, setOpen] = useState(true);
   const [cloudMsg, setCloudMsg] = useState<string | null>(null);
@@ -1205,11 +1258,22 @@ function PlatformRow({
 
   async function scheduleLive() {
     if (!cloud || !when) return;
-    if (!mediaId) {
+    const textOnly = TEXT_CAPABLE.has(cap.platform);
+    if (!mediaId && !textOnly) {
       onError("Attach media before scheduling a live post.");
       return;
     }
-    setCloudMsg("Uploading… 0%");
+    if (!mediaId && !(caption.trim() || masterCaption.trim())) {
+      onError("Write some text or attach media before scheduling.");
+      return;
+    }
+    const metaOpts = buildMetaOptions(cap.platform, meta);
+    const metaMissing = missingMetaReason(cap.platform, metaOpts);
+    if (metaMissing) {
+      onError(`${cap.label} ${metaMissing} — fill it in above before scheduling.`);
+      return;
+    }
+    if (mediaId) setCloudMsg("Uploading… 0%");
     // Live upload progress emitted by the Rust resumable upload (per 6 MB chunk).
     const unlisten = await listen<{ mediaId: string; pct: number }>("upload-progress", (e) => {
       if (e.payload.mediaId === mediaId) {
@@ -1219,7 +1283,7 @@ function PlatformRow({
     try {
       const jobId = await scheduleToCloud({
         workspaceId: cloud.workspaceId,
-        mediaId,
+        mediaId: mediaId ?? undefined,
         platform: cap.platform,
         title: title || masterCaption.slice(0, 80),
         caption: caption || masterCaption,
@@ -1227,6 +1291,7 @@ function PlatformRow({
         privacy,
         scheduledForIso: localInputToUtcIso(when),
         timezone: LOCAL_TZ,
+        options: metaOpts,
       });
       setCloudMsg(`Scheduled live (cloud job ${jobId.slice(0, 8)}). The worker will publish it.`);
     } catch (e) {
@@ -1242,6 +1307,7 @@ function PlatformRow({
     setTitle(target?.title_override ?? "");
     setHashtags((target?.hashtags ?? []).join(" "));
     setPrivacy(target?.privacy ?? "public");
+    setMeta(readMetaOptions(target?.options));
   }, [target]);
 
   async function save() {
@@ -1254,7 +1320,7 @@ function PlatformRow({
         hashtags: hashtags.split(/\s+/).filter(Boolean),
         thumbnailMediaId: null,
         privacy,
-        options: {},
+        options: buildMetaOptions(cap.platform, meta),
       });
       onChange();
     } catch (e) {
@@ -1342,6 +1408,43 @@ function PlatformRow({
               <option value="private">private</option>
             </select>
           </label>
+
+          {cap.platform === "facebook" && (
+            <label className="field">
+              <span>Facebook Page ID</span>
+              <input
+                value={meta.pageId ?? ""}
+                onChange={(e) => setMeta((m) => ({ ...m, pageId: e.target.value }))}
+                placeholder="e.g. 102938475610293 — the Page to post to"
+              />
+              <small className="sub">
+                The numeric id of the Page (graph.facebook.com/me/accounts) the post lands on.
+              </small>
+            </label>
+          )}
+          {cap.platform === "instagram" && (
+            <>
+              <label className="field">
+                <span>Instagram business account ID</span>
+                <input
+                  value={meta.igUserId ?? ""}
+                  onChange={(e) => setMeta((m) => ({ ...m, igUserId: e.target.value }))}
+                  placeholder="IG Business/Creator account id"
+                />
+              </label>
+              <label className="field">
+                <span>Public media URL</span>
+                <input
+                  value={meta.mediaUrl ?? ""}
+                  onChange={(e) => setMeta((m) => ({ ...m, mediaUrl: e.target.value }))}
+                  placeholder="https://… publicly reachable image/video URL"
+                />
+                <small className="sub">
+                  Instagram’s Graph API fetches the asset by URL, so it must be public.
+                </small>
+              </label>
+            </>
+          )}
 
           {target?.external_url && (
             <div className="banner ok">

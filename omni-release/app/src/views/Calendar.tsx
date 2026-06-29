@@ -20,7 +20,7 @@ import {
  *  posts distinctly and never confuse the two scheduling paths again. */
 type CalEntry = CalendarEntry & { _source: "local" | "cloud" };
 
-const PLATFORMS: PlatformId[] = ["youtube", "tiktok", "instagram", "facebook", "x", "twitch", "rumble"];
+const PLATFORMS: PlatformId[] = ["youtube", "tiktok", "instagram", "facebook", "x", "linkedin", "twitch", "rumble"];
 
 /** Lifecycle bucket for a calendar entry — what the user actually wants to see:
  *  shipped (already sent), publishing (in flight), failed, or upcoming. */

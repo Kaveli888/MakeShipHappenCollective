@@ -25,6 +25,17 @@ export interface OAuthProvider {
   authorizeParams?: Record<string, string>;
   /** Whether token exchange uses PKCE. */
   usesPkce: boolean;
+  /** How client credentials are presented at the token endpoint. X (a
+   * confidential client) mandates HTTP Basic auth — sending client_secret in the
+   * body returns 401 there. Most providers accept body credentials. Default "body". */
+  tokenAuth?: "basic" | "body";
+  /** Param name for the client identifier at the authorize/token/refresh
+   * endpoints. TikTok is non-standard and uses `client_key` instead of the
+   * OAuth-standard `client_id`. Default "client_id". */
+  clientIdParam?: string;
+  /** Separator for the authorize `scope` param. TikTok joins scopes with a comma;
+   * the OAuth default is a space. Default " ". */
+  scopeSeparator?: string;
   /** True once endpoints/scopes have been re-verified for an integration. */
   verified: boolean;
   /** env var names for this provider's client credentials (server-only). */
@@ -86,8 +97,14 @@ export const PROVIDERS: Record<PlatformId, OAuthProvider> = {
     label: "TikTok",
     authorizeUrl: "https://www.tiktok.com/v2/auth/authorize/",
     tokenUrl: "https://open.tiktokapis.com/v2/oauth/token/",
-    scopes: ["video.upload", "video.publish"],
+    // user.info.basic is required to read display_name/avatar for the preview;
+    // video.upload powers the inbox/draft fallback (no audit needed);
+    // video.publish enables Direct Post once the app is audited.
+    scopes: ["user.info.basic", "video.upload", "video.publish"],
     usesPkce: true,
+    // TikTok is non-standard: client_key (not client_id) + comma-separated scopes.
+    clientIdParam: "client_key",
+    scopeSeparator: ",",
     verified: false,
     clientIdEnv: "TIKTOK_CLIENT_KEY",
     clientSecretEnv: "TIKTOK_CLIENT_SECRET",
@@ -98,8 +115,12 @@ export const PROVIDERS: Record<PlatformId, OAuthProvider> = {
     label: "X / Twitter",
     authorizeUrl: "https://twitter.com/i/oauth2/authorize",
     tokenUrl: "https://api.twitter.com/2/oauth2/token",
-    scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+    // media.write is required to upload video via the v2 /2/media/upload endpoint
+    // under OAuth2 user context; tweet.write alone only allows text posts.
+    scopes: ["tweet.read", "tweet.write", "users.read", "media.write", "offline.access"],
     usesPkce: true,
+    // Confidential client → credentials go in the Authorization: Basic header.
+    tokenAuth: "basic",
     verified: false,
     clientIdEnv: "X_CLIENT_ID",
     clientSecretEnv: "X_CLIENT_SECRET",
