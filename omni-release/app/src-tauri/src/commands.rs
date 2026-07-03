@@ -8,10 +8,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use tauri::{AppHandle, Emitter, Manager, State};
 
-const ALLOWED_VIDEO_EXT: &[&str] =
-    &["mp4", "mov", "webm", "mkv", "avi", "m4v"];
-const ALLOWED_IMAGE_EXT: &[&str] =
-    &["jpg", "jpeg", "png", "gif", "webp", "heic"];
+const ALLOWED_VIDEO_EXT: &[&str] = &["mp4", "mov", "webm", "mkv", "avi", "m4v"];
+const ALLOWED_IMAGE_EXT: &[&str] = &["jpg", "jpeg", "png", "gif", "webp", "heic"];
 const MAX_BYTES: i64 = 5 * 1024 * 1024 * 1024; // 5 GB guardrail
 
 fn is_image_ext(ext: &str) -> bool {
@@ -29,7 +27,10 @@ fn find_bin(name: &str) -> Option<PathBuf> {
         format!("/usr/local/bin/{name}"),
         format!("/usr/bin/{name}"),
     ];
-    candidates.into_iter().map(PathBuf::from).find(|p| p.exists())
+    candidates
+        .into_iter()
+        .map(PathBuf::from)
+        .find(|p| p.exists())
 }
 
 fn app_media_dir(app: &AppHandle) -> Result<PathBuf, String> {
@@ -42,7 +43,9 @@ fn app_media_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(media)
 }
 
-fn lock<'a>(state: &'a State<DbState>) -> Result<std::sync::MutexGuard<'a, rusqlite::Connection>, String> {
+fn lock<'a>(
+    state: &'a State<DbState>,
+) -> Result<std::sync::MutexGuard<'a, rusqlite::Connection>, String> {
     state.0.lock().map_err(|_| "db lock poisoned".to_string())
 }
 
@@ -50,12 +53,24 @@ fn b64(bytes: &[u8]) -> String {
     const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::with_capacity((bytes.len() + 2) / 3 * 4);
     for chunk in bytes.chunks(3) {
-        let b = [chunk[0], *chunk.get(1).unwrap_or(&0), *chunk.get(2).unwrap_or(&0)];
+        let b = [
+            chunk[0],
+            *chunk.get(1).unwrap_or(&0),
+            *chunk.get(2).unwrap_or(&0),
+        ];
         let n = ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | b[2] as u32;
         out.push(T[((n >> 18) & 63) as usize] as char);
         out.push(T[((n >> 12) & 63) as usize] as char);
-        out.push(if chunk.len() > 1 { T[((n >> 6) & 63) as usize] as char } else { '=' });
-        out.push(if chunk.len() > 2 { T[(n & 63) as usize] as char } else { '=' });
+        out.push(if chunk.len() > 1 {
+            T[((n >> 6) & 63) as usize] as char
+        } else {
+            '='
+        });
+        out.push(if chunk.len() > 2 {
+            T[(n & 63) as usize] as char
+        } else {
+            '='
+        });
     }
     out
 }
@@ -68,17 +83,31 @@ struct Probe {
 }
 
 fn ffprobe(path: &Path) -> Probe {
-    let Some(bin) = find_bin("ffprobe") else { return Probe::default() };
+    let Some(bin) = find_bin("ffprobe") else {
+        return Probe::default();
+    };
     let out = Command::new(bin)
-        .args(["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams"])
+        .args([
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
+            "-show_format",
+            "-show_streams",
+        ])
         .arg(path)
         .output();
-    let Ok(out) = out else { return Probe::default() };
+    let Ok(out) = out else {
+        return Probe::default();
+    };
     let json: serde_json::Value =
         serde_json::from_slice(&out.stdout).unwrap_or(serde_json::Value::Null);
     let mut p = Probe::default();
     if let Some(streams) = json.get("streams").and_then(|s| s.as_array()) {
-        if let Some(v) = streams.iter().find(|s| s.get("codec_type").and_then(|c| c.as_str()) == Some("video")) {
+        if let Some(v) = streams
+            .iter()
+            .find(|s| s.get("codec_type").and_then(|c| c.as_str()) == Some("video"))
+        {
             p.width = v.get("width").and_then(|w| w.as_i64());
             p.height = v.get("height").and_then(|h| h.as_i64());
         }
@@ -92,7 +121,9 @@ fn ffprobe(path: &Path) -> Probe {
 }
 
 fn make_thumbnail(src: &Path, dest: &Path) -> bool {
-    let Some(bin) = find_bin("ffmpeg") else { return false };
+    let Some(bin) = find_bin("ffmpeg") else {
+        return false;
+    };
     // Try 1s in; fall back to frame 0 for very short clips.
     for ss in ["1", "0"] {
         let ok = Command::new(&bin)
@@ -113,7 +144,9 @@ fn make_thumbnail(src: &Path, dest: &Path) -> bool {
 /// Downscale a still image (or first frame of an animated gif/webp) to a JPEG
 /// thumbnail. Unlike video, there's no seek — just decode + scale.
 fn make_image_thumb(src: &Path, dest: &Path) -> bool {
-    let Some(bin) = find_bin("ffmpeg") else { return false };
+    let Some(bin) = find_bin("ffmpeg") else {
+        return false;
+    };
     Command::new(&bin)
         .args(["-y", "-i"])
         .arg(src)
@@ -126,7 +159,11 @@ fn make_image_thumb(src: &Path, dest: &Path) -> bool {
 }
 
 fn gcd(a: i64, b: i64) -> i64 {
-    if b == 0 { a } else { gcd(b, a % b) }
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
 }
 fn aspect(w: Option<i64>, h: Option<i64>) -> Option<String> {
     match (w, h) {
@@ -171,7 +208,11 @@ pub async fn pick_media_files(app: AppHandle) -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-pub fn media_import(app: AppHandle, state: State<DbState>, path: String) -> Result<MediaAsset, String> {
+pub fn media_import(
+    app: AppHandle,
+    state: State<DbState>,
+    path: String,
+) -> Result<MediaAsset, String> {
     let src = PathBuf::from(&path);
     if !src.is_file() {
         return Err(format!("not a file: {path}"));
@@ -191,7 +232,9 @@ pub fn media_import(app: AppHandle, state: State<DbState>, path: String) -> Resu
     let is_image = is_image_ext(&ext);
     let byte_size = std::fs::metadata(&src).map_err(|e| e.to_string())?.len() as i64;
     if byte_size > MAX_BYTES {
-        return Err(format!("file too large ({byte_size} bytes); max is {MAX_BYTES}."));
+        return Err(format!(
+            "file too large ({byte_size} bytes); max is {MAX_BYTES}."
+        ));
     }
 
     let media_dir = app_media_dir(&app)?;
@@ -248,23 +291,40 @@ pub fn media_import(app: AppHandle, state: State<DbState>, path: String) -> Resu
     };
     let conn = lock(&state)?;
     db::insert_media(&conn, &asset).map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "media.import", Some("media"), Some(&id),
-        serde_json::json!({ "filename": asset.filename, "bytes": byte_size }))
-        .map_err(|e| e.to_string())?;
+    db::audit(
+        &conn,
+        "user",
+        "media.import",
+        Some("media"),
+        Some(&id),
+        serde_json::json!({ "filename": asset.filename, "bytes": byte_size }),
+    )
+    .map_err(|e| e.to_string())?;
     Ok(asset)
 }
 
 #[tauri::command]
-pub fn media_list(state: State<DbState>, include_archived: bool) -> Result<Vec<MediaAsset>, String> {
+pub fn media_list(
+    state: State<DbState>,
+    include_archived: bool,
+) -> Result<Vec<MediaAsset>, String> {
     let conn = lock(&state)?;
     db::list_media(&conn, include_archived).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn media_thumb(app: AppHandle, state: State<DbState>, id: String) -> Result<Option<String>, String> {
+pub fn media_thumb(
+    app: AppHandle,
+    state: State<DbState>,
+    id: String,
+) -> Result<Option<String>, String> {
     let conn = lock(&state)?;
-    let Some(m) = db::get_media(&conn, &id).map_err(|e| e.to_string())? else { return Ok(None) };
-    let Some(key) = m.thumbnail_key else { return Ok(None) };
+    let Some(m) = db::get_media(&conn, &id).map_err(|e| e.to_string())? else {
+        return Ok(None);
+    };
+    let Some(key) = m.thumbnail_key else {
+        return Ok(None);
+    };
     drop(conn);
     let path = app_media_dir(&app)?.join(key);
     match std::fs::read(&path) {
@@ -304,7 +364,11 @@ pub fn campaigns_list(state: State<DbState>) -> Result<Vec<Campaign>, String> {
 }
 
 #[tauri::command]
-pub fn campaign_create(state: State<DbState>, name: String, color: Option<String>) -> Result<String, String> {
+pub fn campaign_create(
+    state: State<DbState>,
+    name: String,
+    color: Option<String>,
+) -> Result<String, String> {
     let conn = lock(&state)?;
     db::insert_campaign(&conn, &name, color.as_deref()).map_err(|e| e.to_string())
 }
@@ -312,11 +376,21 @@ pub fn campaign_create(state: State<DbState>, name: String, color: Option<String
 /* ---------- posts ---------- */
 
 #[tauri::command]
-pub fn post_create(state: State<DbState>, media_asset_id: Option<String>) -> Result<String, String> {
+pub fn post_create(
+    state: State<DbState>,
+    media_asset_id: Option<String>,
+) -> Result<String, String> {
     let conn = lock(&state)?;
     let id = db::insert_post(&conn, media_asset_id.as_deref()).map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "post.create", Some("post"), Some(&id), serde_json::Value::Null)
-        .map_err(|e| e.to_string())?;
+    db::audit(
+        &conn,
+        "user",
+        "post.create",
+        Some("post"),
+        Some(&id),
+        serde_json::Value::Null,
+    )
+    .map_err(|e| e.to_string())?;
     Ok(id)
 }
 
@@ -344,19 +418,37 @@ pub fn post_update(
     campaign_id: Option<String>,
 ) -> Result<(), String> {
     let conn = lock(&state)?;
-    db::update_post(&conn, &id, media_asset_id, master_caption, link, cta, campaign_id)
-        .map_err(|e| e.to_string())
+    db::update_post(
+        &conn,
+        &id,
+        media_asset_id,
+        master_caption,
+        link,
+        cta,
+        campaign_id,
+    )
+    .map_err(|e| e.to_string())
 }
 
 /// Replace the ordered set of media attached to a post (the carousel that ships
 /// together). Pass the media ids in the order the user selected them.
 #[tauri::command]
-pub fn post_set_media(state: State<DbState>, post_id: String, media_ids: Vec<String>) -> Result<(), String> {
+pub fn post_set_media(
+    state: State<DbState>,
+    post_id: String,
+    media_ids: Vec<String>,
+) -> Result<(), String> {
     let conn = lock(&state)?;
     db::set_post_media(&conn, &post_id, &media_ids).map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "post.set_media", Some("post"), Some(&post_id),
-        serde_json::json!({ "count": media_ids.len() }))
-        .map_err(|e| e.to_string())?;
+    db::audit(
+        &conn,
+        "user",
+        "post.set_media",
+        Some("post"),
+        Some(&post_id),
+        serde_json::json!({ "count": media_ids.len() }),
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -377,14 +469,25 @@ pub fn target_upsert(
 ) -> Result<String, String> {
     let conn = lock(&state)?;
     db::upsert_target(
-        &conn, &post_id, &platform, caption_override, title_override, hashtags,
-        thumbnail_media_id, privacy, options.unwrap_or(serde_json::Value::Null),
+        &conn,
+        &post_id,
+        &platform,
+        caption_override,
+        title_override,
+        hashtags,
+        thumbnail_media_id,
+        privacy,
+        options.unwrap_or(serde_json::Value::Null),
     )
     .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn target_delete(state: State<DbState>, post_id: String, platform: String) -> Result<(), String> {
+pub fn target_delete(
+    state: State<DbState>,
+    post_id: String,
+    platform: String,
+) -> Result<(), String> {
     let conn = lock(&state)?;
     db::delete_target(&conn, &post_id, &platform).map_err(|e| e.to_string())
 }
@@ -394,8 +497,15 @@ pub fn target_delete(state: State<DbState>, post_id: String, platform: String) -
 pub fn job_delete(state: State<DbState>, job_id: String) -> Result<(), String> {
     let conn = lock(&state)?;
     db::delete_job(&conn, &job_id).map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "job.delete", Some("job"), Some(&job_id), serde_json::json!({}))
-        .map_err(|e| e.to_string())?;
+    db::audit(
+        &conn,
+        "user",
+        "job.delete",
+        Some("job"),
+        Some(&job_id),
+        serde_json::json!({}),
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -410,11 +520,23 @@ pub fn schedule_create(
     max_attempts: Option<i64>,
 ) -> Result<String, String> {
     let conn = lock(&state)?;
-    let id = db::insert_job(&conn, &target_id, &scheduled_for, &timezone, max_attempts.unwrap_or(5))
-        .map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "schedule.create", Some("job"), Some(&id),
-        serde_json::json!({ "target": target_id, "for": scheduled_for, "tz": timezone }))
-        .map_err(|e| e.to_string())?;
+    let id = db::insert_job(
+        &conn,
+        &target_id,
+        &scheduled_for,
+        &timezone,
+        max_attempts.unwrap_or(5),
+    )
+    .map_err(|e| e.to_string())?;
+    db::audit(
+        &conn,
+        "user",
+        "schedule.create",
+        Some("job"),
+        Some(&id),
+        serde_json::json!({ "target": target_id, "for": scheduled_for, "tz": timezone }),
+    )
+    .map_err(|e| e.to_string())?;
     Ok(id)
 }
 
@@ -422,8 +544,15 @@ pub fn schedule_create(
 pub fn schedule_cancel(state: State<DbState>, job_id: String) -> Result<(), String> {
     let conn = lock(&state)?;
     db::cancel_job(&conn, &job_id).map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "schedule.cancel", Some("job"), Some(&job_id), serde_json::Value::Null)
-        .map_err(|e| e.to_string())
+    db::audit(
+        &conn,
+        "user",
+        "schedule.cancel",
+        Some("job"),
+        Some(&job_id),
+        serde_json::Value::Null,
+    )
+    .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -435,12 +564,23 @@ pub fn schedule_reschedule(
 ) -> Result<(), String> {
     let conn = lock(&state)?;
     db::reschedule_job(&conn, &job_id, &scheduled_for, &timezone).map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "schedule.reschedule", Some("job"), Some(&job_id),
-        serde_json::json!({ "for": scheduled_for })).map_err(|e| e.to_string())
+    db::audit(
+        &conn,
+        "user",
+        "schedule.reschedule",
+        Some("job"),
+        Some(&job_id),
+        serde_json::json!({ "for": scheduled_for }),
+    )
+    .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn calendar_list(state: State<DbState>, from: String, to: String) -> Result<Vec<CalendarEntry>, String> {
+pub fn calendar_list(
+    state: State<DbState>,
+    from: String,
+    to: String,
+) -> Result<Vec<CalendarEntry>, String> {
     let conn = lock(&state)?;
     db::calendar_range(&conn, &from, &to).map_err(|e| e.to_string())
 }
@@ -455,14 +595,25 @@ pub fn job_retry(state: State<DbState>, job_id: String) -> Result<(), String> {
         rusqlite::params![job_id, now],
     )
     .map_err(|e| e.to_string())?;
-    db::audit(&conn, "user", "job.retry", Some("job"), Some(&job_id), serde_json::Value::Null)
-        .map_err(|e| e.to_string())
+    db::audit(
+        &conn,
+        "user",
+        "job.retry",
+        Some("job"),
+        Some(&job_id),
+        serde_json::Value::Null,
+    )
+    .map_err(|e| e.to_string())
 }
 
 /* ---------- publishing ---------- */
 
 #[tauri::command]
-pub fn publish_now(state: State<DbState>, target_id: String, mode: String) -> Result<PublishOutcome, String> {
+pub fn publish_now(
+    state: State<DbState>,
+    target_id: String,
+    mode: String,
+) -> Result<PublishOutcome, String> {
     let conn = lock(&state)?;
     let target = db::get_target(&conn, &target_id)
         .map_err(|e| e.to_string())?
@@ -470,10 +621,31 @@ pub fn publish_now(state: State<DbState>, target_id: String, mode: String) -> Re
     publish::publish_target(&conn, &target, None, &mode).map_err(|e| e.to_string())
 }
 
+/// Pull in any results the Claude agent has written to `outbox/done/` — records a
+/// publish attempt + updates the target — and return how many were processed. The
+/// scheduler calls this each tick; exposed here for a manual "sync now" from the UI.
+#[tauri::command]
+pub fn ingest_agent_results(state: State<DbState>) -> Result<u32, String> {
+    let root = crate::engine_root();
+    let conn = lock(&state)?;
+    crate::agent::ingest_results(&conn, &root)
+}
+
+/// List active cards in `outbox/due/` exactly as the browser publishing agent sees
+/// them. This powers the desktop Agent Queue view.
+#[tauri::command]
+pub fn agent_queue() -> Result<Vec<crate::agent::AgentQueueItem>, String> {
+    let root = crate::engine_root();
+    crate::agent::list_queue(&root)
+}
+
 /* ---------- activity / audit ---------- */
 
 #[tauri::command]
-pub fn attempts_list(state: State<DbState>, limit: Option<i64>) -> Result<Vec<PublishAttempt>, String> {
+pub fn attempts_list(
+    state: State<DbState>,
+    limit: Option<i64>,
+) -> Result<Vec<PublishAttempt>, String> {
     let conn = lock(&state)?;
     db::list_attempts(&conn, limit.unwrap_or(50)).map_err(|e| e.to_string())
 }
@@ -516,7 +688,28 @@ pub fn open_url(url: String) -> Result<(), String> {
     if !ok {
         return Err("refused: only https or localhost URLs may be opened".into());
     }
-    Command::new("open").arg(&url).status().map_err(|e| e.to_string())?;
+    Command::new("open")
+        .arg(&url)
+        .status()
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// Open a publishing URL specifically in Google Chrome so handoffs reuse Jake's
+/// active Chrome profile instead of the system default browser.
+#[tauri::command]
+pub fn open_chrome_url(url: String) -> Result<(), String> {
+    let ok = url.starts_with("https://")
+        || url.starts_with("http://localhost")
+        || url.starts_with("http://127.0.0.1");
+    if !ok {
+        return Err("refused: only https or localhost URLs may be opened".into());
+    }
+    Command::new("open")
+        .args(["-a", "Google Chrome"])
+        .arg(&url)
+        .status()
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -600,7 +793,17 @@ pub async fn media_upload_resumable(
     let app_handle = app.clone();
     let mid = media_id.clone();
     let result = tauri::async_runtime::spawn_blocking(move || {
-        tus_upload(&app_handle, &mid, &supabase_url, &anon_key, &access_token, &object_key, &mime_type, &filename, &path)
+        tus_upload(
+            &app_handle,
+            &mid,
+            &supabase_url,
+            &anon_key,
+            &access_token,
+            &object_key,
+            &mime_type,
+            &filename,
+            &path,
+        )
     })
     .await
     .map_err(|e| e.to_string())?;
@@ -624,7 +827,9 @@ fn tus_upload(
     filename: &str,
     path: &Path,
 ) -> Result<serde_json::Value, String> {
-    let total = std::fs::metadata(path).map_err(|e| format!("stat failed: {e}"))?.len();
+    let total = std::fs::metadata(path)
+        .map_err(|e| format!("stat failed: {e}"))?
+        .len();
     let base = supabase_url.trim_end_matches('/');
 
     // 1. TUS create — declare the upload; server returns the per-upload URL.
@@ -649,11 +854,18 @@ fn tus_upload(
             .map(|s| s.to_string())
             .ok_or("resumable create: missing Location header")?,
         Err(ureq::Error::Status(code, r)) => {
-            return Err(format!("resumable create {code}: {}", r.into_string().unwrap_or_default()));
+            return Err(format!(
+                "resumable create {code}: {}",
+                r.into_string().unwrap_or_default()
+            ));
         }
         Err(e) => return Err(e.to_string()),
     };
-    let upload_url = if location.starts_with("http") { location } else { format!("{base}{location}") };
+    let upload_url = if location.starts_with("http") {
+        location
+    } else {
+        format!("{base}{location}")
+    };
 
     // 2. PATCH the bytes in 6 MB chunks (Supabase requires non-final chunks to be
     //    multiples of 6 MB). Stream from disk so memory stays flat.
@@ -663,12 +875,17 @@ fn tus_upload(
     let mut buf = vec![0u8; CHUNK];
     let mut offset: u64 = 0;
     while offset < total {
-        file.seek(SeekFrom::Start(offset)).map_err(|e| e.to_string())?;
+        file.seek(SeekFrom::Start(offset))
+            .map_err(|e| e.to_string())?;
         let want = std::cmp::min(CHUNK as u64, total - offset) as usize;
         let mut filled = 0;
         while filled < want {
-            let n = file.read(&mut buf[filled..want]).map_err(|e| e.to_string())?;
-            if n == 0 { break; }
+            let n = file
+                .read(&mut buf[filled..want])
+                .map_err(|e| e.to_string())?;
+            if n == 0 {
+                break;
+            }
             filled += n;
         }
         let patch = ureq::request("PATCH", &upload_url)
@@ -687,7 +904,11 @@ fn tus_upload(
                     .header("Upload-Offset")
                     .and_then(|s| s.parse::<u64>().ok())
                     .unwrap_or(offset + filled as u64);
-                let pct = if total > 0 { (offset.min(total) * 100 / total) as u32 } else { 100 };
+                let pct = if total > 0 {
+                    (offset.min(total) * 100 / total) as u32
+                } else {
+                    100
+                };
                 let _ = app.emit(
                     "upload-progress",
                     serde_json::json!({ "mediaId": media_id, "uploaded": offset, "total": total, "pct": pct }),

@@ -22,10 +22,12 @@ fn to_json_arr(v: &[String]) -> String {
     serde_json::to_string(v).unwrap_or_else(|_| "[]".into())
 }
 fn from_json_arr(s: Option<String>) -> Vec<String> {
-    s.and_then(|s| serde_json::from_str(&s).ok()).unwrap_or_default()
+    s.and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
 }
 fn from_json_val(s: Option<String>) -> Value {
-    s.and_then(|s| serde_json::from_str(&s).ok()).unwrap_or(Value::Null)
+    s.and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or(Value::Null)
 }
 
 /// Open the DB at `path`, run migrations, and ensure the local workspace exists.
@@ -273,9 +275,7 @@ pub fn audit(
 }
 
 pub fn list_audit(conn: &Connection, limit: i64) -> rusqlite::Result<Vec<AuditLog>> {
-    let mut st = conn.prepare(
-        "SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT ?1",
-    )?;
+    let mut st = conn.prepare("SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT ?1")?;
     let rows = st.query_map(params![limit], map_audit)?;
     rows.collect()
 }
@@ -291,10 +291,25 @@ pub fn insert_media(conn: &Connection, m: &MediaAsset) -> rusqlite::Result<()> {
           campaign_id, notes, status, checksum, created_at)
          VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19)",
         params![
-            m.id, m.workspace_id, m.storage_key, m.filename, m.mime_type, m.byte_size,
-            m.duration_sec, m.width, m.height, m.aspect_ratio, m.thumbnail_key, m.title,
-            m.description, to_json_arr(&m.tags), m.campaign_id, m.notes, m.status,
-            m.checksum, m.created_at
+            m.id,
+            m.workspace_id,
+            m.storage_key,
+            m.filename,
+            m.mime_type,
+            m.byte_size,
+            m.duration_sec,
+            m.width,
+            m.height,
+            m.aspect_ratio,
+            m.thumbnail_key,
+            m.title,
+            m.description,
+            to_json_arr(&m.tags),
+            m.campaign_id,
+            m.notes,
+            m.status,
+            m.checksum,
+            m.created_at
         ],
     )?;
     Ok(())
@@ -334,7 +349,10 @@ pub fn update_media_meta(
 }
 
 pub fn set_media_status(conn: &Connection, id: &str, status: &str) -> rusqlite::Result<()> {
-    conn.execute("UPDATE media_assets SET status=?2 WHERE id=?1", params![id, status])?;
+    conn.execute(
+        "UPDATE media_assets SET status=?2 WHERE id=?1",
+        params![id, status],
+    )?;
     Ok(())
 }
 
@@ -354,7 +372,11 @@ pub fn list_campaigns(conn: &Connection) -> rusqlite::Result<Vec<Campaign>> {
     rows.collect()
 }
 
-pub fn insert_campaign(conn: &Connection, name: &str, color: Option<&str>) -> rusqlite::Result<String> {
+pub fn insert_campaign(
+    conn: &Connection,
+    name: &str,
+    color: Option<&str>,
+) -> rusqlite::Result<String> {
     let id = new_id("cmp");
     conn.execute(
         "INSERT INTO campaigns (id, workspace_id, name, color, created_at) VALUES (?1,?2,?3,?4,?5)",
@@ -393,7 +415,10 @@ pub fn update_post(
 }
 
 pub fn set_post_status(conn: &Connection, id: &str, status: &str) -> rusqlite::Result<()> {
-    conn.execute("UPDATE posts SET status=?2, updated_at=?3 WHERE id=?1", params![id, status, now()])?;
+    conn.execute(
+        "UPDATE posts SET status=?2, updated_at=?3 WHERE id=?1",
+        params![id, status, now()],
+    )?;
     Ok(())
 }
 
@@ -404,7 +429,8 @@ pub fn get_post(conn: &Connection, id: &str) -> rusqlite::Result<Option<Post>> {
 }
 
 pub fn list_posts(conn: &Connection) -> rusqlite::Result<Vec<Post>> {
-    let mut st = conn.prepare("SELECT * FROM posts WHERE status != 'archived' ORDER BY updated_at DESC")?;
+    let mut st =
+        conn.prepare("SELECT * FROM posts WHERE status != 'archived' ORDER BY updated_at DESC")?;
     let rows = st.query_map([], map_post)?;
     rows.collect()
 }
@@ -417,16 +443,20 @@ pub fn recompute_post_status(conn: &Connection, post_id: &str) -> rusqlite::Resu
     }
     let all = |s: &str| targets.iter().all(|t| t.status == s);
     let any = |s: &str| targets.iter().any(|t| t.status == s);
+    // Includes the agent-bridge statuses: `awaiting_agent` (handed to the Claude
+    // agent, in flight) and `needs_attention` (agent paused — needs a human tap).
     let status = if all("published") {
         "published"
-    } else if any("published") && (any("failed") || any("draft") || any("scheduled")) {
+    } else if any("published") {
         "partial"
-    } else if all("failed") {
-        "failed"
-    } else if any("publishing") {
+    } else if any("publishing") || any("awaiting_agent") {
         "publishing"
     } else if any("scheduled") || any("queued") {
         "scheduled"
+    } else if any("needs_attention") {
+        "needs_attention"
+    } else if any("failed") {
+        "failed"
     } else {
         "draft"
     };
@@ -468,8 +498,15 @@ pub fn upsert_target(
           privacy=excluded.privacy,
           options=excluded.options",
         params![
-            id, post_id, platform, caption_override, title_override, to_json_arr(&hashtags),
-            thumbnail_media_id, privacy, options.to_string()
+            id,
+            post_id,
+            platform,
+            caption_override,
+            title_override,
+            to_json_arr(&hashtags),
+            thumbnail_media_id,
+            privacy,
+            options.to_string()
         ],
     )?;
     Ok(id)
@@ -491,7 +528,8 @@ pub fn delete_job(conn: &Connection, id: &str) -> rusqlite::Result<()> {
 }
 
 pub fn list_targets(conn: &Connection, post_id: &str) -> rusqlite::Result<Vec<PostPlatformTarget>> {
-    let mut st = conn.prepare("SELECT * FROM post_platform_targets WHERE post_id=?1 ORDER BY platform")?;
+    let mut st =
+        conn.prepare("SELECT * FROM post_platform_targets WHERE post_id=?1 ORDER BY platform")?;
     let rows = st.query_map(params![post_id], map_target)?;
     rows.collect()
 }
@@ -503,7 +541,10 @@ pub fn get_target(conn: &Connection, id: &str) -> rusqlite::Result<Option<PostPl
 }
 
 pub fn set_target_status(conn: &Connection, id: &str, status: &str) -> rusqlite::Result<()> {
-    conn.execute("UPDATE post_platform_targets SET status=?2 WHERE id=?1", params![id, status])?;
+    conn.execute(
+        "UPDATE post_platform_targets SET status=?2 WHERE id=?1",
+        params![id, status],
+    )?;
     Ok(())
 }
 
@@ -533,7 +574,11 @@ pub fn mark_target_failed(conn: &Connection, id: &str, reason: &str) -> rusqlite
 /// ships together). `position` preserves selection order. The first item is also
 /// mirrored into `posts.media_asset_id` so legacy single-media consumers (calendar
 /// title, cloud upload, back-compat) keep working unchanged.
-pub fn set_post_media(conn: &Connection, post_id: &str, media_ids: &[String]) -> rusqlite::Result<()> {
+pub fn set_post_media(
+    conn: &Connection,
+    post_id: &str,
+    media_ids: &[String],
+) -> rusqlite::Result<()> {
     conn.execute("DELETE FROM post_media WHERE post_id=?1", params![post_id])?;
     for (i, mid) in media_ids.iter().enumerate() {
         conn.execute(
@@ -560,7 +605,9 @@ pub fn list_post_media(conn: &Connection, post_id: &str) -> rusqlite::Result<Vec
 }
 
 pub fn bundle(conn: &Connection, post_id: &str) -> rusqlite::Result<Option<PostBundle>> {
-    let Some(post) = get_post(conn, post_id)? else { return Ok(None) };
+    let Some(post) = get_post(conn, post_id)? else {
+        return Ok(None);
+    };
     let mut media_items = list_post_media(conn, post_id)?;
     // Back-compat: posts created before the post_media join table carry only a
     // single media_asset_id. Surface it as a one-item set so old drafts render.
@@ -573,7 +620,12 @@ pub fn bundle(conn: &Connection, post_id: &str) -> rusqlite::Result<Option<PostB
     }
     let media = media_items.first().cloned();
     let targets = list_targets(conn, post_id)?;
-    Ok(Some(PostBundle { post, media, media_items, targets }))
+    Ok(Some(PostBundle {
+        post,
+        media,
+        media_items,
+        targets,
+    }))
 }
 
 /* ------------------------- scheduling ------------------------- */
@@ -600,7 +652,16 @@ pub fn insert_job(
            run_after=excluded.run_after,
            timezone=excluded.timezone,
            status='pending', attempts=0, locked_by=NULL, locked_at=NULL",
-        params![id, LOCAL_WS, target_id, scheduled_for, timezone, idem, max_attempts, now()],
+        params![
+            id,
+            LOCAL_WS,
+            target_id,
+            scheduled_for,
+            timezone,
+            idem,
+            max_attempts,
+            now()
+        ],
     )?;
     set_target_status(conn, target_id, "scheduled")?;
     // Return the id that actually owns this slot (may be a pre-existing row).
@@ -613,14 +674,22 @@ pub fn insert_job(
 }
 
 pub fn cancel_job(conn: &Connection, id: &str) -> rusqlite::Result<()> {
-    conn.execute("UPDATE scheduled_jobs SET status='canceled' WHERE id=?1", params![id])?;
+    conn.execute(
+        "UPDATE scheduled_jobs SET status='canceled' WHERE id=?1",
+        params![id],
+    )?;
     if let Some(tid) = job_target(conn, id)? {
         set_target_status(conn, &tid, "draft")?;
     }
     Ok(())
 }
 
-pub fn reschedule_job(conn: &Connection, id: &str, scheduled_for: &str, tz: &str) -> rusqlite::Result<()> {
+pub fn reschedule_job(
+    conn: &Connection,
+    id: &str,
+    scheduled_for: &str,
+    tz: &str,
+) -> rusqlite::Result<()> {
     conn.execute(
         "UPDATE scheduled_jobs SET scheduled_for=?2, run_after=?2, timezone=?3,
          status='pending', attempts=0, locked_by=NULL, locked_at=NULL WHERE id=?1",
@@ -649,7 +718,11 @@ pub fn get_job(conn: &Connection, id: &str) -> rusqlite::Result<Option<Scheduled
 }
 
 /// Calendar entries in a UTC ISO range (inclusive start, exclusive end).
-pub fn calendar_range(conn: &Connection, from: &str, to: &str) -> rusqlite::Result<Vec<CalendarEntry>> {
+pub fn calendar_range(
+    conn: &Connection,
+    from: &str,
+    to: &str,
+) -> rusqlite::Result<Vec<CalendarEntry>> {
     let mut st = conn.prepare(
         "SELECT j.*, t.id as t_id FROM scheduled_jobs j
          JOIN post_platform_targets t ON t.id = j.post_platform_target_id
@@ -669,7 +742,12 @@ pub fn calendar_range(conn: &Connection, from: &str, to: &str) -> rusqlite::Resu
                     .and_then(|p| p.media_asset_id)
                     .and_then(|mid| get_media(conn, &mid).ok().flatten())
                     .and_then(|m| m.title.or(Some(m.filename)));
-                out.push(CalendarEntry { job, target, post_id, media_title });
+                out.push(CalendarEntry {
+                    job,
+                    target,
+                    post_id,
+                    media_title,
+                });
             }
         }
     }
@@ -678,7 +756,11 @@ pub fn calendar_range(conn: &Connection, from: &str, to: &str) -> rusqlite::Resu
 
 /// Atomically claim due pending jobs (status->claimed) and return them.
 /// `now_iso` is the cutoff; `worker` records the lease holder.
-pub fn claim_due_jobs(conn: &Connection, now_iso: &str, worker: &str) -> rusqlite::Result<Vec<ScheduledJob>> {
+pub fn claim_due_jobs(
+    conn: &Connection,
+    now_iso: &str,
+    worker: &str,
+) -> rusqlite::Result<Vec<ScheduledJob>> {
     let ids: Vec<String> = {
         let mut st = conn.prepare(
             "SELECT id FROM scheduled_jobs
@@ -705,7 +787,10 @@ pub fn claim_due_jobs(conn: &Connection, now_iso: &str, worker: &str) -> rusqlit
 }
 
 pub fn mark_job_done(conn: &Connection, id: &str) -> rusqlite::Result<()> {
-    conn.execute("UPDATE scheduled_jobs SET status='done' WHERE id=?1", params![id])?;
+    conn.execute(
+        "UPDATE scheduled_jobs SET status='done' WHERE id=?1",
+        params![id],
+    )?;
     Ok(())
 }
 
@@ -723,7 +808,8 @@ pub fn fail_job(conn: &Connection, id: &str, retry_delay_secs: i64) -> rusqlite:
         )?;
         Ok(false) // exhausted
     } else {
-        let run_after = (chrono::Utc::now() + chrono::Duration::seconds(retry_delay_secs)).to_rfc3339();
+        let run_after =
+            (chrono::Utc::now() + chrono::Duration::seconds(retry_delay_secs)).to_rfc3339();
         conn.execute(
             "UPDATE scheduled_jobs SET status='pending', attempts=?2, run_after=?3, locked_by=NULL, locked_at=NULL WHERE id=?1",
             params![id, attempts, run_after],
@@ -773,15 +859,22 @@ pub fn finish_attempt(
         "UPDATE publish_attempts SET finished_at=?2, outcome=?3, external_post_id=?4,
          external_url=?5, response_summary=?6, error_code=?7, error_message=?8 WHERE id=?1",
         params![
-            id, now(), outcome, external_post_id, external_url,
-            response_summary.to_string(), error_code, error_message
+            id,
+            now(),
+            outcome,
+            external_post_id,
+            external_url,
+            response_summary.to_string(),
+            error_code,
+            error_message
         ],
     )?;
     Ok(())
 }
 
 pub fn list_attempts(conn: &Connection, limit: i64) -> rusqlite::Result<Vec<PublishAttempt>> {
-    let mut st = conn.prepare("SELECT * FROM publish_attempts ORDER BY started_at DESC LIMIT ?1")?;
+    let mut st =
+        conn.prepare("SELECT * FROM publish_attempts ORDER BY started_at DESC LIMIT ?1")?;
     let rows = st.query_map(params![limit], map_attempt)?;
     rows.collect()
 }

@@ -16,6 +16,7 @@
         "title": "Omni Release",
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
+        "backgroundColor": "#030305",
         "width": 1100,
         "height": 820,
         "minWidth": 720,

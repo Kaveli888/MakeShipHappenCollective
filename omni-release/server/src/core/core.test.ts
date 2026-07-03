@@ -92,6 +92,21 @@ test("token exchange is a form POST with PKCE verifier", () => {
   assert.equal(body.get("client_secret"), "secret");
 });
 
+test("confidential clients (X) use Authorization: Basic, not client_secret in body", () => {
+  const req = buildTokenExchange({
+    platform: "x",
+    clientId: "cid",
+    clientSecret: "csecret",
+    code: "auth-code",
+    redirectUri: "https://x/cb",
+    codeVerifier: "ver",
+  });
+  const body = new URLSearchParams(req.body);
+  assert.equal(body.get("client_secret"), null); // secret must NOT be in the body
+  assert.equal(body.get("code_verifier"), "ver");
+  assert.equal(req.headers["authorization"], `Basic ${btoa("cid:csecret")}`);
+});
+
 test("expiresAtIso computes from expires_in", () => {
   const iso = expiresAtIso({ access_token: "a", expires_in: 3600 }, Date.parse("2026-06-26T00:00:00Z"));
   assert.equal(iso, "2026-06-26T01:00:00.000Z");

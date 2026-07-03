@@ -139,6 +139,30 @@ export interface AuditLog {
   created_at: string;
 }
 
+export interface AgentQueueItem {
+  job_id: string;
+  target_id: string | null;
+  post_id: string | null;
+  platform: string;
+  release_platforms: string[];
+  release_target_count: number;
+  release_done_count: number;
+  release_attention_count: number;
+  release_pending_count: number;
+  delivery_index: number | null;
+  platform_url: string | null;
+  scheduled_for: string | null;
+  timezone: string | null;
+  title: string | null;
+  caption_preview: string | null;
+  media_count: number;
+  media_files: string[];
+  handed_off_at: string | null;
+  needs_attention: boolean;
+  attention_code: string | null;
+  attention_message: string | null;
+}
+
 export interface PublishOutcome {
   outcome: string;
   external_post_id: string | null;

@@ -7,17 +7,19 @@ import Composer from "./views/Composer.js";
 import Calendar from "./views/Calendar.js";
 import Activity from "./views/Activity.js";
 import Platforms from "./views/Platforms.js";
+import Loops from "./views/Loops.js";
+import Operators from "./views/Operators.js";
 import AccountPanel from "./cloud/AccountPanel.js";
 import logoUrl from "./assets/logo.png";
 
-type Nav = "library" | "calendar" | "platforms" | "activity";
+type Nav = "library" | "calendar" | "platforms" | "loops" | "operators" | "activity";
 
 // Persist the current view so a restart reopens exactly where you left off.
 // Stored in the SQLite backend (via state_get/state_set) because the webview's
 // localStorage does not reliably survive app restarts here.
 const NAV_KEY = "ui.nav";
 const COMPOSE_KEY = "ui.composePost";
-const VALID_NAV: Nav[] = ["library", "calendar", "platforms", "activity"];
+const VALID_NAV: Nav[] = ["library", "calendar", "platforms", "loops", "operators", "activity"];
 
 export default function App() {
   const [nav, setNav] = useState<Nav>("library");
@@ -53,8 +55,8 @@ export default function App() {
   function openComposer(postId: string) {
     setComposePost(postId);
   }
-  // Start a brand-new post with no media preselected, then drop straight into the
-  // composer where its media tray lets you attach images/video and ship.
+  // Start a brand-new release card with no media preselected, then drop straight
+  // into the composer where its media tray lets you attach images/video and ship.
   async function createPost() {
     try {
       const id = await api.postCreate(null);
@@ -103,7 +105,7 @@ export default function App() {
         </div>
         <nav className="navlist">
           <button className="nav-item nav-create" onClick={createPost}>
-            <span className="nav-ico">✎</span> Create Post
+            <span className="nav-ico">✎</span> New Release Card
           </button>
           <button
             className={`nav-item c-rose${nav === "library" && !composePost ? " on" : ""}`}
@@ -121,32 +123,48 @@ export default function App() {
             className={`nav-item c-amber${nav === "platforms" && !composePost ? " on" : ""}`}
             onClick={() => go("platforms")}
           >
-            <span className="nav-ico">🔌</span> Platforms
+            <span className="nav-ico">◉</span> Accounts
+          </button>
+          <button
+            className={`nav-item c-coral${nav === "loops" && !composePost ? " on" : ""}`}
+            onClick={() => go("loops")}
+          >
+            <span className="nav-ico">↻</span> Loops
+          </button>
+          <button
+            className={`nav-item c-amber${nav === "operators" && !composePost ? " on" : ""}`}
+            onClick={() => go("operators")}
+          >
+            <span className="nav-ico">⌘</span> Operators
           </button>
           <button
             className={`nav-item c-gold${nav === "activity" && !composePost ? " on" : ""}`}
             onClick={() => go("activity")}
           >
-            <span className="nav-ico">📜</span> Activity
+            <span className="nav-ico">📜</span> Agent Queue
           </button>
         </nav>
         <div className="side-foot">
           <AccountPanel />
-          <span className="pill warn">local-first · mock mode</span>
+          <span className="pill warn">local-first · browser agent</span>
         </div>
       </aside>
 
       <main className="main">
         {composePost ? (
-          <Composer postId={composePost} onBack={closeComposer} />
+          <Composer postId={composePost} onBack={closeComposer} onScheduled={() => go("calendar")} />
         ) : nav === "library" ? (
           <Library onCompose={openComposer} />
         ) : nav === "calendar" ? (
           <Calendar onOpenPost={openComposer} />
         ) : nav === "platforms" ? (
           <Platforms />
+        ) : nav === "loops" ? (
+          <Loops />
+        ) : nav === "operators" ? (
+          <Operators />
         ) : (
-          <Activity />
+          <Activity onOpenPost={openComposer} />
         )}
       </main>
     </div>

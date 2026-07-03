@@ -63,6 +63,66 @@ const STATE_LABEL: Record<EntryState, string> = {
   upcoming: "Upcoming",
 };
 
+/** Stable left-to-right ordering of platform logos inside a grouped bar. */
+const PLATFORM_ORDER: Record<string, number> = Object.fromEntries(
+  PLATFORMS.map((p, i) => [p, i]),
+);
+
+/** One scheduled post fans out into one entry per platform target (they share a
+ *  post_id + scheduled_for). A CalGroup collapses those back into the single
+ *  release the user actually scheduled, so the calendar shows ONE horizontal
+ *  bar with a row of platform logos — not one stacked row per platform. */
+type CalGroup = {
+  key: string;
+  post_id: string;
+  time: string; // earliest wall-clock in the group — used for day placement + display
+  title: string | null;
+  entries: CalEntry[];
+  state: EntryState; // aggregate, see groupState
+};
+
+/** Targets belong to the same bar when they're the same post at the same minute.
+ *  (Minute granularity so tiny per-platform publish-time drift still groups.) */
+function groupKey(e: CalEntry): string {
+  const t = new Date(e.job.scheduled_for);
+  t.setSeconds(0, 0);
+  return `${e.post_id}__${t.getTime()}`;
+}
+
+/** A bar's state surfaces the most action-worthy target it contains. */
+const GROUP_STATE_ORDER: EntryState[] = ["failed", "publishing", "upcoming", "shipped"];
+function groupState(entries: CalEntry[]): EntryState {
+  const seen = new Set(entries.map(entryState));
+  return GROUP_STATE_ORDER.find((s) => seen.has(s)) ?? "shipped";
+}
+
+/** Collapse a flat list of per-platform entries into grouped release bars. */
+function buildGroups(list: CalEntry[]): CalGroup[] {
+  const map = new Map<string, CalEntry[]>();
+  for (const e of list) {
+    const arr = map.get(groupKey(e));
+    if (arr) arr.push(e);
+    else map.set(groupKey(e), [e]);
+  }
+  const groups: CalGroup[] = [];
+  for (const [key, entries] of map) {
+    entries.sort(
+      (a, b) =>
+        (PLATFORM_ORDER[a.target.platform] ?? 99) - (PLATFORM_ORDER[b.target.platform] ?? 99),
+    );
+    const time = entries.map(entryTime).sort((a, b) => +new Date(a) - +new Date(b))[0];
+    groups.push({
+      key,
+      post_id: entries[0].post_id,
+      time,
+      title: entries[0].media_title,
+      entries,
+      state: groupState(entries),
+    });
+  }
+  return groups.sort((a, b) => +new Date(a.time) - +new Date(b.time));
+}
+
 /** Row height (px) of a single hour in the Week time-grid. */
 const HOUR_PX = 44;
 /** Sunday (00:00) of the week containing d. */
@@ -88,7 +148,7 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
   const [entries, setEntries] = useState<CalEntry[]>([]);
   const [active, setActive] = useState<Set<PlatformId>>(() => new Set(PLATFORMS));
   const [error, setError] = useState<string | null>(null);
-  const [sel, setSel] = useState<CalEntry | null>(null);
+  const [sel, setSel] = useState<CalGroup | null>(null);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [confirmDay, setConfirmDay] = useState<string | null>(null); // day key pending "clear all"
 
@@ -221,7 +281,7 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
       <div className="view-head">
         <div>
           <h2>Calendar</h2>
-          <p className="sub">Scheduled &amp; shipped posts · times in {LOCAL_TZ}</p>
+          <p className="sub">Scheduled &amp; shipped release cards · times in {LOCAL_TZ}</p>
         </div>
         <div className="cal-controls">
           <button className="ghost sm" onClick={goPrev} title="Previous">
@@ -334,6 +394,7 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
               {days.map((day, i) => {
                 const isToday = day && sameDay(day, today);
                 const dayEntries = day ? entriesOn(day) : [];
+                const dayGroups = buildGroups(dayEntries);
                 const dayKey = day ? `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}` : "";
                 const confirming = confirmDay === dayKey && dayKey !== "";
                 return (
@@ -341,10 +402,10 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                     {day && (
                       <div className="cal-date-row">
                         <span className="cal-date">{day.getDate()}</span>
-                        {dayEntries.length > 0 && !confirming && (
+                        {dayGroups.length > 0 && !confirming && (
                           <button
                             className="cal-clear"
-                            title={`Clear all ${dayEntries.length} on this day`}
+                            title={`Clear all ${dayGroups.length} on this day`}
                             onClick={(ev) => {
                               ev.stopPropagation();
                               setConfirmDay(dayKey);
@@ -357,7 +418,7 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                     )}
                     {confirming && (
                       <div className="cal-confirm">
-                        <span>Delete {dayEntries.length}?</span>
+                        <span>Delete {dayGroups.length}?</span>
                         <button
                           className="cal-confirm-yes"
                           onClick={() => {
@@ -372,27 +433,28 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                         </button>
                       </div>
                     )}
-                    {dayEntries.map((e) => {
-                      const st = entryState(e);
-                      return (
-                        <button
-                          key={e.job.id}
-                          className={`cal-chip st-${st}`}
-                          onClick={() => setSel(e)}
-                          title={`${platformLabel(e.target.platform)} · ${STATE_LABEL[st]} · ${e.media_title ?? "post"}`}
-                        >
-                          <PlatformLogo platform={e.target.platform} size={15} />
-                          <span className="chip-time">{hm(entryTime(e))}</span>
-                          <span className="chip-title">{e.media_title ?? "post"}</span>
-                          {e._source === "cloud" && (
-                            <span className="chip-cloud" title="Live (cloud) post">
-                              ☁
-                            </span>
-                          )}
-                          <span className={`chip-state st-${st}`}>{STATE_ICON[st]}</span>
-                        </button>
-                      );
-                    })}
+                    {dayGroups.map((g) => (
+                      <button
+                        key={g.key}
+                        className={`cal-bar st-${g.state}`}
+                        onClick={() => setSel(g)}
+                        title={`${g.entries.map((e) => platformLabel(e.target.platform)).join(", ")} · ${STATE_LABEL[g.state]} · ${g.title ?? "release card"}`}
+                      >
+                        <span className="bar-logos">
+                          {g.entries.map((e) => (
+                            <PlatformLogo key={e.job.id} platform={e.target.platform} size={14} />
+                          ))}
+                        </span>
+                        <span className="chip-time">{hm(g.time)}</span>
+                        <span className="chip-title">{g.title ?? "release card"}</span>
+                        {g.entries.some((e) => e._source === "cloud") && (
+                          <span className="chip-cloud" title="Cloud scheduled card">
+                            ☁
+                          </span>
+                        )}
+                        <span className={`chip-state st-${g.state}`}>{STATE_ICON[g.state]}</span>
+                      </button>
+                    ))}
                   </div>
                 );
               })}
@@ -419,7 +481,7 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                   ))}
                 </div>
                 {weekDays.map((d, i) => {
-                  const dayEntries = entriesOn(d);
+                  const dayGroups = buildGroups(entriesOn(d));
                   const isToday = sameDay(d, today);
                   const nowTop = (today.getHours() + today.getMinutes() / 60) * HOUR_PX;
                   return (
@@ -428,22 +490,28 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                         <div className="cal-week-slot" style={{ height: HOUR_PX }} key={h} />
                       ))}
                       {isToday && <div className="cal-now" style={{ top: nowTop }} />}
-                      {dayEntries.map((e) => {
-                        const st = entryState(e);
-                        const t = new Date(entryTime(e));
+                      {dayGroups.map((g) => {
+                        const t = new Date(g.time);
                         const top = (t.getHours() + t.getMinutes() / 60) * HOUR_PX;
+                        const lead = g.entries[0].target.platform;
                         return (
                           <button
-                            key={e.job.id}
-                            className={`cal-wchip st-${st}`}
-                            style={{ top, "--pc": PLATFORM_COLOR[e.target.platform] } as CSSProperties}
-                            onClick={() => setSel(e)}
-                            title={`${platformLabel(e.target.platform)} · ${STATE_LABEL[st]} · ${e.media_title ?? "post"}`}
+                            key={g.key}
+                            className={`cal-wchip st-${g.state}`}
+                            style={{ top, "--pc": PLATFORM_COLOR[lead] } as CSSProperties}
+                            onClick={() => setSel(g)}
+                            title={`${g.entries.map((e) => platformLabel(e.target.platform)).join(", ")} · ${STATE_LABEL[g.state]} · ${g.title ?? "release card"}`}
                           >
-                            <span className="chip-time">{hm(entryTime(e))}</span>
-                            <PlatformLogo platform={e.target.platform} size={13} />
-                            <span className="chip-title">{e.media_title ?? "post"}</span>
-                            {e._source === "cloud" && <span className="chip-cloud">☁</span>}
+                            <span className="chip-time">{hm(g.time)}</span>
+                            <span className="bar-logos">
+                              {g.entries.map((e) => (
+                                <PlatformLogo key={e.job.id} platform={e.target.platform} size={13} />
+                              ))}
+                            </span>
+                            <span className="chip-title">{g.title ?? "release card"}</span>
+                            {g.entries.some((e) => e._source === "cloud") && (
+                              <span className="chip-cloud">☁</span>
+                            )}
                           </button>
                         );
                       })}
@@ -458,15 +526,15 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
 
       {sel && (
         <EntryDetail
-          entry={sel}
+          group={sel}
           onClose={() => setSel(null)}
           onChanged={() => {
             setSel(null);
             refresh();
           }}
           onOpenPost={onOpenPost}
-          onDelete={async () => {
-            await deleteEntries([sel]);
+          onDelete={async (list) => {
+            await deleteEntries(list);
             setSel(null);
           }}
         />
@@ -476,46 +544,46 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
 }
 
 function EntryDetail({
-  entry,
+  group,
   onClose,
   onChanged,
   onOpenPost,
   onDelete,
 }: {
-  entry: CalEntry;
+  group: CalGroup;
   onClose: () => void;
   onChanged: () => void;
   onOpenPost: (id: string) => void;
-  onDelete: () => void | Promise<void>;
+  onDelete: (list: CalEntry[]) => void | Promise<void>;
 }) {
-  const [when, setWhen] = useState(utcIsoToLocalInput(entry.job.scheduled_for));
+  const entries = group.entries;
+  const [when, setWhen] = useState(utcIsoToLocalInput(entries[0].job.scheduled_for));
   const [confirmDel, setConfirmDel] = useState(false);
-  const st = entryState(entry);
-  const sentAt = entry.target.published_at;
-  const url = entry.target.external_url;
-  const attempts = entry.job.attempts;
-  // Local mutation APIs (reschedule/cancel/retry) only touch the local SQLite DB,
-  // so they don't apply to cloud (live) jobs — hide them there to avoid no-ops.
-  const isCloud = entry._source === "cloud";
-  const canEdit = !isCloud && st !== "shipped";
 
-  // A plain-English line summarizing how it finished — the "what happened" the user wants.
-  const outcome =
-    st === "shipped"
-      ? `Published to ${platformLabel(entry.target.platform)}${attempts > 1 ? ` after ${attempts} attempts` : ""}`
-      : st === "failed"
-        ? `Failed${attempts ? ` after ${attempts} attempt${attempts === 1 ? "" : "s"}` : ""}`
-        : st === "publishing"
-          ? "Publishing now…"
-          : "Waiting to ship";
+  const anyCloud = entries.some((e) => e._source === "cloud");
+  const allCloud = entries.every((e) => e._source === "cloud");
+  const localEntry = entries.find((e) => e._source === "local");
+  // Local mutation APIs (reschedule/cancel) only touch the local SQLite DB, so they
+  // apply to the local, not-yet-shipped targets in this release — never cloud jobs.
+  const editable = entries.filter((e) => e._source === "local" && entryState(e) !== "shipped");
+  const shippedCount = entries.filter((e) => entryState(e) === "shipped").length;
+
+  const rescheduleAll = () =>
+    Promise.all(
+      editable.map((e) => api.scheduleReschedule(e.job.id, localInputToUtcIso(when), LOCAL_TZ)),
+    ).then(onChanged);
 
   return (
     <div className="drawer-backdrop" onClick={onClose}>
       <div className="drawer" onClick={(e) => e.stopPropagation()}>
         <div className="drawer-head">
           <h3 className="drawer-title">
-            <PlatformLogo platform={entry.target.platform} size={20} />
-            {entry.media_title ?? "post"}
+            <span className="bar-logos">
+              {entries.map((e) => (
+                <PlatformLogo key={e.job.id} platform={e.target.platform} size={18} />
+              ))}
+            </span>
+            {group.title ?? "release card"}
           </h3>
           <button className="ghost sm" onClick={onClose}>
             ✕
@@ -523,127 +591,91 @@ function EntryDetail({
         </div>
 
         <div className="drawer-status">
-          <span className={`status st-${st}`}>{STATE_LABEL[st]}</span>
-          <span className={`src-badge ${isCloud ? "cloud" : "local"}`}>
-            {isCloud ? "☁ Live (cloud)" : "Local"}
+          <span className={`status st-${group.state}`}>{STATE_LABEL[group.state]}</span>
+          <span className={`src-badge ${allCloud ? "cloud" : "local"}`}>
+            {allCloud ? "☁ Live (cloud)" : anyCloud ? "☁ Mixed" : "Local"}
           </span>
-          <span className="muted">{outcome}</span>
+          <span className="muted">
+            {entries.length} platform{entries.length === 1 ? "" : "s"} · {shippedCount}/
+            {entries.length} shipped
+          </span>
         </div>
 
-        {/* Lifecycle timeline — scheduled → shipped, with real timestamps. */}
         <ol className="cal-timeline">
           <li className="done">
             <b>Scheduled for</b>
-            <span>{fmtTime(entry.job.scheduled_for)}</span>
+            <span>{fmtTime(entries[0].job.scheduled_for)}</span>
           </li>
-          {st === "shipped" && (
-            <li className="done ok">
-              <b>Shipped</b>
-              <span>{fmtTime(sentAt ?? entry.job.scheduled_for)}</span>
-            </li>
-          )}
-          {st === "failed" && (
-            <li className="bad">
-              <b>Failed</b>
-              <span>{entry.target.failure_reason ?? "see Activity log"}</span>
-            </li>
-          )}
-          {st === "publishing" && (
-            <li className="busy">
-              <b>Publishing</b>
-              <span>in progress…</span>
-            </li>
-          )}
-          {st === "upcoming" && (
-            <li className="pending">
-              <b>Up next</b>
-              <span>not yet sent</span>
-            </li>
-          )}
         </ol>
 
-        <div className="kv">
-          <span>Platform</span>
-          <span>{platformLabel(entry.target.platform)}</span>
-          <span>Attempts</span>
-          <span>
-            {entry.job.attempts}/{entry.job.max_attempts}
-          </span>
-          {entry.target.external_post_id && (
-            <>
-              <span>Post ID</span>
-              <span>
-                <code>{entry.target.external_post_id}</code>
-              </span>
-            </>
-          )}
-          {url && (
-            <>
-              <span>Live link</span>
-              <span>
-                <button className="linkish" onClick={() => api.openUrl(url)}>
-                  {url}
-                </button>
-              </span>
-            </>
-          )}
+        {/* Per-platform breakdown of the one scheduled release. */}
+        <div className="grp-targets">
+          {entries.map((e) => {
+            const est = entryState(e);
+            const url = e.target.external_url;
+            return (
+              <div className={`grp-target st-${est}`} key={e.job.id}>
+                <PlatformLogo platform={e.target.platform} size={16} />
+                <span className="grp-target-name">{platformLabel(e.target.platform)}</span>
+                <span className={`status sm st-${est}`}>{STATE_LABEL[est]}</span>
+                {url && (
+                  <button className="linkish sm" onClick={() => api.openUrl(url)} title={url}>
+                    View live ↗
+                  </button>
+                )}
+                {e._source === "local" && (est === "failed" || est === "shipped") && (
+                  <button className="ghost xs" onClick={() => api.jobRetry(e.job.id).then(onChanged)}>
+                    {est === "shipped" ? "Re-publish" : "Retry"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {canEdit && (
+        {editable.length > 0 && (
           <label className="field">
-            <span>Reschedule</span>
+            <span>Reschedule {editable.length === entries.length ? "all" : editable.length}</span>
             <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
           </label>
         )}
 
-        {isCloud && st !== "shipped" && (
+        {anyCloud && (
           <p className="sub">
-            This is a live cloud job — the cloud worker publishes it. Edit timing from the cloud
-            dashboard; local reschedule/cancel don't apply.
+            {allCloud ? "This is a live cloud release" : "Some targets are live cloud jobs"} — the
+            cloud worker publishes {allCloud ? "it" : "them"}. Edit timing from the cloud dashboard;
+            local reschedule/cancel don't apply.
           </p>
         )}
 
         <div className="drawer-actions">
-          {!isCloud && (
-            <button className="ghost sm" onClick={() => onOpenPost(entry.post_id)}>
+          {localEntry && (
+            <button className="ghost sm" onClick={() => onOpenPost(localEntry.post_id)}>
               Open in composer
             </button>
           )}
-          {url && (
-            <button className="ghost sm" onClick={() => api.openUrl(url)}>
-              View live ↗
-            </button>
-          )}
-          {!isCloud && (st === "failed" || st === "shipped") && (
-            <button className="ghost sm" onClick={() => api.jobRetry(entry.job.id).then(onChanged)}>
-              {st === "shipped" ? "Re-publish" : "Retry now"}
-            </button>
-          )}
-          {canEdit && (
-            <button
-              className="ghost sm"
-              onClick={() =>
-                api.scheduleReschedule(entry.job.id, localInputToUtcIso(when), LOCAL_TZ).then(onChanged)
-              }
-            >
+          {editable.length > 0 && (
+            <button className="ghost sm" onClick={rescheduleAll}>
               Save time
             </button>
           )}
-          {canEdit && (
+          {editable.length > 0 && (
             <button
               className="ghost sm danger"
-              onClick={() => api.scheduleCancel(entry.job.id).then(onChanged)}
+              onClick={() =>
+                Promise.all(editable.map((e) => api.scheduleCancel(e.job.id))).then(onChanged)
+              }
             >
-              Cancel
+              Cancel {editable.length === entries.length ? "all" : editable.length}
             </button>
           )}
           {!confirmDel ? (
             <button className="ghost sm danger" onClick={() => setConfirmDel(true)}>
-              Delete
+              Delete{entries.length > 1 ? ` all (${entries.length})` : ""}
             </button>
           ) : (
             <>
-              <button className="ghost sm danger" onClick={() => onDelete()}>
+              <button className="ghost sm danger" onClick={() => onDelete(entries)}>
                 Confirm delete
               </button>
               <button className="ghost sm" onClick={() => setConfirmDel(false)}>
@@ -654,7 +686,11 @@ function EntryDetail({
         </div>
         {confirmDel && (
           <p className="sub del-note">
-            Removes this entry from the calendar. {st === "shipped" ? "The published video stays live on the platform — delete it there separately." : ""}
+            Removes {entries.length > 1 ? `all ${entries.length} targets` : "this entry"} from the
+            calendar.
+            {shippedCount > 0
+              ? " Published videos stay live on their platforms — delete them there separately."
+              : ""}
           </p>
         )}
       </div>

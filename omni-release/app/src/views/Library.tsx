@@ -73,7 +73,7 @@ export default function Library({
       <div className="view-head">
         <div>
           <h2>Media Library</h2>
-          <p className="sub">Upload once, then compose & schedule per platform.</p>
+          <p className="sub">Import assets once, then attach them to release cards.</p>
         </div>
         <button className="primary" disabled={busy} onClick={importVideos}>
           {busy ? "Importing…" : "+ Import media"}
@@ -112,7 +112,7 @@ export default function Library({
                   composeFrom(m);
                 }}
               >
-                Compose →
+                New card →
               </button>
             </div>
           ))}
@@ -241,7 +241,7 @@ function MediaDetail({
             </button>
           )}
           <button className="ghost" onClick={onCompose}>
-            Compose →
+            New card →
           </button>
           <button className="primary" disabled={saving} onClick={save}>
             {saving ? "Saving…" : "Save"}

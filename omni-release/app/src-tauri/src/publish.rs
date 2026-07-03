@@ -145,28 +145,49 @@ pub fn publish_target(
             let ext_id = outcome.external_post_id.clone().unwrap_or_default();
             let url = outcome.external_url.clone().unwrap_or_default();
             db::finish_attempt(
-                conn, &attempt_id, "success",
-                Some(&ext_id), Some(&url),
+                conn,
+                &attempt_id,
+                "success",
+                Some(&ext_id),
+                Some(&url),
                 json!({ "mock": outcome.is_mock, "platform": target.platform }),
-                None, None,
+                None,
+                None,
             )?;
             db::mark_target_published(conn, &target.id, &ext_id, &url)?;
-            db::audit(conn, "scheduler", "publish.success", Some("target"), Some(&target.id),
-                json!({ "mode": mode, "url": url, "mock": outcome.is_mock }))?;
+            db::audit(
+                conn,
+                "scheduler",
+                "publish.success",
+                Some("target"),
+                Some(&target.id),
+                json!({ "mode": mode, "url": url, "mock": outcome.is_mock }),
+            )?;
         }
         _ => {
             db::finish_attempt(
-                conn, &attempt_id, "failure", None, None,
+                conn,
+                &attempt_id,
+                "failure",
+                None,
+                None,
                 json!({ "platform": target.platform }),
                 outcome.error_code.as_deref(),
                 outcome.error_message.as_deref(),
             )?;
             db::mark_target_failed(
-                conn, &target.id,
+                conn,
+                &target.id,
                 outcome.error_message.as_deref().unwrap_or("unknown error"),
             )?;
-            db::audit(conn, "scheduler", "publish.failure", Some("target"), Some(&target.id),
-                json!({ "mode": mode, "reason": outcome.error_message }))?;
+            db::audit(
+                conn,
+                "scheduler",
+                "publish.failure",
+                Some("target"),
+                Some(&target.id),
+                json!({ "mode": mode, "reason": outcome.error_message }),
+            )?;
         }
     }
     db::recompute_post_status(conn, &target.post_id)?;

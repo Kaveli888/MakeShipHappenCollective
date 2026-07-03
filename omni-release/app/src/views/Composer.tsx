@@ -65,9 +65,25 @@ function loadSavedTexts(): SavedText[] {
 // Soft caption ceiling shown in the editor (matches the longest platform limit).
 const CHAR_LIMIT = 3000;
 
-// Platforms whose API accepts text-only posts (no media). Must match the server
-// router (publish.ts) and worker (runner.ts) text-capable set.
-const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin"]);
+// Extensions the Rust `media_import` command accepts (mirror of ALLOWED_*_EXT in
+// src-tauri/commands.rs). Dropped files with these go to the media library +
+// attach strip; anything else falls back to the lightweight Files list.
+const MEDIA_EXTS = new Set([
+  "mp4", "mov", "webm", "mkv", "avi", "m4v",
+  "jpg", "jpeg", "png", "gif", "webp", "heic",
+]);
+const baseName = (p: string): string => p.replace(/\\/g, "/").split("/").pop() ?? p;
+const fileExt = (p: string): string => {
+  const b = baseName(p);
+  const dot = b.lastIndexOf(".");
+  return dot >= 0 ? b.slice(dot + 1).toLowerCase() : "";
+};
+
+// Platforms whose browser-agent route can post text without media. YouTube uses
+// the channel Posts/Community composer for text/image cards, and Studio only
+// when the attached media is a video.
+const TEXT_CAPABLE = new Set(["x", "facebook", "linkedin", "youtube"]);
+const VIDEO_REQUIRED = new Set(["tiktok", "rumble"]);
 
 // Meta networks need an extra id the worker can't infer from the connected
 // account: Facebook posts to a specific Page (pageId); Instagram needs the IG
@@ -100,6 +116,34 @@ function buildMetaOptions(platform: string, m: MetaOptions): Record<string, stri
     if (m.mediaUrl?.trim()) out.mediaUrl = m.mediaUrl.trim();
   }
   return out;
+}
+
+function optionObject(options: unknown): Record<string, unknown> {
+  return options && typeof options === "object" && !Array.isArray(options)
+    ? { ...(options as Record<string, unknown>) }
+    : {};
+}
+
+function browserRouteOptions(platform: string, mime?: string | null): Record<string, string> {
+  if (platform !== "youtube") return {};
+  const isVideo = !!mime && mime.startsWith("video/");
+  return {
+    publishSurface: isVideo ? "youtube_video_upload" : "youtube_community_post",
+    youtubeSurface: isVideo ? "studio_upload" : "posts",
+  };
+}
+
+function buildTargetOptions(
+  platform: string,
+  meta: MetaOptions,
+  mediaMime: string | null | undefined,
+  existing?: unknown,
+): Record<string, unknown> {
+  return {
+    ...optionObject(existing),
+    ...buildMetaOptions(platform, meta),
+    ...browserRouteOptions(platform, mediaMime),
+  };
 }
 
 // Whether `platform` is still missing a meta id it requires to publish live.
@@ -146,9 +190,11 @@ function previewIdentity(platform: string, cloud: CloudCtx | null): PreviewIdent
 export default function Composer({
   postId,
   onBack,
+  onScheduled,
 }: {
   postId: string;
   onBack: () => void;
+  onScheduled?: () => void;
 }) {
   const [bundle, setBundle] = useState<PostBundle | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -172,11 +218,20 @@ export default function Composer({
   const [files, setFiles] = useState<AttachedFile[]>([]);
   const [savedTexts, setSavedTexts] = useState<SavedText[]>(loadSavedTexts);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Drag-and-drop: the editor box is the drop target. `dragOver` drives the
+  // highlight; importPathsRef always points at the latest importer so the
+  // once-registered Tauri listener never fires a stale closure.
+  const editorRef = useRef<HTMLElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const importPathsRef = useRef<(paths: string[]) => void>(() => {});
   const [when, setWhen] = useState(defaultScheduleInput());
   // Privacy for the live upload. Default public (so the post is actually visible
   // on the channel) but always selectable per post in the send bar.
   const [privacy, setPrivacy] = useState<"public" | "unlisted" | "private">("public");
   const [busy, setBusy] = useState(false);
+  // Brief "Scheduled ✓" confirmation on the send button, right before we hand
+  // the user off to the Calendar so they can see the card landed.
+  const [scheduled, setScheduled] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   // Live preview: which network's mockup is showing + phone/desktop frame.
   const [previewPlatform, setPreviewPlatform] = useState<string | null>(null);
@@ -233,6 +288,43 @@ export default function Composer({
   useEffect(() => {
     load();
   }, [load]);
+
+  // OS drag-and-drop onto the editor box. In a Tauri v2 webview, file drops are
+  // captured natively (HTML drop events never see them), so we listen to the
+  // webview drag-drop event — which hands us real filesystem paths — and route
+  // them through the same importer as the toolbar Import button.
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getCurrentWebview } = await import("@tauri-apps/api/webview");
+        const un = await getCurrentWebview().onDragDropEvent(({ payload }) => {
+          if (payload.type === "leave") {
+            setDragOver(false);
+            return;
+          }
+          // enter | over | drop all carry position + paths
+          const inside = hitEditor(payload.position);
+          if (payload.type === "drop") {
+            setDragOver(false);
+            if (inside && payload.paths.length) importPathsRef.current(payload.paths);
+          } else {
+            setDragOver(inside);
+          }
+        });
+        if (cancelled) un();
+        else unlisten = un;
+      } catch {
+        /* not running under Tauri (or webview API unavailable) — drop is a no-op */
+      }
+    })();
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Restore per-post location + attached files whenever the draft changes.
   useEffect(() => {
@@ -342,29 +434,70 @@ export default function Composer({
     void persistMedia(next);
   }
 
-  async function importMedia() {
+  // Import a set of file PATHS (from the native picker OR a drag-and-drop). Media
+  // (image/video) is copied into the library and auto-attached to this post;
+  // other file types drop into the lightweight Files list. Used by both the
+  // toolbar Import button and the editor drop zone so they behave identically.
+  async function importPaths(paths: string[]) {
+    if (!paths.length) return;
     setError(null);
+    const media = paths.filter((p) => MEDIA_EXTS.has(fileExt(p)));
+    const others = paths.filter((p) => !MEDIA_EXTS.has(fileExt(p)));
+    setImporting(true);
     try {
-      const paths = await api.pickMediaFiles();
-      if (!paths.length) return;
-      setImporting(true);
       const newIds: string[] = [];
-      for (const p of paths) {
-        const m = await api.mediaImport(p);
-        newIds.push(m.id);
+      const failed: string[] = [];
+      for (const p of media) {
+        try {
+          const m = await api.mediaImport(p);
+          newIds.push(m.id);
+        } catch (e) {
+          failed.push(`${baseName(p)}: ${e instanceof Error ? e.message : String(e)}`);
+        }
       }
-      await reloadLibrary();
-      // Auto-attach freshly imported media to this post.
-      await persistMedia([
-        ...selected,
-        ...newIds.filter((id) => !selected.includes(id)),
-      ]);
-      setPickerOpen(true);
+      if (newIds.length) {
+        await reloadLibrary();
+        await persistMedia([...selected, ...newIds.filter((id) => !selected.includes(id))]);
+        setPickerOpen(true);
+      }
+      if (others.length) {
+        persistFiles([
+          ...files,
+          ...others.map((p, i) => ({ id: `f_${Date.now()}_${i}`, name: baseName(p), size: 0 })),
+        ]);
+      }
+      const bits: string[] = [];
+      if (newIds.length) bits.push(`${newIds.length} media attached`);
+      if (others.length) bits.push(`${others.length} file${others.length > 1 ? "s" : ""} added`);
+      if (bits.length) setNotice(bits.join(" · "));
+      if (failed.length) setError(failed.join(" · "));
     } catch (e) {
       setError(String(e));
     } finally {
       setImporting(false);
     }
+  }
+  // Keep the drop listener (registered once) pointed at the freshest closure.
+  importPathsRef.current = importPaths;
+
+  async function importMedia() {
+    try {
+      const paths = await api.pickMediaFiles();
+      await importPaths(paths);
+    } catch (e) {
+      setError(String(e));
+    }
+  }
+
+  // Is a webview drop position (physical px) inside the editor box?
+  function hitEditor(pos: { x: number; y: number }): boolean {
+    const el = editorRef.current;
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const x = pos.x / dpr;
+    const y = pos.y / dpr;
+    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
   }
 
   async function saveMaster() {
@@ -411,9 +544,9 @@ export default function Composer({
 
   const enabledTargets = (): PostPlatformTarget[] => bundle?.targets ?? [];
 
-  // Schedule the SAME post to every selected network at the chosen time — for
-  // REAL. Connected networks go to the cloud (the worker uploads + publishes);
-  // anything not connected is reported honestly instead of silently faked.
+  // Schedule the SAME release card to every selected network at the chosen time.
+  // This is the browser-assisted path: local SQLite jobs become outbox cards at
+  // due time, then the signed-in browser agent publishes and writes results back.
   async function scheduleAll() {
     const targets = enabledTargets();
     if (!targets.length) {
@@ -421,15 +554,8 @@ export default function Composer({
       return;
     }
     if (!when) return;
-    if (!cloud) {
-      setError(
-        "You're not signed in to the cloud, so posts can't actually publish. Sign in (top-left) and connect a platform in Platforms, then schedule.",
-      );
-      return;
-    }
-    // The primary attached video, if any. Media-required networks (YouTube,
-    // Instagram, TikTok) need it; text-capable ones (X, Facebook, LinkedIn) post
-    // text alone.
+    // The primary attached asset, if any. YouTube image/text cards route to the
+    // channel Posts/Community composer; video cards route to Studio upload.
     const primaryMediaId = bundle?.post.media_asset_id ?? selected[0] ?? null;
 
     setBusy(true);
@@ -438,53 +564,59 @@ export default function Composer({
     try {
       await saveMaster();
       const whenIso = localInputToUtcIso(when);
-      const fallbackTitle = (master.caption.split("\n")[0] || "Untitled").slice(0, 100);
-
-      const live: string[] = [];
+      const scheduled: string[] = [];
       const blocked: string[] = [];
 
       for (const t of targets) {
-        if (!cloud.connected.has(t.platform)) {
-          blocked.push(`${t.platform}: not connected — connect it in Platforms first`);
-          continue;
-        }
         const textOnly = TEXT_CAPABLE.has(t.platform);
         if (!primaryMediaId && !textOnly) {
-          blocked.push(`${t.platform}: attach a video first (this network can't post text-only)`);
+          blocked.push(`${t.platform}: attach media first (this network can't post text-only)`);
+          continue;
+        }
+        const primaryMedia = mediaLib.find((m) => m.id === primaryMediaId);
+        if (
+          primaryMedia &&
+          VIDEO_REQUIRED.has(t.platform) &&
+          !primaryMedia.mime_type.startsWith("video/")
+        ) {
+          blocked.push(`${t.platform}: attach a video file first (the selected asset is ${primaryMedia.mime_type})`);
           continue;
         }
         if (!primaryMediaId && !(t.caption_override?.trim() || master.caption.trim())) {
-          blocked.push(`${t.platform}: write some text or attach a video first`);
+          blocked.push(`${t.platform}: write some text or attach media first`);
           continue;
         }
-        const metaOpts = buildMetaOptions(t.platform, readMetaOptions(t.options));
-        const metaMissing = missingMetaReason(t.platform, metaOpts);
-        if (metaMissing) {
-          blocked.push(`${t.platform}: ${metaMissing} — set it on the network card below, then Save`);
-          continue;
-        }
-        await scheduleToCloud({
-          workspaceId: cloud.workspaceId,
-          mediaId: primaryMediaId ?? undefined,
+        const targetId = await api.targetUpsert({
+          postId,
           platform: t.platform,
-          title: t.title_override?.trim() || fallbackTitle,
-          caption: t.caption_override?.trim() || master.caption,
+          captionOverride: t.caption_override,
+          titleOverride: t.title_override,
           hashtags: t.hashtags ?? [],
+          thumbnailMediaId: t.thumbnail_media_id,
           privacy,
-          scheduledForIso: whenIso,
-          timezone: LOCAL_TZ,
-          options: metaOpts,
+          options: {
+            ...optionObject(t.options),
+            ...browserRouteOptions(t.platform, primaryMedia?.mime_type),
+          },
         });
-        live.push(t.platform);
+        await api.scheduleCreate(targetId, whenIso, LOCAL_TZ);
+        scheduled.push(t.platform);
       }
 
-      if (live.length) {
+      if (scheduled.length) {
         setNotice(
-          `Scheduled live (${privacy}) to ${live.join(", ")}. The worker uploads it at the set time — it appears on your channel once published.`,
+          `Scheduled for Browser Agent: ${scheduled.join(", ")}. At the due time, Omni Release stages the exact files and instructions into the outbox.`,
         );
       }
       if (blocked.length) setError(blocked.join(" · "));
       await load();
+      // Success — flash "Scheduled ✓" on the button, then drop the user onto the
+      // Calendar (~2s later) so they can see the card that just landed there,
+      // instead of leaving them staring at an unchanged composer.
+      if (scheduled.length && onScheduled) {
+        setScheduled(true);
+        setTimeout(() => onScheduled(), 2000);
+      }
     } catch (e) {
       setError(String(e));
     } finally {
@@ -534,8 +666,8 @@ export default function Composer({
           <div className="banner error">{error}</div>
         ) : loaded ? (
           <div className="banner error">
-            This post has no local draft to open — it was scheduled live in the cloud and only
-            exists in the cloud DB. Use “View live ↗” on the calendar entry instead.
+            This release card has no local draft to open — it was scheduled in the cloud and
+            only exists in the cloud DB. Use “View live ↗” on the calendar entry instead.
           </div>
         ) : (
           <p className="sub">Loading…</p>
@@ -556,6 +688,11 @@ export default function Composer({
     previewPlatform && enabledPlatforms.includes(previewPlatform)
       ? previewPlatform
       : enabledPlatforms[0] ?? null;
+  const primarySelectedMediaId = bundle.post.media_asset_id ?? selected[0] ?? null;
+  const primarySelectedMedia =
+    bundle.media_items.find((m) => m.id === primarySelectedMediaId) ??
+    mediaLib.find((m) => m.id === primarySelectedMediaId) ??
+    bundle.media;
 
   return (
     <div className="view compose-v2">
@@ -564,7 +701,7 @@ export default function Composer({
           <button className="ghost sm" onClick={onBack}>
             ← Back
           </button>
-          <h2>Create post</h2>
+          <h2>Release Card</h2>
           <p className="sub">
             {bundle.media_items.length === 0
               ? "No media attached"
@@ -581,14 +718,14 @@ export default function Composer({
       <div className="compose-layout">
         <div className="compose-main">
 
-      {/* Network selector — tap a logo to add/remove that platform. */}
+      {/* Platform selector — tap a logo to add/remove that publishing target. */}
       <div className="compose-networks">
         {caps.map((cap) => (
           <button
             key={cap.platform}
             className={`net-logo${isEnabled(cap.platform) ? " on" : ""}`}
             onClick={() => toggleTarget(cap.platform)}
-            title={`${isEnabled(cap.platform) ? "Remove" : "Post to"} ${cap.label}`}
+            title={`${isEnabled(cap.platform) ? "Remove" : "Add"} ${cap.label}`}
           >
             <PlatformLogo platform={cap.platform as never} size={30} />
             {isEnabled(cap.platform) && <span className="net-check">✓</span>}
@@ -596,14 +733,23 @@ export default function Composer({
         ))}
       </div>
 
-      {/* The post box — write once; attach via the toolbar at its base. */}
-      <section className="card compose-editor">
+      {/* The release-card box — write once; attach via the toolbar at its base,
+          or just drag any image / video / file straight onto it. */}
+      <section className={`card compose-editor${dragOver ? " drag-over" : ""}`} ref={editorRef}>
+        {dragOver && (
+          <div className="drop-overlay">
+            <div className="drop-hint">
+              <IconUpload />
+              <span>Drop to attach — images, video, or files</span>
+            </div>
+          </div>
+        )}
         <textarea
           className="compose-text"
           value={master.caption}
           onChange={(e) => setMaster({ ...master, caption: e.target.value })}
           onBlur={saveMaster}
-          placeholder="What do you want to post? Write it once — it ships to every network you picked above."
+          placeholder="What should this release card say? Write it once — the agent uses this with every platform you picked above. Tip: drag an image, video, or file right onto this box to attach it."
         />
 
         {selected.length > 0 && (
@@ -776,7 +922,7 @@ export default function Composer({
           </div>
         )}
 
-        {/* Saved texts — reuse a caption snippet across posts. */}
+      {/* Saved texts — reuse a caption snippet across release cards. */}
         {savedOpen && (
           <div className="saved-panel">
             <div className="saved-head">
@@ -785,7 +931,7 @@ export default function Composer({
                 className="ghost sm"
                 disabled={!master.caption.trim()}
                 onClick={saveCurrentText}
-                title="Save the current post text for reuse"
+                title="Save the current release text for reuse"
               >
                 + Save current text
               </button>
@@ -800,7 +946,7 @@ export default function Composer({
                   <li className="saved-item" key={s.id}>
                     <button
                       className="saved-insert"
-                      title="Insert into post"
+                      title="Insert into release card"
                       onClick={() => insertSaved(s.text)}
                     >
                       {s.text}
@@ -838,7 +984,8 @@ export default function Composer({
               target={targetByPlatform(cap.platform)}
               masterCaption={master.caption}
               postId={postId}
-              mediaId={bundle.post.media_asset_id}
+              mediaId={primarySelectedMediaId}
+              mediaMime={primarySelectedMedia?.mime_type ?? null}
               cloud={cloud}
               onChange={load}
               onError={setError}
@@ -847,7 +994,7 @@ export default function Composer({
         </div>
       )}
 
-      {/* Send bar — schedule a REAL live publish to all connected networks. */}
+      {/* Send bar — schedule a browser-agent handoff to all selected networks. */}
       <div className="compose-actions">
         <input
           type="datetime-local"
@@ -883,12 +1030,12 @@ export default function Composer({
         </button>
         <span className="spacer" />
         <button
-          className="primary"
-          disabled={busy || !when}
+          className={`primary${scheduled ? " ok" : ""}`}
+          disabled={busy || scheduled || !when}
           onClick={scheduleAll}
-          title="Schedule a real, live publish to your connected channel"
+          title="Schedule a browser-agent handoff using your signed-in browser profile"
         >
-          {busy ? "Working…" : "Schedule live"}
+          {scheduled ? "Scheduled ✓ — opening Calendar…" : busy ? "Working…" : "Schedule to Agent"}
         </button>
       </div>
 
@@ -900,7 +1047,7 @@ export default function Composer({
             <div className="preview-bar">
               <div className="preview-switch">
                 {enabledPlatforms.length === 0 ? (
-                  <span className="sub">Pick a network to preview</span>
+            <span className="sub">Pick a platform to preview</span>
                 ) : (
                   enabledPlatforms.map((p) => (
                     <button
@@ -950,15 +1097,15 @@ export default function Composer({
               ) : (
                 <div className="preview-empty">
                   <p className="sub">
-                    Select a network above and start typing — your post preview
+                    Select a platform above and start typing — your release preview
                     appears here.
                   </p>
                 </div>
               )}
             </div>
             <p className="preview-note">
-              Previews are an approximation of how your post will look when
-              published. The final post may look slightly different.
+              Previews are an approximation of how the release card will look
+              once posted. The final platform rendering may differ slightly.
             </p>
           </div>
         </aside>
@@ -1185,9 +1332,9 @@ function PreviewCard({
   }
 
   // Generic card for YouTube / TikTok / Instagram / Twitch / Rumble.
+  // Header leads (like the X/FB/LinkedIn cards), then the body text, then media.
   return (
     <div className="pv-card pv-generic">
-      {hasMedia && <PreviewMedia media={media} />}
       <div className="pv-row">
         {avatar}
         <div className="pv-col">
@@ -1197,6 +1344,7 @@ function PreviewCard({
       </div>
       <div className="pv-text">{body || ph}</div>
       {locLine}
+      {hasMedia && <PreviewMedia media={media} />}
     </div>
   );
 }
@@ -1229,6 +1377,7 @@ function PlatformRow({
   masterCaption,
   postId,
   mediaId,
+  mediaMime,
   cloud,
   onChange,
   onError,
@@ -1238,6 +1387,7 @@ function PlatformRow({
   masterCaption: string;
   postId: string;
   mediaId: string | null;
+  mediaMime: string | null;
   cloud: CloudCtx | null;
   onChange: () => void;
   onError: (e: string) => void;
@@ -1258,9 +1408,21 @@ function PlatformRow({
 
   async function scheduleLive() {
     if (!cloud || !when) return;
-    const textOnly = TEXT_CAPABLE.has(cap.platform);
+    const textOnly = cap.platform === "youtube" ? false : TEXT_CAPABLE.has(cap.platform);
     if (!mediaId && !textOnly) {
-      onError("Attach media before scheduling a live post.");
+      onError(
+        cap.platform === "youtube"
+          ? "YouTube image/text posts use Schedule to Agent so the browser can post in the channel Posts tab."
+          : "Attach media before scheduling this live cloud post.",
+      );
+      return;
+    }
+    if (cap.platform === "youtube" && mediaMime && !mediaMime.startsWith("video/")) {
+      onError("YouTube image/text posts use Schedule to Agent so the browser can post in the channel Posts tab.");
+      return;
+    }
+    if (mediaMime && VIDEO_REQUIRED.has(cap.platform) && !mediaMime.startsWith("video/")) {
+      onError(`${cap.label} needs a video file. The selected asset is ${mediaMime}.`);
       return;
     }
     if (!mediaId && !(caption.trim() || masterCaption.trim())) {
@@ -1320,7 +1482,7 @@ function PlatformRow({
         hashtags: hashtags.split(/\s+/).filter(Boolean),
         thumbnailMediaId: null,
         privacy,
-        options: buildMetaOptions(cap.platform, meta),
+        options: buildTargetOptions(cap.platform, meta, mediaMime, target?.options),
       });
       onChange();
     } catch (e) {
@@ -1330,8 +1492,31 @@ function PlatformRow({
 
   async function schedule() {
     if (!target || !when) return;
+    const textOnly = TEXT_CAPABLE.has(cap.platform);
+    if (!mediaId && !textOnly) {
+      onError("Attach media before scheduling this browser-agent handoff.");
+      return;
+    }
+    if (mediaMime && VIDEO_REQUIRED.has(cap.platform) && !mediaMime.startsWith("video/")) {
+      onError(`${cap.label} needs a video file. The selected asset is ${mediaMime}.`);
+      return;
+    }
+    if (!mediaId && !(caption.trim() || masterCaption.trim())) {
+      onError("Write some text or attach media before scheduling.");
+      return;
+    }
     try {
-      await api.scheduleCreate(target.id, localInputToUtcIso(when), LOCAL_TZ);
+      const targetId = await api.targetUpsert({
+        postId,
+        platform: cap.platform,
+        captionOverride: caption || null,
+        titleOverride: cap.can_upload_video && title ? title : null,
+        hashtags: hashtags.split(/\s+/).filter(Boolean),
+        thumbnailMediaId: null,
+        privacy,
+        options: buildTargetOptions(cap.platform, meta, mediaMime, target.options),
+      });
+      await api.scheduleCreate(targetId, localInputToUtcIso(when), LOCAL_TZ);
       onChange();
     } catch (e) {
       onError(String(e));
@@ -1378,14 +1563,14 @@ function PlatformRow({
             </label>
           )}
           <label className="field">
-            <span>{isYouTube ? "Description" : "Caption override"}</span>
+            <span>{isYouTube ? "Post text / description" : "Caption override"}</span>
             <textarea
               rows={isYouTube ? 4 : 2}
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder={
                 isYouTube
-                  ? masterCaption || "Video description — add #hashtags here too"
+                  ? masterCaption || "Community post text or video description - add #hashtags here too"
                   : masterCaption || "Inherits your post text"
               }
             />
@@ -1469,7 +1654,7 @@ function PlatformRow({
                 onChange={(e) => setWhen(e.target.value)}
               />
               <button className="ghost sm" disabled={!when} onClick={schedule}>
-                Schedule (local)
+                Schedule to Agent
               </button>
               {cloudConnected && (
                 <button className="ghost sm live" disabled={!when} onClick={scheduleLive}>
@@ -1482,7 +1667,7 @@ function PlatformRow({
               Dry run
             </button>
             <button className="ghost sm" onClick={() => publish("mock")}>
-              Publish (mock)
+              Test (mock)
             </button>
           </div>
           {cloudMsg && <p className="sub">{cloudMsg}</p>}

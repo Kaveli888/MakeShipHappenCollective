@@ -34,6 +34,11 @@
     "research": "tsx src/cli/index.ts research",
     "queue": "tsx src/cli/index.ts queue",
     "queue:list": "tsx src/cli/index.ts queue",
+    "agent:once": "tsx src/agent-runner/index.ts --once",
+    "agent:once:live": "tsx src/agent-runner/index.ts --once --live",
+    "agent:loop": "tsx src/agent-runner/index.ts --loop",
+    "agent:loop:live": "tsx src/agent-runner/index.ts --loop --live",
+    "agent:tabs": "tsx src/agent-runner/openTabs.ts",
     "log:latest": "tsx src/cli/index.ts log:latest",
     "lanes": "tsx src/cli/index.ts lanes",
     "health": "tsx src/cli/index.ts health",
@@ -43,6 +48,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "playwright-core": "^1.61.1",
     "tsx": "^4.16.0",
     "typescript": "^5.5.0",
     "vitest": "^4.1.9"

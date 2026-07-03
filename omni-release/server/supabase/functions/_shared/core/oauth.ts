@@ -51,18 +51,21 @@ export interface HttpRequestSpec {
 /** Build the code→token exchange request (server sends it). */
 export function buildTokenExchange(input: TokenExchangeInput): HttpRequestSpec {
   const p = getProvider(input.platform);
+  const useBasic = p.tokenAuth === "basic";
   const form = new URLSearchParams({
     grant_type: "authorization_code",
     code: input.code,
     redirect_uri: input.redirectUri,
-    client_secret: input.clientSecret,
   });
   form.set(p.clientIdParam ?? "client_id", input.clientId);
+  // Confidential clients (e.g. X) authenticate with the Authorization: Basic
+  // header; sending client_secret in the body returns 401 unauthorized_client.
+  if (!useBasic) form.set("client_secret", input.clientSecret);
   if (p.usesPkce) {
     if (!input.codeVerifier) throw new Error(`${p.id} requires PKCE codeVerifier`);
     form.set("code_verifier", input.codeVerifier);
   }
-  return formPost(p.tokenUrl, form);
+  return formPost(p.tokenUrl, form, useBasic ? basicAuthHeader(input.clientId, input.clientSecret) : undefined);
 }
 
 export interface RefreshInput {
@@ -75,22 +78,28 @@ export interface RefreshInput {
 /** Build the refresh-token request. */
 export function buildRefresh(input: RefreshInput): HttpRequestSpec {
   const p = getProvider(input.platform);
+  const useBasic = p.tokenAuth === "basic";
   const form = new URLSearchParams({
     grant_type: "refresh_token",
     refresh_token: input.refreshToken,
-    client_secret: input.clientSecret,
   });
   form.set(p.clientIdParam ?? "client_id", input.clientId);
-  return formPost(p.tokenUrl, form);
+  if (!useBasic) form.set("client_secret", input.clientSecret);
+  return formPost(p.tokenUrl, form, useBasic ? basicAuthHeader(input.clientId, input.clientSecret) : undefined);
 }
 
-function formPost(url: string, form: URLSearchParams): HttpRequestSpec {
-  return {
-    url,
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
-    body: form.toString(),
+/** HTTP Basic credential for confidential clients (Authorization: Basic …). */
+function basicAuthHeader(clientId: string, clientSecret: string): string {
+  return `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
+}
+
+function formPost(url: string, form: URLSearchParams, authHeader?: string): HttpRequestSpec {
+  const headers: Record<string, string> = {
+    "content-type": "application/x-www-form-urlencoded",
+    accept: "application/json",
   };
+  if (authHeader) headers.authorization = authHeader;
+  return { url, method: "POST", headers, body: form.toString() };
 }
 
 /** Normalize a provider token response into our TokenBundle-ish shape. */

@@ -5,6 +5,7 @@
 //! `--json` and return its stdout for the front-end to parse. This keeps a
 //! single source of truth (the engine) and makes the desktop app a pure view.
 
+mod agent;
 mod commands;
 mod db;
 mod models;
@@ -21,7 +22,7 @@ use tauri::Manager;
 /// Resolve the engine repo root (the `omni-release` directory).
 /// Override with `OMNI_ENGINE_ROOT`; otherwise it's two levels up from this
 /// crate (app/src-tauri -> app -> omni-release), baked at compile time.
-fn engine_root() -> PathBuf {
+pub(crate) fn engine_root() -> PathBuf {
     if let Ok(p) = std::env::var("OMNI_ENGINE_ROOT") {
         return PathBuf::from(p);
     }
@@ -187,8 +188,8 @@ pub fn run() {
             // Local-first DB lives under the app data dir.
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
-            let conn = db::init(&data_dir.join("omni.db"))
-                .map_err(|e| format!("db init failed: {e}"))?;
+            let conn =
+                db::init(&data_dir.join("omni.db")).map_err(|e| format!("db init failed: {e}"))?;
             app.manage(db::DbState(std::sync::Mutex::new(conn)));
             // Start the background scheduled-job runner.
             scheduler::start(app.handle().clone());
@@ -231,11 +232,14 @@ pub fn run() {
             commands::job_delete,
             // publishing
             commands::publish_now,
+            commands::ingest_agent_results,
+            commands::agent_queue,
             // activity
             commands::attempts_list,
             commands::audit_list,
             // cloud bridge
             commands::open_url,
+            commands::open_chrome_url,
             commands::media_read_base64,
             commands::media_upload_resumable,
             commands::oauth_start,

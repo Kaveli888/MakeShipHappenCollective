@@ -68,10 +68,12 @@ export function statusClass(status: string): string {
     case "publishing":
     case "running":
     case "claimed":
+    case "awaiting_agent":
       return "busy";
     case "scheduled":
     case "pending":
     case "queued":
+    case "needs_attention":
       return "warn";
     default:
       return "muted";

@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
+  AgentQueueItem,
   AuditLog,
   Campaign,
   CalendarEntry,
@@ -136,7 +137,15 @@ export const api = {
   // activity
   attemptsList: (limit = 50) => invoke<PublishAttempt[]>("attempts_list", { limit }),
   auditList: (limit = 100) => invoke<AuditLog[]>("audit_list", { limit }),
+  agentQueue: () => invoke<AgentQueueItem[]>("agent_queue"),
+  ingestAgentResults: () => invoke<number>("ingest_agent_results"),
+
+  // small persisted app state
+  stateGet: (key: string) => invoke<string | null>("state_get", { key }),
+  stateSet: (key: string, value: string) => invoke<void>("state_set", { key, value }),
 
   // open an external (https) link in the system browser
   openUrl: (url: string) => invoke<void>("open_url", { url }),
+  openChromeUrl: (url: string) => invoke<void>("open_chrome_url", { url }),
+  openPath: (path: string) => invoke<void>("open_path", { path }),
 };
