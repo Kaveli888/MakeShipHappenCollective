@@ -378,7 +378,7 @@ pub fn mark_stale_handoffs(conn: &Connection, engine_root: &Path) -> Result<u32,
 
         let error_code = "agent_loop_not_running";
         let error_message = format!(
-            "This handoff has been due for more than {} minutes, but no live browser agent heartbeat is active. Start npm run agent:loop:live or open the handoff manually.",
+            "This handoff has been due for more than {} minutes, but no live browser agent heartbeat is active. Start attachable Chrome with npm run agent:chrome, then run npm run agent:loop:live, or open the handoff manually.",
             HANDOFF_STALE_SECS / 60
         );
         let result = json!({

@@ -5,6 +5,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { chromium, type Browser, type BrowserContext, type Locator, type Page } from "playwright-core";
 
 type Outcome = "posted" | "failed" | "needs_attention";
+type BrowserMode = "active" | "isolated";
 
 interface MediaItem {
   file: string;
@@ -38,6 +39,7 @@ interface RunnerConfig {
   profileDirectory: string;
   profileName: string;
   profileEmail: string;
+  browserMode: BrowserMode;
   allowIsolatedChrome: boolean;
   chromePath: string;
   once: boolean;
@@ -67,6 +69,7 @@ interface BrowserHandle {
   browser: Browser;
   context: BrowserContext;
   chromeProcess: ChildProcess | null;
+  ownsBrowser: boolean;
 }
 
 const DEFAULT_YOUTUBE_POSTS_URL = "https://www.youtube.com/@MakeShipHappenTech/posts";
@@ -94,6 +97,14 @@ function numberArg(name: string, fallback: number): number {
   const raw = argValue(name, String(fallback));
   const parsed = Number(raw);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function browserMode(): BrowserMode {
+  const raw = argValue("--chrome-mode", process.env.OMNI_CHROME_MODE ?? "").toLowerCase();
+  if (raw === "active" || raw === "isolated") return raw;
+  if (hasArg("--use-active-chrome")) return "active";
+  if (hasArg("--allow-isolated-chrome") || process.env.OMNI_ALLOW_ISOLATED_CHROME === "1") return "isolated";
+  return "active";
 }
 
 function repoRoot(): string {
@@ -179,6 +190,7 @@ function loadConfig(): RunnerConfig {
   );
   const userDataDir = path.resolve(argValue("--chrome-user-data-dir", process.env.OMNI_CHROME_USER_DATA_DIR ?? runnerUserDataDir()));
   const profile = resolveChromeProfile(sourceUserDataDir);
+  const mode = browserMode();
   return {
     outboxDir: path.resolve(argValue("--outbox", path.join(root, "outbox"))),
     userDataDir,
@@ -186,6 +198,7 @@ function loadConfig(): RunnerConfig {
     profileDirectory: profile.profileDirectory,
     profileName: profile.profileName,
     profileEmail: profile.profileEmail,
+    browserMode: mode,
     allowIsolatedChrome: hasArg("--allow-isolated-chrome") || process.env.OMNI_ALLOW_ISOLATED_CHROME === "1",
     chromePath: argValue("--chrome-path", findChromePath()),
     once,
@@ -1281,14 +1294,31 @@ async function waitForCdp(port: number, timeoutMs = 15_000): Promise<string> {
   throw new Error(`Chrome remote debugging did not start on ${endpoint}`);
 }
 
-async function launchBrowser(cfg: RunnerConfig): Promise<BrowserHandle> {
+async function connectActiveChrome(cfg: RunnerConfig): Promise<BrowserHandle> {
+  let endpoint: string;
+  try {
+    endpoint = await waitForCdp(cfg.debugPort, 4_000);
+  } catch {
+    throw new Error(
+      `Active Chrome is not attachable on port ${cfg.debugPort}. ` +
+        "Quit normal Chrome, run `npm run agent:chrome`, make sure it opens the MakeShipHappenTech profile, then run the live loop again. " +
+        "This keeps posting inside your signed-in Chrome session instead of an isolated browser.",
+    );
+  }
+  const browser = await chromium.connectOverCDP(endpoint);
+  const context = browser.contexts()[0];
+  if (!context) throw new Error("Attached to active Chrome, but no browser context was exposed.");
+  return { browser, context, chromeProcess: null, ownsBrowser: false };
+}
+
+async function launchIsolatedChrome(cfg: RunnerConfig): Promise<BrowserHandle> {
   if (!(await pathExists(cfg.chromePath))) {
     throw new Error(`Chrome not found at ${cfg.chromePath}. Set OMNI_CHROME_PATH or pass --chrome-path=/path/to/browser.`);
   }
   if (!cfg.allowIsolatedChrome) {
     throw new Error(
-      "The Playwright runner uses an isolated Chrome user-data-dir and is disabled by default so it cannot open a blank or wrong Google account. " +
-        "Run `npm run agent:tabs` to open due cards in your active signed-in Chrome profile, or set OMNI_ALLOW_ISOLATED_CHROME=1 after signing into the isolated runner profile.",
+      "Isolated Chrome is disabled so the runner cannot open a blank or wrong Google account. " +
+        "Use the default active Chrome mode, or set OMNI_CHROME_MODE=isolated and OMNI_ALLOW_ISOLATED_CHROME=1 after signing into the isolated runner profile.",
     );
   }
   await prepareRunnerProfile(cfg);
@@ -1322,7 +1352,7 @@ async function launchBrowser(cfg: RunnerConfig): Promise<BrowserHandle> {
     const browser = await chromium.connectOverCDP(endpoint);
     const context = browser.contexts()[0];
     if (!context) throw new Error("Chrome started but exposed no browser context.");
-    return { browser, context, chromeProcess };
+    return { browser, context, chromeProcess, ownsBrowser: true };
   } catch (err) {
     chromeProcess.kill("SIGTERM");
     const message = err instanceof Error ? err.message : String(err);
@@ -1334,6 +1364,11 @@ async function launchBrowser(cfg: RunnerConfig): Promise<BrowserHandle> {
     }
     throw err;
   }
+}
+
+async function launchBrowser(cfg: RunnerConfig): Promise<BrowserHandle> {
+  if (cfg.browserMode === "active") return connectActiveChrome(cfg);
+  return launchIsolatedChrome(cfg);
 }
 
 function isBrowserClosedError(message: string): boolean {
@@ -1348,7 +1383,7 @@ async function firstOpenPage(context: BrowserContext): Promise<Page> {
 async function closeBrowser(handle: BrowserHandle | null): Promise<void> {
   if (!handle) return;
   await handle.browser.close().catch(() => {});
-  if (handle.chromeProcess && !handle.chromeProcess.killed) {
+  if (handle.ownsBrowser && handle.chromeProcess && !handle.chromeProcess.killed) {
     handle.chromeProcess.kill("SIGTERM");
   }
 }
@@ -1433,8 +1468,13 @@ async function main(): Promise<void> {
   const cfg = loadConfig();
   console.log(`[agent-runner] outbox: ${cfg.outboxDir}`);
   console.log(`[agent-runner] chrome profile: ${cfg.profileName} (${cfg.profileEmail || cfg.profileDirectory}) -> ${cfg.profileDirectory}`);
-  console.log(`[agent-runner] runner profile dir: ${cfg.userDataDir}`);
-  console.log(`[agent-runner] isolated Chrome enabled: ${cfg.allowIsolatedChrome ? "yes" : "no - use npm run agent:tabs for active Chrome"}`);
+  console.log(`[agent-runner] chrome mode: ${cfg.browserMode}`);
+  if (cfg.browserMode === "active") {
+    console.log(`[agent-runner] active Chrome CDP: http://127.0.0.1:${cfg.debugPort}`);
+  } else {
+    console.log(`[agent-runner] isolated runner profile dir: ${cfg.userDataDir}`);
+    console.log(`[agent-runner] isolated Chrome enabled: ${cfg.allowIsolatedChrome ? "yes" : "no"}`);
+  }
   console.log(`[agent-runner] mode: ${cfg.live ? "LIVE - will click final Post buttons" : "DRY RUN - will stop before final Post"}`);
   await writeHeartbeat(cfg, { status: "starting", message: "agent runner starting" }).catch(() => {});
 

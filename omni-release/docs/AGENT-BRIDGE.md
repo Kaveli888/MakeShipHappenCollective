@@ -135,6 +135,7 @@ in `outbox/done/`. The `idempotency_key` guards against any double-post.
 The local runner is the piece that turns Agent Queue into a shipping loop:
 
 ```bash
+npm run agent:chrome      # make Jake's signed-in Google Chrome attachable
 npm run agent:tabs        # open due platform pages in your normal signed-in Chrome
 npm run agent:once        # dry-run one pass; does not click final Post
 npm run agent:once:live   # process due cards once and publish
@@ -142,11 +143,24 @@ npm run agent:loop        # dry-run polling loop
 npm run agent:loop:live   # live polling loop; keeps trying due cards
 ```
 
-The preferred account-safe flow is **Chrome/Profile first, Omni second**:
-open Chrome in Jake's MakeShipHappen profile, then run `npm run agent:tabs`.
-That command opens each due platform page in the already-signed-in Chrome
-session and reveals the staged media files. This prevents the agent from ever
-choosing a blank Google profile or the wrong Google account.
+The required account-safe flow is **Chrome/Profile first, Omni second**:
+
+1. Use Jake's real Google Chrome profile:
+   `makeshiphappentech@gmail.com` / `Jacob`.
+2. Start attachable Chrome with `npm run agent:chrome`. If normal Chrome was
+   already open without the debugging port, quit Chrome completely and run the
+   command again.
+3. Leave that Chrome window open.
+4. Run `npm run agent:loop:live`.
+
+The live runner now defaults to active Chrome mode. It attaches to
+`http://127.0.0.1:9222` and refuses to post if that signed-in Chrome session is
+not attachable. This prevents the agent from ever falling back to a blank Google
+profile or the wrong Google account.
+
+`npm run agent:tabs` remains the manual rescue command: it opens each due
+platform page in the already-signed-in Chrome session and reveals staged media
+files.
 
 Loop contract:
 
@@ -155,11 +169,10 @@ Loop contract:
 - A due card remains in `outbox/due/` until the app ingests a result.
 - `needs_attention` is a pause, not a delete; the loop retries after backoff once
   Jake clears login, 2FA, CAPTCHA, upload issues, or UI-change gates.
-- The Playwright live runner uses an isolated Chrome user-data-dir, so it is
-  disabled by default. Only enable it with `OMNI_ALLOW_ISOLATED_CHROME=1` after
-  that isolated runner browser has been manually signed into
-  `makeshiphappentech@gmail.com`. Until then, use `npm run agent:tabs` so every
-  due card opens inside Jake's normal signed-in Chrome profile.
+- Isolated Chrome is opt-in only. Use
+  `OMNI_CHROME_MODE=isolated OMNI_ALLOW_ISOLATED_CHROME=1` or
+  `npm run agent:loop:live:isolated` only after that isolated runner browser has
+  been manually signed into `makeshiphappentech@gmail.com`.
 
 ## Per-platform method
 
