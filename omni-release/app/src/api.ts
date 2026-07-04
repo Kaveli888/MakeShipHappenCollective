@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentQueueItem,
+  AgentHealth,
   AuditLog,
   Campaign,
   CalendarEntry,
@@ -138,7 +139,10 @@ export const api = {
   attemptsList: (limit = 50) => invoke<PublishAttempt[]>("attempts_list", { limit }),
   auditList: (limit = 100) => invoke<AuditLog[]>("audit_list", { limit }),
   agentQueue: () => invoke<AgentQueueItem[]>("agent_queue"),
+  agentHealth: () => invoke<AgentHealth>("agent_health"),
   ingestAgentResults: () => invoke<number>("ingest_agent_results"),
+  agentHandoffDelete: (jobId: string) =>
+    invoke<void>("agent_handoff_delete", { jobId }),
 
   // small persisted app state
   stateGet: (key: string) => invoke<string | null>("state_get", { key }),

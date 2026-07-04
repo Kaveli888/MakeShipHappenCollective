@@ -16,13 +16,16 @@
 
 use crate::db;
 use crate::models::{PostPlatformTarget, ScheduledJob};
-use rusqlite::Connection;
+use chrono::{DateTime, Utc};
+use rusqlite::{params, Connection};
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
 /// Target status while a job is waiting for the agent to post it.
 pub const AGENT_STATUS: &str = "awaiting_agent";
+const HEARTBEAT_STALE_SECS: i64 = 90;
+const HANDOFF_STALE_SECS: i64 = 10 * 60;
 
 /// Root of the app↔agent file exchange (inside the repo so a mounted agent sees it).
 pub fn outbox_dir(engine_root: &Path) -> PathBuf {
@@ -55,6 +58,25 @@ pub struct AgentQueueItem {
     pub needs_attention: bool,
     pub attention_code: Option<String>,
     pub attention_message: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AgentHealth {
+    pub heartbeat_present: bool,
+    pub runner_online: bool,
+    pub last_seen_at: Option<String>,
+    pub age_seconds: Option<i64>,
+    pub status: Option<String>,
+    pub mode: Option<String>,
+    pub current_job_id: Option<String>,
+    pub current_platform: Option<String>,
+    pub message: Option<String>,
+    pub due_count: usize,
+    pub stale_count: usize,
+    pub stale_job_ids: Vec<String>,
+    pub heartbeat_stale_seconds: i64,
+    pub handoff_stale_seconds: i64,
+    pub warning: Option<String>,
 }
 
 fn str_field(v: &Value, key: &str) -> Option<String> {
@@ -115,6 +137,116 @@ fn release_platforms(card: &Value, fallback_platform: &str) -> Vec<String> {
 
 fn usize_field(v: &Value, key: &str) -> Option<usize> {
     v.get(key).and_then(|x| x.as_u64()).map(|n| n as usize)
+}
+
+fn parse_time(raw: &str) -> Option<DateTime<Utc>> {
+    DateTime::parse_from_rfc3339(raw)
+        .ok()
+        .map(|dt| dt.with_timezone(&Utc))
+}
+
+fn heartbeat(engine_root: &Path) -> Option<Value> {
+    std::fs::read_to_string(outbox_dir(engine_root).join("agent-heartbeat.json"))
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok())
+}
+
+fn heartbeat_age_seconds(hb: &Value) -> Option<i64> {
+    hb.get("last_seen_at")
+        .and_then(|v| v.as_str())
+        .and_then(parse_time)
+        .map(|dt| (Utc::now() - dt).num_seconds().max(0))
+}
+
+fn heartbeat_is_online(hb: &Value) -> bool {
+    let status = hb.get("status").and_then(|v| v.as_str()).unwrap_or("");
+    status != "stopped"
+        && heartbeat_age_seconds(hb)
+            .map(|age| age <= HEARTBEAT_STALE_SECS)
+            .unwrap_or(false)
+}
+
+fn handoff_age_seconds(item: &AgentQueueItem) -> Option<i64> {
+    item.handed_off_at
+        .as_deref()
+        .and_then(parse_time)
+        .map(|dt| (Utc::now() - dt).num_seconds().max(0))
+}
+
+pub fn health(engine_root: &Path) -> Result<AgentHealth, String> {
+    let queue = list_queue(engine_root)?;
+    let hb = heartbeat(engine_root);
+    let runner_online = hb.as_ref().map(heartbeat_is_online).unwrap_or(false);
+    let stale_job_ids: Vec<String> = queue
+        .iter()
+        .filter(|item| {
+            !item.needs_attention
+                && !runner_online
+                && handoff_age_seconds(item)
+                    .map(|age| age >= HANDOFF_STALE_SECS)
+                    .unwrap_or(false)
+        })
+        .map(|item| item.job_id.clone())
+        .collect();
+    let warning = if queue.is_empty() {
+        None
+    } else if runner_online {
+        None
+    } else if hb.is_some() {
+        Some(format!(
+            "Browser agent heartbeat is stale or stopped while {} handoff{} remain due.",
+            queue.len(),
+            if queue.len() == 1 { "" } else { "s" }
+        ))
+    } else {
+        Some(format!(
+            "No browser agent heartbeat found while {} handoff{} remain due.",
+            queue.len(),
+            if queue.len() == 1 { "" } else { "s" }
+        ))
+    };
+
+    Ok(AgentHealth {
+        heartbeat_present: hb.is_some(),
+        runner_online,
+        last_seen_at: hb
+            .as_ref()
+            .and_then(|v| v.get("last_seen_at"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string),
+        age_seconds: hb.as_ref().and_then(heartbeat_age_seconds),
+        status: hb
+            .as_ref()
+            .and_then(|v| v.get("status"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string),
+        mode: hb
+            .as_ref()
+            .and_then(|v| v.get("mode"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string),
+        current_job_id: hb
+            .as_ref()
+            .and_then(|v| v.get("current_job_id"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string),
+        current_platform: hb
+            .as_ref()
+            .and_then(|v| v.get("current_platform"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string),
+        message: hb
+            .as_ref()
+            .and_then(|v| v.get("message"))
+            .and_then(|v| v.as_str())
+            .map(ToString::to_string),
+        due_count: queue.len(),
+        stale_count: stale_job_ids.len(),
+        stale_job_ids,
+        heartbeat_stale_seconds: HEARTBEAT_STALE_SECS,
+        handoff_stale_seconds: HANDOFF_STALE_SECS,
+        warning,
+    })
 }
 
 /// List active cards under `outbox/due/` for the UI and agent operator.
@@ -214,6 +346,94 @@ pub fn list_queue(engine_root: &Path) -> Result<Vec<AgentQueueItem>, String> {
             .cmp(b.scheduled_for.as_deref().unwrap_or(""))
     });
     Ok(out)
+}
+
+pub fn mark_stale_handoffs(conn: &Connection, engine_root: &Path) -> Result<u32, String> {
+    let h = health(engine_root)?;
+    if h.runner_online || h.stale_job_ids.is_empty() {
+        return Ok(0);
+    }
+
+    let base = outbox_dir(engine_root);
+    let mut marked = 0u32;
+    for job_id in h.stale_job_ids {
+        let due_dir = base.join("due").join(&job_id);
+        let card_path = due_dir.join("card.json");
+        let card: Value = match std::fs::read_to_string(&card_path)
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+        {
+            Some(v) => v,
+            None => continue,
+        };
+        let target_id = match card.get("target_id").and_then(|v| v.as_str()) {
+            Some(id) => id.to_string(),
+            None => continue,
+        };
+        let target = match db::get_target(conn, &target_id).map_err(|e| e.to_string())? {
+            Some(t) if t.status == AGENT_STATUS => t,
+            _ => continue,
+        };
+        let platform = target.platform.clone();
+
+        let error_code = "agent_loop_not_running";
+        let error_message = format!(
+            "This handoff has been due for more than {} minutes, but no live browser agent heartbeat is active. Start npm run agent:loop:live or open the handoff manually.",
+            HANDOFF_STALE_SECS / 60
+        );
+        let result = json!({
+            "job_id": job_id.clone(),
+            "idempotency_key": card.get("idempotency_key").cloned().unwrap_or(Value::Null),
+            "target_id": target_id.clone(),
+            "platform": platform.clone(),
+            "outcome": "needs_attention",
+            "external_url": null,
+            "external_post_id": null,
+            "posted_at": null,
+            "error_code": error_code,
+            "error_message": error_message,
+            "detected_at": db::now(),
+            "detected_by": "omni_release",
+        });
+
+        let attempt_no = db::next_attempt_no(conn, &target_id).map_err(|e| e.to_string())?;
+        let att = db::start_attempt(conn, Some(&job_id), &target_id, attempt_no, "agent_watchdog")
+            .map_err(|e| e.to_string())?;
+        db::finish_attempt(
+            conn,
+            &att,
+            "skipped",
+            None,
+            None,
+            result.clone(),
+            Some(error_code),
+            Some(&error_message),
+        )
+        .map_err(|e| e.to_string())?;
+        db::set_target_status(conn, &target_id, "needs_attention").map_err(|e| e.to_string())?;
+        conn.execute(
+            "UPDATE post_platform_targets SET failure_reason=?2 WHERE id=?1",
+            params![&target_id, &error_message],
+        )
+        .map_err(|e| e.to_string())?;
+        let _ = db::recompute_post_status(conn, &target.post_id);
+        let _ = std::fs::write(
+            due_dir.join("attention.json"),
+            serde_json::to_vec_pretty(&result).unwrap_or_default(),
+        );
+        db::audit(
+            conn,
+            "scheduler",
+            "agent.handoff_stale",
+            Some("job"),
+            Some(&job_id),
+            json!({ "target": target_id, "platform": platform, "error_code": error_code }),
+        )
+        .map_err(|e| e.to_string())?;
+        marked += 1;
+    }
+
+    Ok(marked)
 }
 
 /// Write a job-card + stage the media into `outbox/due/<job_id>/`, and set the

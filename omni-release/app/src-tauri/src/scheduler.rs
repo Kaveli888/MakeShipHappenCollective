@@ -42,6 +42,7 @@ fn tick(app: &tauri::AppHandle, worker: &str) {
     // In agent mode, first pull in any results the agent has written back.
     if route == "agent" {
         let _ = crate::agent::ingest_results(&conn, &engine_root);
+        let _ = crate::agent::mark_stale_handoffs(&conn, &engine_root);
     }
 
     let now = db::now();

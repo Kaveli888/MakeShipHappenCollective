@@ -639,6 +639,86 @@ pub fn agent_queue() -> Result<Vec<crate::agent::AgentQueueItem>, String> {
     crate::agent::list_queue(&root)
 }
 
+#[tauri::command]
+pub fn agent_health() -> Result<crate::agent::AgentHealth, String> {
+    let root = crate::engine_root();
+    crate::agent::health(&root)
+}
+
+/// Cancel one browser handoff outright: archive its `outbox/due/` card so the
+/// agent can never post it (an archived job_id is also blocked by the agent's
+/// idempotency rule), delete its calendar job, and drop the platform target so
+/// the release card shows that platform unchecked/unpublished again.
+#[tauri::command]
+pub fn agent_handoff_delete(state: State<DbState>, job_id: String) -> Result<(), String> {
+    let root = crate::engine_root();
+    let conn = lock(&state)?;
+
+    // Resolve the target before removing anything: the card is the source of
+    // truth for what the agent sees; the DB job is the fallback.
+    let base = crate::agent::outbox_dir(&root);
+    let due_dir = base.join("due").join(&job_id);
+    let card: Option<serde_json::Value> = std::fs::read_to_string(due_dir.join("card.json"))
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok());
+    let target_id = card
+        .as_ref()
+        .and_then(|c| c.get("target_id").and_then(|x| x.as_str()))
+        .map(ToString::to_string)
+        .or_else(|| {
+            db::get_job(&conn, &job_id)
+                .ok()
+                .flatten()
+                .map(|j| j.post_platform_target_id)
+        });
+
+    // 1. Archive the due card. The agent must never find this job in due/ again.
+    if due_dir.exists() {
+        let arch = base.join("archive").join(&job_id);
+        std::fs::create_dir_all(&arch).map_err(|e| e.to_string())?;
+        let stamp = db::now().replace([':', '/', '+'], "-");
+        let dest = if arch.join("due").exists() {
+            arch.join(format!("due-canceled-{stamp}"))
+        } else {
+            arch.join("due")
+        };
+        std::fs::rename(&due_dir, &dest)
+            .map_err(|e| format!("archive handoff {job_id}: {e}"))?;
+        let note = serde_json::json!({ "canceled_at": db::now(), "by": "user" });
+        let _ = std::fs::write(
+            arch.join("canceled.json"),
+            serde_json::to_vec_pretty(&note).unwrap_or_default(),
+        );
+    }
+
+    // 2. Clear the calendar entry.
+    db::delete_job(&conn, &job_id).map_err(|e| e.to_string())?;
+
+    // 3. Drop the platform target — the platform reads as unchecked on the
+    //    release card and disappears from the calendar's grouped release bar.
+    if let Some(tid) = target_id.as_deref() {
+        if let Some(t) = db::get_target(&conn, tid).map_err(|e| e.to_string())? {
+            conn.execute(
+                "DELETE FROM post_platform_targets WHERE id=?1",
+                rusqlite::params![tid],
+            )
+            .map_err(|e| e.to_string())?;
+            let _ = db::recompute_post_status(&conn, &t.post_id);
+        }
+    }
+
+    db::audit(
+        &conn,
+        "user",
+        "agent.handoff_delete",
+        Some("job"),
+        Some(&job_id),
+        serde_json::json!({ "target": target_id }),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 /* ---------- activity / audit ---------- */
 
 #[tauri::command]

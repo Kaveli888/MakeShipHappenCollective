@@ -163,6 +163,24 @@ export interface AgentQueueItem {
   attention_message: string | null;
 }
 
+export interface AgentHealth {
+  heartbeat_present: boolean;
+  runner_online: boolean;
+  last_seen_at: string | null;
+  age_seconds: number | null;
+  status: string | null;
+  mode: string | null;
+  current_job_id: string | null;
+  current_platform: string | null;
+  message: string | null;
+  due_count: number;
+  stale_count: number;
+  stale_job_ids: string[];
+  heartbeat_stale_seconds: number;
+  handoff_stale_seconds: number;
+  warning: string | null;
+}
+
 export interface PublishOutcome {
   outcome: string;
   external_post_id: string | null;

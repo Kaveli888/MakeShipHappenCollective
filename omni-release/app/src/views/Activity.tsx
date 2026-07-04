@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api.js";
-import type { AgentQueueItem, AuditLog, PlatformId, PublishAttempt } from "../types.js";
+import type { AgentHealth, AgentQueueItem, AuditLog, PlatformId, PublishAttempt } from "../types.js";
 import { PlatformLogo, platformLabel } from "../components/PlatformLogo.js";
 import { fmtTime, statusClass } from "../util.js";
 
@@ -25,12 +25,15 @@ function platformId(p: string): PlatformId {
 export default function Activity({ onOpenPost }: { onOpenPost: (id: string) => void }) {
   const [tab, setTab] = useState<"queue" | "attempts" | "audit">("queue");
   const [queue, setQueue] = useState<AgentQueueItem[]>([]);
+  const [health, setHealth] = useState<AgentHealth | null>(null);
   const [attempts, setAttempts] = useState<PublishAttempt[]>([]);
   const [audit, setAudit] = useState<AuditLog[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [openingTabs, setOpeningTabs] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const queueGroups = useMemo<QueueGroup[]>(() => {
     const groups = new Map<string, QueueGroup>();
     for (const item of queue) {
@@ -90,12 +93,14 @@ export default function Activity({ onOpenPost }: { onOpenPost: (id: string) => v
 
   const refresh = useCallback(async () => {
     try {
-      const [q, a, l] = await Promise.all([
+      const [q, h, a, l] = await Promise.all([
         api.agentQueue(),
+        api.agentHealth(),
         api.attemptsList(80),
         api.auditList(120),
       ]);
       setQueue(q);
+      setHealth(h);
       setAttempts(a);
       setAudit(l);
     } catch (e) {
@@ -133,6 +138,26 @@ export default function Activity({ onOpenPost }: { onOpenPost: (id: string) => v
       await api.openPath("outbox");
     } catch (e) {
       setError(String(e));
+    }
+  }
+
+  // Delete one handoff card: archives its outbox card so the agent can't post
+  // it, clears its calendar entry, and unchecks that platform on the release.
+  async function deleteHandoff(q: AgentQueueItem) {
+    setDeleting(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await api.agentHandoffDelete(q.job_id);
+      setNotice(
+        `Deleted the ${platformLabel(platformId(q.platform))} handoff — unscheduled and unchecked on the release card.`,
+      );
+      setConfirmDelete(null);
+      await refresh();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -183,6 +208,19 @@ export default function Activity({ onOpenPost }: { onOpenPost: (id: string) => v
 
       {error && <div className="banner error">{error}</div>}
       {notice && <div className="banner ok">{notice}</div>}
+      {health?.warning && (
+        <div className="banner warn">
+          <strong>Browser agent offline.</strong>{" "}
+          {health.warning} {health.stale_count > 0 ? `${health.stale_count} handoff${health.stale_count === 1 ? "" : "s"} crossed the stale threshold.` : ""}
+        </div>
+      )}
+      {health?.runner_online && (
+        <div className="banner info">
+          Browser agent is online{health.mode ? ` in ${health.mode} mode` : ""}.
+          {health.current_platform ? ` Working on ${platformLabel(platformId(health.current_platform))}.` : ""}
+          {health.message ? ` ${health.message}.` : ""}
+        </div>
+      )}
 
       {tab === "queue" && (
         <>
@@ -278,7 +316,38 @@ export default function Activity({ onOpenPost }: { onOpenPost: (id: string) => v
                           <button className="ghost sm" onClick={openOutbox}>
                             Open outbox
                           </button>
+                          {confirmDelete !== q.job_id && (
+                            <button
+                              className="ghost sm danger"
+                              disabled={deleting}
+                              onClick={() => setConfirmDelete(q.job_id)}
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
+                        {confirmDelete === q.job_id && (
+                          <div className="cal-confirm">
+                            <span>
+                              Delete this handoff? {platformLabel(platformId(q.platform))} will be
+                              unscheduled and unchecked on the release card.
+                            </span>
+                            <button
+                              className="cal-confirm-yes"
+                              disabled={deleting}
+                              onClick={() => deleteHandoff(q)}
+                            >
+                              {deleting ? "Deleting…" : "Delete"}
+                            </button>
+                            <button
+                              className="cal-confirm-no"
+                              disabled={deleting}
+                              onClick={() => setConfirmDelete(null)}
+                            >
+                              Keep
+                            </button>
+                          </div>
+                        )}
                         <code className="agent-id">{q.job_id}</code>
                       </div>
                     ))}

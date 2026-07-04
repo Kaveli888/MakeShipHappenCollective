@@ -22,6 +22,10 @@ interface AgentCard {
   timezone?: string;
   caption?: string | null;
   title?: string | null;
+  hashtags?: string[] | string | null;
+  privacy?: string | null;
+  link?: string | null;
+  cta?: string | null;
   media?: MediaItem[];
   options?: Record<string, unknown>;
   instructions?: string | null;
@@ -41,6 +45,7 @@ interface RunnerConfig {
   pollMs: number;
   retryMs: number;
   humanRetryMs: number;
+  heartbeatMs: number;
   debugPort: number;
 }
 
@@ -65,6 +70,13 @@ interface BrowserHandle {
 }
 
 const DEFAULT_YOUTUBE_POSTS_URL = "https://www.youtube.com/@MakeShipHappenTech/posts";
+const DEFAULT_YOUTUBE_STUDIO_URL = "https://studio.youtube.com";
+const FACEBOOK_PAGE_URL = "https://www.facebook.com/profile.php?id=61589607458265";
+const INSTAGRAM_HOME_URL = "https://www.instagram.com/";
+const LINKEDIN_FEED_URL = "https://www.linkedin.com/feed/";
+const RUMBLE_UPLOAD_URL = "https://rumble.com/upload.php";
+const TIKTOK_UPLOAD_URL = "https://www.tiktok.com/upload";
+const X_HOME_URL = "https://x.com/home";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -181,6 +193,7 @@ function loadConfig(): RunnerConfig {
     pollMs: numberArg("--poll-ms", 15_000),
     retryMs: numberArg("--retry-ms", 45_000),
     humanRetryMs: numberArg("--human-retry-ms", 30_000),
+    heartbeatMs: numberArg("--heartbeat-ms", 15_000),
     debugPort: numberArg("--debug-port", 9222),
   };
 }
@@ -239,6 +252,43 @@ async function readJson<T>(p: string): Promise<T | null> {
   } catch {
     return null;
   }
+}
+
+async function writeHeartbeat(
+  cfg: RunnerConfig,
+  extra: Partial<{
+    status: string;
+    currentJobId: string | null;
+    currentPlatform: string | null;
+    message: string | null;
+  }> = {},
+): Promise<void> {
+  const heartbeatPath = path.join(cfg.outboxDir, "agent-heartbeat.json");
+  const payload = {
+    pid: process.pid,
+    status: extra.status ?? "running",
+    mode: cfg.live ? "live" : "dry",
+    loop: !cfg.once,
+    current_job_id: extra.currentJobId ?? null,
+    current_platform: extra.currentPlatform ?? null,
+    message: extra.message ?? null,
+    last_seen_at: new Date().toISOString(),
+  };
+  await fs.mkdir(cfg.outboxDir, { recursive: true });
+  await fs.writeFile(`${heartbeatPath}.tmp`, `${JSON.stringify(payload, null, 2)}\n`);
+  await fs.rename(`${heartbeatPath}.tmp`, heartbeatPath);
+}
+
+async function waitWithHeartbeat(
+  cfg: RunnerConfig,
+  ms: number,
+  extra: Parameters<typeof writeHeartbeat>[1] = {},
+): Promise<void> {
+  const end = Date.now() + ms;
+  do {
+    await writeHeartbeat(cfg, extra).catch(() => {});
+    await wait(Math.min(cfg.heartbeatMs, Math.max(250, end - Date.now())));
+  } while (Date.now() < end);
 }
 
 function isDue(card: AgentCard, now = Date.now()): boolean {
@@ -326,6 +376,60 @@ async function screenshot(page: Page, outboxDir: string, jobId: string): Promise
   await page.screenshot({ path: path.join(outboxDir, "done", `${jobId}.png`), fullPage: true }).catch(() => {});
 }
 
+function normalizeText(parts: Array<string | null | undefined>): string {
+  return parts
+    .map((part) => (part ?? "").trim())
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
+
+function hashtagText(card: AgentCard): string {
+  const raw = card.hashtags;
+  if (Array.isArray(raw)) return raw.map((tag) => (tag.startsWith("#") ? tag : `#${tag}`)).join(" ");
+  if (typeof raw === "string") return raw.trim();
+  return "";
+}
+
+function postText(card: AgentCard): string {
+  const tags = hashtagText(card);
+  const caption = card.caption ?? "";
+  return caption.includes(tags) ? caption.trim() : normalizeText([caption, tags]);
+}
+
+function titleText(card: AgentCard): string {
+  const explicit = (card.title ?? "").trim();
+  if (explicit) return explicit;
+  const firstLine = (card.caption ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean);
+  return (firstLine ?? card.media?.[0]?.filename ?? card.job_id).slice(0, 95);
+}
+
+function mediaPath(job: JobEntry, predicate: (item: MediaItem) => boolean): string | null {
+  const item = job.card.media?.find(predicate);
+  return item ? resolveMediaPath(job.dir, item) : null;
+}
+
+async function ensureExistingMedia(pathname: string | null, code: string): Promise<AttemptResult | null> {
+  if (!pathname) {
+    return {
+      outcome: "needs_attention",
+      errorCode: code,
+      errorMessage: "This platform card needs staged media, but no matching file is attached.",
+    };
+  }
+  if (!(await pathExists(pathname))) {
+    return {
+      outcome: "needs_attention",
+      errorCode: code,
+      errorMessage: `Missing staged media file: ${pathname}`,
+    };
+  }
+  return null;
+}
+
 async function firstUsable(candidates: Locator[], timeoutMs = 2_500): Promise<Locator | null> {
   for (const candidate of candidates) {
     try {
@@ -338,11 +442,69 @@ async function firstUsable(candidates: Locator[], timeoutMs = 2_500): Promise<Lo
   return null;
 }
 
+async function fillTextTarget(page: Page, candidates: Locator[], text: string, timeoutMs = 4_000): Promise<boolean> {
+  const target = await firstUsable(candidates, timeoutMs);
+  if (!target) return false;
+  await target.click({ timeout: timeoutMs });
+  await target.fill(text, { timeout: timeoutMs }).catch(async () => {
+    await target.click({ timeout: timeoutMs });
+    await target.press(process.platform === "darwin" ? "Meta+A" : "Control+A").catch(() => {});
+    await target.press("Backspace").catch(() => {});
+    await page.keyboard.insertText(text);
+  });
+  return true;
+}
+
 async function clickFirst(candidates: Locator[], timeoutMs = 2_500): Promise<boolean> {
   const loc = await firstUsable(candidates, timeoutMs);
   if (!loc) return false;
   await loc.click({ timeout: timeoutMs });
   return true;
+}
+
+async function attachFile(page: Page, clickTargets: Locator[], filePath: string, timeoutMs = 8_000): Promise<boolean> {
+  const inputs = page.locator('input[type="file"]');
+  if ((await inputs.count()) > 0) {
+    await inputs.first().setInputFiles(filePath);
+    return true;
+  }
+
+  for (const target of clickTargets) {
+    try {
+      await target.first().waitFor({ state: "visible", timeout: timeoutMs });
+      const chooserPromise = page.waitForEvent("filechooser", { timeout: timeoutMs }).catch(() => null);
+      await target.first().click({ timeout: timeoutMs });
+      const chooser = await chooserPromise;
+      if (chooser) {
+        await chooser.setFiles(filePath);
+        return true;
+      }
+      if ((await inputs.count()) > 0) {
+        await inputs.first().setInputFiles(filePath);
+        return true;
+      }
+    } catch {
+      // Try the next upload control.
+    }
+  }
+
+  return false;
+}
+
+async function enabledButton(candidates: Locator[], timeoutMs = 5_000): Promise<Locator | null> {
+  const loc = await firstUsable(candidates, timeoutMs);
+  if (!loc) return null;
+  const disabled = await loc.getAttribute("disabled").catch(() => null);
+  const ariaDisabled = await loc.getAttribute("aria-disabled").catch(() => null);
+  return disabled === null && ariaDisabled !== "true" ? loc : null;
+}
+
+async function pageShowsAny(page: Page, patterns: RegExp[], timeoutMs = 1_000): Promise<boolean> {
+  for (const pattern of patterns) {
+    const found = await firstUsable([page.getByText(pattern)], timeoutMs);
+    if (found) return true;
+  }
+  return false;
 }
 
 async function fillCommunityText(page: Page, text: string): Promise<boolean> {
@@ -397,6 +559,20 @@ function youtubeSurface(card: AgentCard): string {
 
 function resolveMediaPath(jobDir: string, item: MediaItem): string {
   return path.resolve(jobDir, item.file);
+}
+
+function needsAttention(errorCode: string, errorMessage: string): AttemptResult {
+  return { outcome: "needs_attention", errorCode, errorMessage };
+}
+
+function dryRunReady(platform: string): AttemptResult {
+  return needsAttention("dry_run_ready", `Dry run reached the final ${platform} publish step. Relaunch with --live to publish.`);
+}
+
+async function postClickOrDryRun(button: Locator, cfg: RunnerConfig, platform: string): Promise<AttemptResult | null> {
+  if (!cfg.live) return dryRunReady(platform);
+  await button.click({ timeout: 10_000 });
+  return null;
 }
 
 async function publishYouTubeCommunityPost(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
@@ -520,25 +696,574 @@ async function publishYouTubeCommunityPost(page: Page, job: JobEntry, cfg: Runne
   };
 }
 
+async function publishXPost(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const text = postText(job.card);
+  const media = mediaPath(job, (item) => item.mime.startsWith("image/") || item.mime.startsWith("video/"));
+  if (!text && !media) return needsAttention("no_content", "X post needs text or media.");
+  const missing = await ensureExistingMedia(media, "missing_media");
+  if (media && missing) return missing;
+
+  await page.goto(X_HOME_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("/login") || (await pageShowsAny(page, [/sign in to x/i, /^log in$/i]))) {
+    return needsAttention("logged_out", "X is showing a login screen. Sign in to @1MakeShipHappen, then retry.");
+  }
+
+  if (text) {
+    const filled = await fillTextTarget(
+      page,
+      [
+        page.locator('[data-testid="tweetTextarea_0"]'),
+        page.getByLabel(/post text/i),
+        page.getByRole("textbox", { name: /what.*happening/i }),
+        page.locator('[contenteditable="true"]'),
+      ],
+      text,
+      8_000,
+    );
+    if (!filled) return needsAttention("composer_not_found", "Could not find the X Home composer.");
+  }
+
+  if (media) {
+    const attached = await attachFile(page, [page.locator('[data-testid="fileInput"]'), page.getByLabel(/media/i)], media);
+    if (!attached) return needsAttention("media_attach_failed", "Could not attach media in the X composer.");
+    await waitWithHeartbeat(cfg, 8_000, {
+      currentJobId: job.card.job_id,
+      currentPlatform: "x",
+      message: "waiting for X media upload",
+    });
+    if (await pageShowsAny(page, [/uploading/i, /processing/i], 1_000)) {
+      await waitWithHeartbeat(cfg, 20_000, {
+        currentJobId: job.card.job_id,
+        currentPlatform: "x",
+        message: "waiting for X media upload",
+      });
+    }
+  }
+
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const postButton = await enabledButton(
+    [
+      page.locator('[data-testid="tweetButtonInline"]'),
+      page.locator('[data-testid="tweetButton"]'),
+      page.getByRole("button", { name: /^Post$/i }).last(),
+    ],
+    6_000,
+  );
+  if (!postButton) return needsAttention("post_button_disabled", "X Post button was missing or disabled.");
+  const dry = await postClickOrDryRun(postButton, cfg, "X");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 6_000, { currentJobId: job.card.job_id, currentPlatform: "x", message: "confirming X post" });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const firstLine = text.split(/\r?\n/).map((line) => line.trim()).find(Boolean);
+  if (firstLine && !(await pageShowsAny(page, [new RegExp(firstLine.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").slice(0, 48), "i")], 3_000))) {
+    return needsAttention("success_missing", "Clicked X Post, but the fresh post was not visible in the feed.");
+  }
+  return { outcome: "posted", externalUrl: "https://x.com/1MakeShipHappen", externalPostId: job.card.job_id };
+}
+
+async function publishFacebookPagePost(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const text = postText(job.card);
+  const media = mediaPath(job, (item) => item.mime.startsWith("image/") || item.mime.startsWith("video/"));
+  if (!text && !media) return needsAttention("no_content", "Facebook Page post needs text or media.");
+  const missing = await ensureExistingMedia(media, "missing_media");
+  if (media && missing) return missing;
+
+  await page.goto(FACEBOOK_PAGE_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("/login") || (await pageShowsAny(page, [/log into facebook/i, /^email or phone/i, /^password$/i]))) {
+    return needsAttention("logged_out", "Facebook is logged out or blocked at a login screen.");
+  }
+  if (!(await pageShowsAny(page, [/Make Ship Happen Tech/i], 5_000))) {
+    return needsAttention("wrong_identity", "Could not confirm the Make Ship Happen Tech Facebook Page identity.");
+  }
+
+  const opened = await clickFirst(
+    [
+      page.getByText(/what.*on your mind/i),
+      page.getByRole("button", { name: /what.*on your mind/i }),
+      page.locator('[aria-label*="What"][aria-label*="mind"]'),
+    ],
+    8_000,
+  );
+  if (!opened) return needsAttention("composer_not_found", "Could not open the Facebook Page composer.");
+
+  if (text) {
+    const filled = await fillTextTarget(
+      page,
+      [page.getByRole("textbox", { name: /what.*on your mind/i }), page.locator('[contenteditable="true"]')],
+      text,
+      8_000,
+    );
+    if (!filled) return needsAttention("composer_not_found", "Could not find the Facebook Create post text box.");
+  }
+
+  if (media) {
+    const attached = await attachFile(
+      page,
+      [page.getByText(/photo\/video/i), page.getByRole("button", { name: /photo\/video/i })],
+      media,
+      10_000,
+    );
+    if (!attached) return needsAttention("media_attach_failed", "Could not attach media to the Facebook post.");
+    await waitWithHeartbeat(cfg, 8_000, {
+      currentJobId: job.card.job_id,
+      currentPlatform: "facebook",
+      message: "waiting for Facebook media preview",
+    });
+  }
+
+  const nextButton = await enabledButton([page.getByRole("button", { name: /^Next$/i }).last()], 4_000);
+  if (nextButton) await nextButton.click({ timeout: 8_000 });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const postButton = await enabledButton([page.getByRole("button", { name: /^Post$/i }).last()], 8_000);
+  if (!postButton) return needsAttention("post_button_disabled", "Facebook Post button was missing or disabled.");
+  const dry = await postClickOrDryRun(postButton, cfg, "Facebook");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 4_000, { currentJobId: job.card.job_id, currentPlatform: "facebook", message: "handling Facebook post confirmation" });
+  const notNow = await firstUsable([page.getByRole("button", { name: /not now/i }), page.getByText(/^Not now$/i)], 3_000);
+  if (notNow) await notNow.click({ timeout: 5_000 }).catch(() => {});
+  await waitWithHeartbeat(cfg, 6_000, { currentJobId: job.card.job_id, currentPlatform: "facebook", message: "confirming Facebook post" });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  if (!(await pageShowsAny(page, [/Just now/i, /Make Ship Happen Tech/i], 3_000))) {
+    return needsAttention("success_missing", "Clicked Facebook Post, but the fresh Page post was not visible.");
+  }
+  return { outcome: "posted", externalUrl: FACEBOOK_PAGE_URL, externalPostId: job.card.job_id };
+}
+
+async function publishLinkedInPost(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const text = postText(job.card);
+  const media = mediaPath(job, (item) => item.mime.startsWith("image/") || item.mime.startsWith("video/"));
+  if (!text && !media) return needsAttention("no_content", "LinkedIn post needs text or media.");
+  const missing = await ensureExistingMedia(media, "missing_media");
+  if (media && missing) return missing;
+
+  await page.goto(LINKEDIN_FEED_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("/login") || (await pageShowsAny(page, [/sign in/i, /join linkedin/i]))) {
+    return needsAttention("logged_out", "LinkedIn is showing a login screen.");
+  }
+  if (!(await pageShowsAny(page, [/Jacob Felton/i], 6_000))) {
+    return needsAttention("wrong_identity", "Could not confirm the Jacob Felton LinkedIn profile identity.");
+  }
+
+  const opened = await clickFirst(
+    [page.getByText(/^Start a post$/i), page.getByRole("button", { name: /start a post/i })],
+    8_000,
+  );
+  if (!opened) return needsAttention("composer_not_found", "Could not open the LinkedIn composer.");
+
+  if (text) {
+    const filled = await fillTextTarget(
+      page,
+      [
+        page.getByRole("textbox", { name: /share your thoughts/i }),
+        page.getByText(/share your thoughts/i),
+        page.locator('[contenteditable="true"]'),
+      ],
+      text,
+      8_000,
+    );
+    if (!filled) return needsAttention("composer_not_found", "Could not find the LinkedIn post text field.");
+  }
+
+  if (media) {
+    const attached = await attachFile(
+      page,
+      [
+        page.getByRole("button", { name: /add media|photo|video/i }),
+        page.getByLabel(/media|photo|video/i),
+        page.getByText(/^Photo$/i),
+        page.getByText(/^Video$/i),
+      ],
+      media,
+      10_000,
+    );
+    if (!attached) return needsAttention("media_attach_failed", "Could not attach media to the LinkedIn composer.");
+    await waitWithHeartbeat(cfg, 5_000, { currentJobId: job.card.job_id, currentPlatform: "linkedin", message: "waiting for LinkedIn media editor" });
+    const next = await enabledButton([page.getByRole("button", { name: /^Next$/i }).last()], 5_000);
+    if (next) await next.click({ timeout: 8_000 });
+    await waitWithHeartbeat(cfg, 4_000, { currentJobId: job.card.job_id, currentPlatform: "linkedin", message: "waiting for LinkedIn media preview" });
+  }
+
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const postButton = await enabledButton([page.getByRole("button", { name: /^Post$/i }).last()], 8_000);
+  if (!postButton) return needsAttention("post_button_disabled", "LinkedIn Post button was missing or disabled.");
+  const dry = await postClickOrDryRun(postButton, cfg, "LinkedIn");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 12_000, { currentJobId: job.card.job_id, currentPlatform: "linkedin", message: "waiting for LinkedIn upload" });
+  if (await pageShowsAny(page, [/Uploading/i, /Processing/i], 1_000)) {
+    await waitWithHeartbeat(cfg, 45_000, { currentJobId: job.card.job_id, currentPlatform: "linkedin", message: "waiting for LinkedIn processing" });
+  }
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  if (!(await pageShowsAny(page, [/Jacob Felton/i, /\bnow\b/i], 4_000))) {
+    return needsAttention("success_missing", "Clicked LinkedIn Post, but the fresh feed post was not visible.");
+  }
+  return { outcome: "posted", externalUrl: LINKEDIN_FEED_URL, externalPostId: job.card.job_id };
+}
+
+async function publishInstagramPost(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const text = postText(job.card);
+  const media = mediaPath(job, (item) => item.mime.startsWith("image/") || item.mime.startsWith("video/"));
+  const missing = await ensureExistingMedia(media, "missing_media");
+  if (missing) return missing;
+
+  await page.goto(INSTAGRAM_HOME_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("/accounts/login") || (await pageShowsAny(page, [/log in/i, /sign up/i]))) {
+    return needsAttention("logged_out", "Instagram is showing a login screen.");
+  }
+
+  const createOpened = await clickFirst(
+    [
+      page.getByRole("link", { name: /create/i }),
+      page.getByRole("button", { name: /create/i }),
+      page.getByText(/^Create$/i),
+      page.locator('svg[aria-label="New post"]').locator("xpath=ancestor::*[self::a or self::button][1]"),
+    ],
+    8_000,
+  );
+  if (!createOpened) return needsAttention("composer_not_found", "Could not open Instagram Create.");
+
+  await clickFirst([page.getByText(/^Post$/i), page.getByRole("button", { name: /^Post$/i })], 4_000).catch(() => false);
+  const attached = await attachFile(
+    page,
+    [page.getByRole("button", { name: /select from computer/i }), page.getByText(/select from computer/i)],
+    media!,
+    12_000,
+  );
+  if (!attached) return needsAttention("media_attach_failed", "Could not upload the media file to Instagram.");
+
+  await waitWithHeartbeat(cfg, 4_000, { currentJobId: job.card.job_id, currentPlatform: "instagram", message: "waiting for Instagram crop step" });
+  for (let i = 0; i < 2; i += 1) {
+    const next = await enabledButton([page.getByRole("button", { name: /^Next$/i }).last(), page.getByText(/^Next$/i).last()], 12_000);
+    if (!next) return needsAttention(i === 0 ? "crop_required" : "editor_required", "Instagram Next button was not available in the trained upload flow.");
+    await next.click({ timeout: 8_000 });
+    await waitWithHeartbeat(cfg, 2_500, { currentJobId: job.card.job_id, currentPlatform: "instagram", message: "advancing Instagram composer" });
+  }
+
+  if (text) {
+    const filled = await fillTextTarget(
+      page,
+      [page.getByRole("textbox"), page.locator("textarea"), page.locator('[contenteditable="true"]')],
+      text,
+      8_000,
+    );
+    if (!filled) return needsAttention("caption_box_missing", "Could not find the Instagram caption box.");
+  }
+
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const share = await enabledButton([page.getByRole("button", { name: /^Share$/i }).last(), page.getByText(/^Share$/i).last()], 8_000);
+  if (!share) return needsAttention("share_button_disabled", "Instagram Share button was missing or disabled.");
+  const dry = await postClickOrDryRun(share, cfg, "Instagram");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 15_000, { currentJobId: job.card.job_id, currentPlatform: "instagram", message: "waiting for Instagram Post shared" });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  if (!(await pageShowsAny(page, [/Post shared/i, /Your post has been shared/i], 4_000))) {
+    return needsAttention("success_missing", "Instagram did not show the Post shared confirmation.");
+  }
+  await clickFirst([page.getByRole("button", { name: /^Done$/i }), page.getByText(/^Done$/i)], 2_000).catch(() => false);
+  return { outcome: "posted", externalUrl: "https://www.instagram.com/makeshiphappentech2026/", externalPostId: job.card.job_id };
+}
+
+async function publishTikTokUpload(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const text = postText(job.card);
+  const video = mediaPath(job, (item) => item.mime.startsWith("video/"));
+  const missing = await ensureExistingMedia(video, "missing_video");
+  if (missing) return missing;
+
+  await page.goto(TIKTOK_UPLOAD_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("/login") || (await pageShowsAny(page, [/log in/i, /sign up/i], 2_000))) {
+    return needsAttention("logged_out", "TikTok is showing a login screen.");
+  }
+
+  const attached = await attachFile(
+    page,
+    [page.getByRole("button", { name: /select video/i }), page.getByText(/select video/i)],
+    video!,
+    12_000,
+  );
+  if (!attached) return needsAttention("video_attach_failed", "Could not attach the TikTok video file.");
+
+  const turnOn = await firstUsable([page.getByRole("button", { name: /turn on/i }), page.getByText(/^Turn on$/i)], 5_000);
+  if (turnOn) await turnOn.click({ timeout: 5_000 }).catch(() => {});
+  const gotIt = await firstUsable([page.getByRole("button", { name: /got it/i }), page.getByText(/^Got it$/i)], 5_000);
+  if (gotIt) await gotIt.click({ timeout: 5_000 }).catch(() => {});
+
+  let uploaded = false;
+  for (let i = 0; i < 24; i += 1) {
+    if (await pageShowsAny(page, [/Uploaded/i, /100%/i], 1_000)) {
+      uploaded = true;
+      break;
+    }
+    await waitWithHeartbeat(cfg, 15_000, { currentJobId: job.card.job_id, currentPlatform: "tiktok", message: "waiting for TikTok upload" });
+  }
+  if (!uploaded) return needsAttention("upload_stalled", "TikTok upload did not reach 100% / Uploaded.");
+
+  if (text) {
+    const filled = await fillTextTarget(
+      page,
+      [
+        page.getByLabel(/description/i),
+        page.getByRole("textbox", { name: /description/i }),
+        page.locator("textarea").first(),
+        page.locator('[contenteditable="true"]').first(),
+      ],
+      text,
+      8_000,
+    );
+    if (!filled) return needsAttention("description_box_missing", "Could not find the TikTok Description box.");
+  }
+
+  for (let i = 0; i < 20; i += 1) {
+    if (await pageShowsAny(page, [/No issues found/i, /Checks? complete/i], 1_000)) break;
+    if (await pageShowsAny(page, [/issue found/i, /violation/i, /muted/i], 1_000)) {
+      return needsAttention("content_check_failed", "TikTok reported an issue during music/content checks.");
+    }
+    await waitWithHeartbeat(cfg, 10_000, { currentJobId: job.card.job_id, currentPlatform: "tiktok", message: "waiting for TikTok checks" });
+  }
+
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const postButton = await enabledButton([page.getByRole("button", { name: /^Post$/i }).last(), page.getByText(/^Post$/i).last()], 8_000);
+  if (!postButton) return needsAttention("post_disabled", "TikTok Post button was missing or disabled.");
+  const dry = await postClickOrDryRun(postButton, cfg, "TikTok");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 15_000, { currentJobId: job.card.job_id, currentPlatform: "tiktok", message: "confirming TikTok post row" });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  if (!(await pageShowsAny(page, [/Content under review/i, /Posts \(Created on\)/i], 6_000))) {
+    return needsAttention("success_missing", "TikTok did not show the Content under review completion row.");
+  }
+  return { outcome: "posted", externalUrl: "https://www.tiktok.com/@makeshiphappen.tech", externalPostId: job.card.job_id };
+}
+
+async function publishRumbleVideo(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const video = mediaPath(job, (item) => item.mime.startsWith("video/"));
+  const missing = await ensureExistingMedia(video, "missing_video");
+  if (missing) return missing;
+
+  await page.goto(RUMBLE_UPLOAD_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("/login") || (await pageShowsAny(page, [/login/i, /sign in/i], 2_000))) {
+    return needsAttention("logged_out", "Rumble is showing a login screen.");
+  }
+
+  const attached = await attachFile(
+    page,
+    [page.getByText(/select video to upload/i), page.getByRole("button", { name: /select video/i })],
+    video!,
+    12_000,
+  );
+  if (!attached) return needsAttention("video_attach_failed", "Could not attach the Rumble video file.");
+
+  const titleFilled = await fillTextTarget(
+    page,
+    [page.getByPlaceholder(/video title/i), page.getByLabel(/video title/i), page.locator('input[name*="title" i]').first()],
+    titleText(job.card),
+    8_000,
+  );
+  if (!titleFilled) return needsAttention("required_fields", "Could not fill the Rumble Video Title field.");
+  const description = postText(job.card);
+  if (description) {
+    await fillTextTarget(
+      page,
+      [page.getByPlaceholder(/video description/i), page.getByLabel(/video description/i), page.locator("textarea").first()],
+      description,
+      8_000,
+    ).catch(() => false);
+  }
+
+  const primary = page.locator("select").nth(0);
+  if ((await primary.count()) > 0) {
+    await primary.selectOption({ label: "Technology" }).catch(async () => {
+      await primary.selectOption({ index: 1 }).catch(() => {});
+    });
+  }
+  const secondary = page.locator("select").nth(1);
+  if ((await secondary.count()) > 0) {
+    await secondary.selectOption({ index: 1 }).catch(() => {});
+  }
+
+  let uploaded = false;
+  for (let i = 0; i < 40; i += 1) {
+    if (await pageShowsAny(page, [/100%/i], 1_000)) {
+      uploaded = true;
+      break;
+    }
+    await waitWithHeartbeat(cfg, 15_000, { currentJobId: job.card.job_id, currentPlatform: "rumble", message: "waiting for Rumble upload" });
+  }
+  if (!uploaded) return needsAttention("upload_stalled", "Rumble upload did not reach 100%.");
+
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const uploadButton = await enabledButton([page.getByRole("button", { name: /^Upload$/i }).last(), page.getByText(/^Upload$/i).last()], 8_000);
+  if (!uploadButton) return needsAttention("upload_button_disabled", "Rumble Upload button was missing or disabled.");
+  const dry = await postClickOrDryRun(uploadButton, cfg, "Rumble upload");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 4_000, { currentJobId: job.card.job_id, currentPlatform: "rumble", message: "waiting for Rumble licensing" });
+  await clickFirst([page.getByText(/Rumble Only/i)], 4_000).catch(() => false);
+  const checkboxes = page.locator('input[type="checkbox"]');
+  const boxCount = await checkboxes.count();
+  for (let i = 0; i < Math.min(boxCount, 2); i += 1) {
+    await checkboxes.nth(i).check({ force: true }).catch(() => {});
+  }
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  const submit = await enabledButton([page.getByRole("button", { name: /^Submit$/i }).last(), page.getByText(/^Submit$/i).last()], 8_000);
+  if (!submit) return needsAttention("terms_required", "Rumble Submit button was missing or disabled on the licensing page.");
+  await submit.click({ timeout: 10_000 });
+
+  await waitWithHeartbeat(cfg, 8_000, { currentJobId: job.card.job_id, currentPlatform: "rumble", message: "confirming Rumble completion" });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  if (!(await pageShowsAny(page, [/VIDEO UPLOAD COMPLETE/i, /Direct Link/i], 5_000))) {
+    return needsAttention("success_missing", "Rumble did not show VIDEO UPLOAD COMPLETE.");
+  }
+  const directLink = await page.locator('input[value*="rumble.com"]').first().inputValue().catch(() => null);
+  return { outcome: "posted", externalUrl: directLink ?? "https://rumble.com/", externalPostId: job.card.job_id };
+}
+
+async function publishYouTubeVideoUpload(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
+  const video = mediaPath(job, (item) => item.mime.startsWith("video/"));
+  const missing = await ensureExistingMedia(video, "missing_video");
+  if (missing) return missing;
+
+  await page.goto(DEFAULT_YOUTUBE_STUDIO_URL, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForLoadState("networkidle", { timeout: 12_000 }).catch(() => {});
+  if (page.url().includes("accounts.google.com") || (await pageShowsAny(page, [/sign in/i], 2_000))) {
+    return needsAttention("logged_out", "YouTube Studio is showing a Google sign-in screen.");
+  }
+
+  const attached = await attachFile(
+    page,
+    [
+      page.getByRole("button", { name: /create/i }),
+      page.getByRole("button", { name: /upload videos/i }),
+      page.getByText(/select files/i),
+    ],
+    video!,
+    12_000,
+  );
+  if (!attached) {
+    await clickFirst([page.getByRole("button", { name: /create/i }), page.getByLabel(/create/i)], 5_000).catch(() => false);
+    await clickFirst([page.getByText(/upload videos/i), page.getByRole("menuitem", { name: /upload videos/i })], 5_000).catch(() => false);
+    const attachedAfterMenu = await attachFile(page, [page.getByText(/select files/i), page.getByRole("button", { name: /select files/i })], video!, 12_000);
+    if (!attachedAfterMenu) return needsAttention("video_attach_failed", "Could not attach the video file in YouTube Studio.");
+  }
+
+  await waitWithHeartbeat(cfg, 8_000, { currentJobId: job.card.job_id, currentPlatform: "youtube", message: "waiting for YouTube Studio details" });
+  const title = titleText(job.card);
+  await fillTextTarget(
+    page,
+    [
+      page.getByLabel(/^Title/i),
+      page.locator('ytcp-social-suggestions-textbox[aria-label*="Title"] div[contenteditable="true"]').first(),
+      page.locator('[aria-label*="Title"]').locator('[contenteditable="true"]').first(),
+      page.locator('[contenteditable="true"]').first(),
+    ],
+    title,
+    8_000,
+  ).catch(() => false);
+  const description = postText(job.card);
+  if (description) {
+    await fillTextTarget(
+      page,
+      [
+        page.getByLabel(/Description/i),
+        page.locator('ytcp-social-suggestions-textbox[aria-label*="Description"] div[contenteditable="true"]').first(),
+        page.locator('[aria-label*="Description"]').locator('[contenteditable="true"]').first(),
+      ],
+      description,
+      8_000,
+    ).catch(() => false);
+  }
+
+  await clickFirst([page.getByText(/No, it's not made for kids/i), page.getByRole("radio", { name: /No, it's not made for kids/i })], 4_000).catch(() => false);
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+
+  for (let i = 0; i < 3; i += 1) {
+    const next = await enabledButton([page.getByRole("button", { name: /^Next$/i }).last(), page.getByText(/^Next$/i).last()], 12_000);
+    if (!next) break;
+    await next.click({ timeout: 10_000 });
+    await waitWithHeartbeat(cfg, 4_000, { currentJobId: job.card.job_id, currentPlatform: "youtube", message: "advancing YouTube Studio upload" });
+  }
+
+  const visibility = (job.card.privacy ?? "public").toLowerCase();
+  if (visibility === "public") {
+    await clickFirst([page.getByText(/^Public$/i), page.getByRole("radio", { name: /^Public$/i })], 4_000).catch(() => false);
+  } else if (visibility === "unlisted") {
+    await clickFirst([page.getByText(/^Unlisted$/i), page.getByRole("radio", { name: /^Unlisted$/i })], 4_000).catch(() => false);
+  } else if (visibility === "private") {
+    await clickFirst([page.getByText(/^Private$/i), page.getByRole("radio", { name: /^Private$/i })], 4_000).catch(() => false);
+  }
+
+  let uploadReady = false;
+  for (let i = 0; i < 24; i += 1) {
+    if (await pageShowsAny(page, [/Checks complete/i, /Finished processing/i, /Upload complete/i, /Video processed/i], 1_000)) {
+      uploadReady = true;
+      break;
+    }
+    if (await pageShowsAny(page, [/Processing will begin shortly/i, /Processing/i, /Uploading/i], 1_000)) {
+      await waitWithHeartbeat(cfg, 15_000, { currentJobId: job.card.job_id, currentPlatform: "youtube", message: "waiting for YouTube processing" });
+      continue;
+    }
+    await waitWithHeartbeat(cfg, 5_000, { currentJobId: job.card.job_id, currentPlatform: "youtube", message: "waiting for YouTube upload readiness" });
+  }
+  if (!uploadReady && (await pageShowsAny(page, [/Uploading/i, /Processing/i], 1_000))) {
+    return needsAttention("upload_processing_stalled", "YouTube Studio did not finish upload/processing before the publish step.");
+  }
+
+  const publish = await enabledButton(
+    [
+      page.getByRole("button", { name: /^Publish$/i }).last(),
+      page.getByRole("button", { name: /^Save$/i }).last(),
+      page.getByText(/^Publish$/i).last(),
+      page.getByText(/^Save$/i).last(),
+    ],
+    8_000,
+  );
+  if (!publish) return needsAttention("publish_button_disabled", "YouTube Studio Publish/Save button was missing or disabled.");
+  const dry = await postClickOrDryRun(publish, cfg, "YouTube video");
+  if (dry) return dry;
+
+  await waitWithHeartbeat(cfg, 10_000, { currentJobId: job.card.job_id, currentPlatform: "youtube", message: "confirming YouTube video publish" });
+  await screenshot(page, cfg.outboxDir, job.card.job_id);
+  if (!(await pageShowsAny(page, [/Video published/i, /Upload complete/i, /Checks complete/i], 5_000))) {
+    return needsAttention("success_missing", "YouTube Studio publish was clicked, but no completion signal was visible.");
+  }
+  const link = await page.locator('input[value*="youtu"]').first().inputValue().catch(() => null);
+  return { outcome: "posted", externalUrl: link ?? DEFAULT_YOUTUBE_STUDIO_URL, externalPostId: job.card.job_id };
+}
+
 async function processJob(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
-  if (job.card.platform !== "youtube") {
-    return {
-      outcome: "needs_attention",
-      errorCode: "platform_not_implemented",
-      errorMessage: `Browser runner does not have a ${job.card.platform} posting recipe yet.`,
-    };
+  switch (job.card.platform) {
+    case "youtube": {
+      const surface = youtubeSurface(job.card);
+      if (surface === "youtube_community_post") return publishYouTubeCommunityPost(page, job, cfg);
+      return publishYouTubeVideoUpload(page, job, cfg);
+    }
+    case "facebook":
+      return publishFacebookPagePost(page, job, cfg);
+    case "instagram":
+      return publishInstagramPost(page, job, cfg);
+    case "linkedin":
+      return publishLinkedInPost(page, job, cfg);
+    case "rumble":
+      return publishRumbleVideo(page, job, cfg);
+    case "tiktok":
+      return publishTikTokUpload(page, job, cfg);
+    case "x":
+      return publishXPost(page, job, cfg);
+    default:
+      return {
+        outcome: "needs_attention",
+        errorCode: "platform_not_implemented",
+        errorMessage: `Browser runner does not have a ${job.card.platform} posting recipe yet.`,
+      };
   }
-
-  const surface = youtubeSurface(job.card);
-  if (surface === "youtube_community_post") {
-    return publishYouTubeCommunityPost(page, job, cfg);
-  }
-
-  return {
-    outcome: "needs_attention",
-    errorCode: "youtube_video_runner_pending",
-    errorMessage: "YouTube video upload runner is not wired yet. This card is safe in the queue until that recipe is added.",
-  };
 }
 
 async function waitForCdp(port: number, timeoutMs = 15_000): Promise<string> {
@@ -629,6 +1354,7 @@ async function closeBrowser(handle: BrowserHandle | null): Promise<void> {
 }
 
 async function runPass(page: Page, cfg: RunnerConfig, nextAttemptAt: Map<string, number>): Promise<number> {
+  await writeHeartbeat(cfg, { status: "scanning", message: "checking outbox/due" }).catch(() => {});
   const jobs = await listDueJobs(cfg.outboxDir);
   let handled = 0;
   const now = Date.now();
@@ -642,6 +1368,12 @@ async function runPass(page: Page, cfg: RunnerConfig, nextAttemptAt: Map<string,
 
     try {
       console.log(`[agent-runner] attempting ${job.card.platform} ${job.card.job_id}`);
+      await writeHeartbeat(cfg, {
+        status: "attempting",
+        currentJobId: job.card.job_id,
+        currentPlatform: job.card.platform,
+        message: "processing due card",
+      }).catch(() => {});
       const result = await processJob(page, job, cfg);
 
       if (!cfg.live) {
@@ -683,10 +1415,17 @@ async function runPass(page: Page, cfg: RunnerConfig, nextAttemptAt: Map<string,
       console.error(`[agent-runner] runner_error ${job.card.job_id}: ${message}`);
       handled++;
     } finally {
+      await writeHeartbeat(cfg, {
+        status: "idle",
+        currentJobId: null,
+        currentPlatform: null,
+        message: "job pass complete",
+      }).catch(() => {});
       await release();
     }
   }
 
+  await writeHeartbeat(cfg, { status: "idle", message: handled === 0 ? "no due card handled" : "pass complete" }).catch(() => {});
   return handled;
 }
 
@@ -697,6 +1436,7 @@ async function main(): Promise<void> {
   console.log(`[agent-runner] runner profile dir: ${cfg.userDataDir}`);
   console.log(`[agent-runner] isolated Chrome enabled: ${cfg.allowIsolatedChrome ? "yes" : "no - use npm run agent:tabs for active Chrome"}`);
   console.log(`[agent-runner] mode: ${cfg.live ? "LIVE - will click final Post buttons" : "DRY RUN - will stop before final Post"}`);
+  await writeHeartbeat(cfg, { status: "starting", message: "agent runner starting" }).catch(() => {});
 
   let browser: BrowserHandle | null = null;
   let page: Page | null = null;
@@ -731,6 +1471,7 @@ async function main(): Promise<void> {
       await wait(cfg.pollMs);
     } while (true);
   } finally {
+    await writeHeartbeat(cfg, { status: "stopped", message: "agent runner stopped" }).catch(() => {});
     if (cfg.once) await closeBrowser(browser);
   }
 }

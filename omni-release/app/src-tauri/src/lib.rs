@@ -234,6 +234,8 @@ pub fn run() {
             commands::publish_now,
             commands::ingest_agent_results,
             commands::agent_queue,
+            commands::agent_health,
+            commands::agent_handoff_delete,
             // activity
             commands::attempts_list,
             commands::audit_list,

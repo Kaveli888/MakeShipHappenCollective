@@ -23,27 +23,33 @@ type CalEntry = CalendarEntry & { _source: "local" | "cloud" };
 const PLATFORMS: PlatformId[] = ["youtube", "tiktok", "instagram", "facebook", "x", "linkedin", "twitch", "rumble"];
 
 /** Lifecycle bucket for a calendar entry — what the user actually wants to see:
- *  shipped (already sent), publishing (in flight), failed, or upcoming. */
-type EntryState = "shipped" | "publishing" | "failed" | "upcoming";
+ *  shipped only means the platform target has real publish proof. */
+type EntryState = "shipped" | "mocked" | "publishing" | "needs_attention" | "failed" | "upcoming";
+
+function isMockTarget(e: CalendarEntry): boolean {
+  const id = (e.target.external_post_id ?? "").toLowerCase();
+  const url = (e.target.external_url ?? "").toLowerCase();
+  return id.startsWith("mock-") || url.startsWith("mock://");
+}
 
 function entryState(e: CalendarEntry): EntryState {
-  const s = (e.job.status || "").toLowerCase();
-  if (s === "failed" || s === "failure") return "failed";
-  if (s === "publishing" || s === "running" || s === "claimed") return "publishing";
-  if (
-    s === "done" ||
-    s === "published" ||
-    s === "success" ||
-    e.target.published_at != null
-  )
-    return "shipped";
+  const target = (e.target.status || "").toLowerCase();
+  const job = (e.job.status || "").toLowerCase();
+  if (isMockTarget(e)) return "mocked";
+  if (target === "published" || e.target.published_at != null) return "shipped";
+  if (target === "needs_attention") return "needs_attention";
+  if (target === "failed" || target === "failure") return "failed";
+  if (target === "publishing" || target === "awaiting_agent") return "publishing";
+  if (job === "failed" || job === "failure") return "failed";
+  if (job === "publishing" || job === "running" || job === "claimed") return "publishing";
+  if (job === "done") return "publishing";
   return "upcoming";
 }
 
 /** The wall-clock time that matters for this entry: when it shipped, else when it's due. */
 function entryTime(e: CalendarEntry): string {
   const st = entryState(e);
-  if (st === "shipped") return e.target.published_at ?? e.job.scheduled_for;
+  if (st === "shipped" || st === "mocked") return e.target.published_at ?? e.job.scheduled_for;
   return e.job.scheduled_for;
 }
 
@@ -52,13 +58,17 @@ const hm = (iso: string) =>
 
 const STATE_ICON: Record<EntryState, string> = {
   shipped: "✓",
+  mocked: "M",
   publishing: "•",
+  needs_attention: "!",
   failed: "!",
   upcoming: "○",
 };
 const STATE_LABEL: Record<EntryState, string> = {
   shipped: "Shipped",
+  mocked: "Mocked",
   publishing: "Publishing",
+  needs_attention: "Needs Human",
   failed: "Failed",
   upcoming: "Upcoming",
 };
@@ -90,7 +100,14 @@ function groupKey(e: CalEntry): string {
 }
 
 /** A bar's state surfaces the most action-worthy target it contains. */
-const GROUP_STATE_ORDER: EntryState[] = ["failed", "publishing", "upcoming", "shipped"];
+const GROUP_STATE_ORDER: EntryState[] = [
+  "failed",
+  "needs_attention",
+  "publishing",
+  "upcoming",
+  "mocked",
+  "shipped",
+];
 function groupState(entries: CalEntry[]): EntryState {
   const seen = new Set(entries.map(entryState));
   return GROUP_STATE_ORDER.find((s) => seen.has(s)) ?? "shipped";
@@ -235,7 +252,14 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
 
   // Month rollup — keeps a running scoreboard of history vs. what's coming.
   const counts = useMemo(() => {
-    const c = { shipped: 0, publishing: 0, failed: 0, upcoming: 0 };
+    const c: Record<EntryState, number> = {
+      shipped: 0,
+      mocked: 0,
+      publishing: 0,
+      needs_attention: 0,
+      failed: 0,
+      upcoming: 0,
+    };
     for (const e of shown) c[entryState(e)]++;
     return c;
   }, [shown]);
@@ -312,7 +336,7 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
       </div>
 
       <div className="cal-legend">
-        {(["shipped", "upcoming", "publishing", "failed"] as EntryState[]).map((st) => (
+        {(["shipped", "mocked", "upcoming", "publishing", "needs_attention", "failed"] as EntryState[]).map((st) => (
           <span className={`cal-legend-item st-${st}`} key={st}>
             <i className="cal-dot" />
             {STATE_LABEL[st]}
@@ -612,7 +636,8 @@ function EntryDetail({
         <div className="grp-targets">
           {entries.map((e) => {
             const est = entryState(e);
-            const url = e.target.external_url;
+            const mocked = isMockTarget(e);
+            const url = mocked ? null : e.target.external_url;
             return (
               <div className={`grp-target st-${est}`} key={e.job.id}>
                 <PlatformLogo platform={e.target.platform} size={16} />
@@ -623,9 +648,9 @@ function EntryDetail({
                     View live ↗
                   </button>
                 )}
-                {e._source === "local" && (est === "failed" || est === "shipped") && (
+                {e._source === "local" && (est === "failed" || est === "shipped" || est === "mocked") && (
                   <button className="ghost xs" onClick={() => api.jobRetry(e.job.id).then(onChanged)}>
-                    {est === "shipped" ? "Re-publish" : "Retry"}
+                    {est === "shipped" || est === "mocked" ? "Re-publish" : "Retry"}
                   </button>
                 )}
               </div>

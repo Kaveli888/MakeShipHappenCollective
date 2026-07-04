@@ -313,6 +313,7 @@ button { font-family: inherit; }
 .banner.error { background: rgba(248, 113, 113, 0.08); border-color: rgba(248, 113, 113, 0.35); color: #fca5a5; }
 .banner.ok { background: rgba(var(--glow-emerald), 0.08); border-color: rgba(var(--glow-emerald), 0.35); color: #6ee7b7; }
 .banner.info { background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.35); color: #7dd3fc; }
+.banner.warn { background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.35); color: #fde68a; }
 
 .empty-state {
   text-align: center; padding: 60px 20px; color: var(--muted);
@@ -853,6 +854,7 @@ option { background: var(--bg-elev); color: var(--text); }
 .cal-wchip .chip-title { flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cal-wchip .chip-cloud { flex: 0 0 auto; font-size: 9px; color: var(--emerald); }
 .cal-wchip.st-shipped { opacity: .85; }
+.cal-wchip.st-mocked { opacity: .76; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
 .cal-dow { color: var(--muted-deep); font-size: 10px; text-transform: uppercase; letter-spacing: .14em; font-weight: 700; text-align: center; padding-bottom: 2px; }
 .cal-cell {
@@ -914,8 +916,11 @@ option { background: var(--bg-elev); color: var(--text); }
 .cal-bar .chip-cloud { flex: 0 0 auto; font-size: 10px; color: var(--emerald); opacity: .85; }
 .cal-bar .chip-state { flex: 0 0 auto; font-weight: 700; font-size: 10px; }
 .cal-bar.st-shipped { opacity: .82; }
+.cal-bar.st-mocked { opacity: .76; }
 .cal-bar.st-shipped .chip-state { color: var(--ok); }
+.cal-bar.st-mocked .chip-state { color: var(--muted); }
 .cal-bar.st-upcoming .chip-state { color: var(--gold); }
+.cal-bar.st-needs_attention .chip-state { color: var(--warn); }
 .cal-bar.st-failed .chip-state { color: var(--bad); }
 .cal-bar.st-publishing { border-left-color: var(--busy); }
 .cal-bar.st-publishing .chip-state { color: var(--busy); animation: pulse 1.2s ease-in-out infinite; }
@@ -924,8 +929,10 @@ option { background: var(--bg-elev); color: var(--text); }
 .grp-targets { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
 .grp-target { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: var(--panel-2); border-left: 3px solid var(--muted); }
 .grp-target.st-shipped { border-left-color: var(--ok); }
+.grp-target.st-mocked { border-left-color: var(--muted); opacity: .88; }
 .grp-target.st-upcoming { border-left-color: var(--gold); }
 .grp-target.st-publishing { border-left-color: var(--busy); }
+.grp-target.st-needs_attention { border-left-color: var(--warn); }
 .grp-target.st-failed { border-left-color: var(--bad); }
 .grp-target-name { flex: 1 1 auto; font-weight: 600; }
 .status.sm { font-size: 10px; padding: 1px 7px; }
@@ -937,14 +944,19 @@ option { background: var(--bg-elev); color: var(--text); }
 .src-badge.cloud { color: var(--blue); border-color: rgba(56, 189, 248, 0.32); }
 .src-badge.local { color: var(--muted); }
 
-/* calendar lifecycle states — shipped/upcoming/publishing/failed */
+/* calendar lifecycle states — shipped/mocked/upcoming/publishing/needs-human/failed */
 .st-shipped    { border-left-color: var(--ok); }
+.st-mocked     { border-left-color: var(--muted); }
 .st-upcoming   { border-left-color: var(--gold); }
 .st-publishing { border-left-color: var(--busy); }
+.st-needs_attention { border-left-color: var(--warn); }
 .st-failed     { border-left-color: var(--bad); }
 .cal-chip.st-shipped { opacity: .82; }
+.cal-chip.st-mocked { opacity: .76; }
 .cal-chip.st-shipped .chip-state { color: var(--ok); }
+.cal-chip.st-mocked .chip-state { color: var(--muted); }
 .cal-chip.st-upcoming .chip-state { color: var(--gold); }
+.cal-chip.st-needs_attention .chip-state { color: var(--warn); }
 .cal-chip.st-failed .chip-state { color: var(--bad); }
 .cal-chip.st-publishing { border-left-color: var(--busy); }
 .cal-chip.st-publishing .chip-state { color: var(--busy); animation: pulse 1.2s ease-in-out infinite; }
@@ -955,8 +967,10 @@ option { background: var(--bg-elev); color: var(--text); }
 .cal-legend-item b { color: var(--text); font-variant-numeric: tabular-nums; }
 .cal-legend .cal-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--muted); }
 .cal-legend-item.st-shipped .cal-dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.cal-legend-item.st-mocked .cal-dot { background: var(--muted); box-shadow: 0 0 8px rgba(156, 163, 175, .45); }
 .cal-legend-item.st-upcoming .cal-dot { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
 .cal-legend-item.st-publishing .cal-dot { background: var(--busy); box-shadow: 0 0 8px var(--busy); animation: heartbeat 1.6s ease-in-out infinite; }
+.cal-legend-item.st-needs_attention .cal-dot { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
 .cal-legend-item.st-failed .cal-dot { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
 
 /* drawer enhancements */
@@ -964,8 +978,10 @@ option { background: var(--bg-elev); color: var(--text); }
 .drawer-title svg { border-radius: 5px; }
 .drawer-status { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; font-size: 13px; }
 .status.st-shipped    { color: var(--ok);   border-color: rgba(var(--glow-emerald), 0.32); background: rgba(var(--glow-emerald), 0.06); }
+.status.st-mocked     { color: var(--muted); border-color: rgba(156, 163, 175, 0.32); background: rgba(156, 163, 175, 0.06); }
 .status.st-upcoming   { color: var(--gold); border-color: rgba(var(--glow-gold), 0.32); background: rgba(var(--glow-gold), 0.06); }
 .status.st-publishing { color: var(--busy); border-color: rgba(167, 139, 250, 0.32); background: rgba(167, 139, 250, 0.06); }
+.status.st-needs_attention { color: var(--warn); border-color: rgba(251, 191, 36, 0.36); background: rgba(251, 191, 36, 0.08); }
 .status.st-failed     { color: var(--bad);  border-color: rgba(248, 113, 113, 0.32); background: rgba(248, 113, 113, 0.06); }
 .linkish { background: none; border: none; padding: 0; color: var(--blue); cursor: pointer; text-align: left; word-break: break-all; font-size: 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
 .linkish:hover { text-decoration: underline; }
