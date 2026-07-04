@@ -925,6 +925,29 @@ option { background: var(--bg-elev); color: var(--text); }
 .cal-bar.st-publishing { border-left-color: var(--busy); }
 .cal-bar.st-publishing .chip-state { color: var(--busy); animation: pulse 1.2s ease-in-out infinite; }
 
+/* drag-to-reschedule (pointer-event based; HTML5 DnD is eaten by Tauri's native drop layer) */
+.cal-bar.grabbable, .cal-wchip.grabbable { cursor: grab; touch-action: none; }
+.cal-bar.grabbable:active, .cal-wchip.grabbable:active { cursor: grabbing; }
+.cal-bar.dragging, .cal-wchip.dragging { opacity: .35; }
+.cal-drag-ghost {
+  position: fixed; z-index: 200; pointer-events: none;
+  max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 5px 10px; border-radius: 9px; font-size: 11px; color: var(--text);
+  background: color-mix(in srgb, var(--bg-elev, #111) 88%, rgb(var(--glow-emerald)) 12%);
+  border: 1px solid rgba(var(--glow-emerald), 0.55);
+  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, .85), 0 0 18px -4px rgba(var(--glow-emerald), 0.4);
+}
+.cal-cell.dropok {
+  border-color: rgba(var(--glow-emerald), 0.75);
+  background: rgba(var(--glow-emerald), 0.08);
+  box-shadow: 0 0 0 1px rgba(var(--glow-emerald), 0.55) inset, 0 0 24px -6px rgba(var(--glow-emerald), 0.45);
+}
+.cal-week-col.dropok { background: rgba(var(--glow-emerald), 0.07); }
+
+/* "I posted it myself" — manual mark-as-published buttons */
+.markpub { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.markpub:hover { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+
 /* drawer: per-platform breakdown of one grouped release */
 .grp-targets { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
 .grp-target { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: var(--panel-2); border-left: 3px solid var(--muted); }
@@ -972,6 +995,22 @@ option { background: var(--bg-elev); color: var(--text); }
 .cal-legend-item.st-publishing .cal-dot { background: var(--busy); box-shadow: 0 0 8px var(--busy); animation: heartbeat 1.6s ease-in-out infinite; }
 .cal-legend-item.st-needs_attention .cal-dot { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
 .cal-legend-item.st-failed .cal-dot { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
+.cal-legend-item.hushed { opacity: .38; }
+.cal-legend-item.hushed .cal-dot { box-shadow: none; }
+/* completed-history toggle: show/hide shipped+mocked cards on the grid */
+.cal-done-toggle {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; padding: 4px 12px; border-radius: 999px; cursor: pointer;
+  color: var(--muted); background: transparent; border: 1px solid var(--line);
+  transition: color .16s ease, border-color .16s ease, background .16s ease, box-shadow .2s ease;
+}
+.cal-done-toggle:hover { color: var(--text); border-color: var(--line-strong); }
+.cal-done-toggle.on {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 55%, transparent);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+  box-shadow: 0 0 14px -4px color-mix(in srgb, var(--ok) 60%, transparent);
+}
 
 /* drawer enhancements */
 .drawer-title { display: flex; align-items: center; gap: 8px; }

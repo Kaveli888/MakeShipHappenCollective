@@ -230,6 +230,7 @@ pub fn run() {
             commands::calendar_list,
             commands::job_retry,
             commands::job_delete,
+            commands::job_mark_published,
             // publishing
             commands::publish_now,
             commands::ingest_agent_results,

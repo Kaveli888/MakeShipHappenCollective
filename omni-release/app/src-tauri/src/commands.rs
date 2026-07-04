@@ -606,6 +606,75 @@ pub fn job_retry(state: State<DbState>, job_id: String) -> Result<(), String> {
     .map_err(|e| e.to_string())
 }
 
+/// Manually mark a scheduled release as published — for when the user posts it
+/// on the platform themselves. Records a manual publish attempt, flips the
+/// target to `published`, completes the calendar job, and retires any live
+/// browser-agent card so the agent can never double-post it (an archived
+/// job_id is blocked by the agent's idempotency rule).
+#[tauri::command]
+pub fn job_mark_published(
+    state: State<DbState>,
+    job_id: String,
+    external_url: Option<String>,
+) -> Result<(), String> {
+    let conn = lock(&state)?;
+    let job = db::get_job(&conn, &job_id)
+        .map_err(|e| e.to_string())?
+        .ok_or("job not found")?;
+    let target_id = job.post_platform_target_id.clone();
+    let url = external_url.unwrap_or_default();
+
+    let attempt_no = db::next_attempt_no(&conn, &target_id).map_err(|e| e.to_string())?;
+    let att = db::start_attempt(&conn, Some(&job_id), &target_id, attempt_no, "manual")
+        .map_err(|e| e.to_string())?;
+    db::finish_attempt(
+        &conn,
+        &att,
+        "success",
+        None,
+        (!url.is_empty()).then_some(url.as_str()),
+        serde_json::json!({ "manual": true, "note": "marked published by user" }),
+        None,
+        None,
+    )
+    .map_err(|e| e.to_string())?;
+    db::mark_target_published(&conn, &target_id, "", &url).map_err(|e| e.to_string())?;
+    db::mark_job_done(&conn, &job_id).map_err(|e| e.to_string())?;
+    if let Some(t) = db::get_target(&conn, &target_id).map_err(|e| e.to_string())? {
+        let _ = db::recompute_post_status(&conn, &t.post_id);
+    }
+
+    let base = crate::agent::outbox_dir(&crate::engine_root());
+    let due_dir = base.join("due").join(&job_id);
+    if due_dir.exists() {
+        let arch = base.join("archive").join(&job_id);
+        std::fs::create_dir_all(&arch).map_err(|e| e.to_string())?;
+        let stamp = db::now().replace([':', '/', '+'], "-");
+        let dest = if arch.join("due").exists() {
+            arch.join(format!("due-manual-{stamp}"))
+        } else {
+            arch.join("due")
+        };
+        std::fs::rename(&due_dir, &dest)
+            .map_err(|e| format!("archive handoff {job_id}: {e}"))?;
+        let note = serde_json::json!({ "manually_published_at": db::now(), "by": "user" });
+        let _ = std::fs::write(
+            arch.join("manual-published.json"),
+            serde_json::to_vec_pretty(&note).unwrap_or_default(),
+        );
+    }
+
+    db::audit(
+        &conn,
+        "user",
+        "job.mark_published",
+        Some("job"),
+        Some(&job_id),
+        serde_json::json!({ "target": target_id, "url": url }),
+    )
+    .map_err(|e| e.to_string())
+}
+
 /* ---------- publishing ---------- */
 
 #[tauri::command]

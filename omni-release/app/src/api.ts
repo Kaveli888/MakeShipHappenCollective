@@ -130,6 +130,9 @@ export const api = {
     invoke<CalendarEntry[]>("calendar_list", { from, to }),
   jobRetry: (jobId: string) => invoke<void>("job_retry", { jobId }),
   jobDelete: (jobId: string) => invoke<void>("job_delete", { jobId }),
+  // "I posted this myself" — flips the target to published + completes the job
+  jobMarkPublished: (jobId: string, externalUrl: string | null = null) =>
+    invoke<void>("job_mark_published", { jobId, externalUrl }),
 
   // publishing
   publishNow: (targetId: string, mode: string) =>

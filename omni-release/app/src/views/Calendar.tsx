@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { api } from "../api.js";
 import type { CalendarEntry, PlatformId } from "../types.js";
 import { PlatformLogo, platformLabel, PLATFORM_COLOR } from "../components/PlatformLogo.js";
@@ -113,6 +121,19 @@ function groupState(entries: CalEntry[]): EntryState {
   return GROUP_STATE_ORDER.find((s) => seen.has(s)) ?? "shipped";
 }
 
+/** Completed = terminal "done" states (real publish proof, or mock proof). */
+function isDone(e: CalendarEntry): boolean {
+  const st = entryState(e);
+  return st === "shipped" || st === "mocked";
+}
+
+/** Targets we can actually reschedule from this app: local SQLite jobs that
+ *  haven't shipped. Cloud jobs are owned by the cloud worker; shipped targets
+ *  are history. Same rule the detail drawer uses for "Save time". */
+function draggableEntries(g: CalGroup): CalEntry[] {
+  return g.entries.filter((e) => e._source === "local" && entryState(e) !== "shipped");
+}
+
 /** Collapse a flat list of per-platform entries into grouped release bars. */
 function buildGroups(list: CalEntry[]): CalGroup[] {
   const map = new Map<string, CalEntry[]>();
@@ -168,6 +189,35 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
   const [sel, setSel] = useState<CalGroup | null>(null);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [confirmDay, setConfirmDay] = useState<string | null>(null); // day key pending "clear all"
+  // History toggle: ON shows shipped/mocked cards on the calendar, OFF hides
+  // them so only active work is visible. Persisted so it survives restarts.
+  const [showCompleted, setShowCompleted] = useState(true);
+
+  useEffect(() => {
+    api
+      .stateGet("calendar.show_completed")
+      .then((v) => {
+        if (v === "off") setShowCompleted(false);
+      })
+      .catch(() => {});
+  }, []);
+  const toggleCompleted = () =>
+    setShowCompleted((v) => {
+      const next = !v;
+      api.stateSet("calendar.show_completed", next ? "on" : "off").catch(() => {});
+      return next;
+    });
+  // Drag-to-reschedule. Tauri's native drag layer (needed by the Composer's
+  // Finder file drops) eats HTML5 dragstart/drop inside the webview on macOS,
+  // so this is a pointer-event drag: capture the pointer on the bar, float a
+  // ghost, hit-test day cells via elementFromPoint, reschedule on release.
+  // The dragged group lives in a ref (the 6s poll can replace `entries`
+  // mid-drag); the key/target/ghost states just drive the visuals.
+  const dragGroup = useRef<CalGroup | null>(null);
+  const didDrag = useRef(false); // swallow the click that follows a completed drag
+  const [dragKey, setDragKey] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null);
 
   // Resolve the cloud workspace once so we can also pull live-scheduled jobs.
   useEffect(() => {
@@ -234,6 +284,109 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
     [refresh],
   );
 
+  // Drop a dragged release card onto a new day (optionally a new hour, from the
+  // week grid). Keeps the original minutes so "5:45 PM" stays "5:45 PM" when you
+  // only change the day. Only local, not-yet-shipped targets move.
+  const moveGroup = useCallback(
+    async (g: CalGroup, day: Date, hour?: number) => {
+      const movable = draggableEntries(g);
+      if (!movable.length) return;
+      const from = new Date(movable[0].job.scheduled_for);
+      const to = new Date(day);
+      to.setHours(hour ?? from.getHours(), from.getMinutes(), 0, 0);
+      if (to.getTime() === from.getTime()) return;
+      try {
+        await Promise.all(
+          movable.map((e) => api.scheduleReschedule(e.job.id, to.toISOString(), LOCAL_TZ)),
+        );
+        await refresh();
+      } catch (e) {
+        setError(String(e));
+      }
+    },
+    [refresh],
+  );
+
+  const endDrag = () => {
+    dragGroup.current = null;
+    setDragKey(null);
+    setDropTarget(null);
+    setGhost(null);
+  };
+
+  /** Find the droppable day under the cursor. Cells carry data-dropkey
+   *  ("cell:<index into days>" or "wk:<index into weekDays>"); the ghost is
+   *  pointer-events:none so elementFromPoint sees through it. */
+  const hitTest = (x: number, y: number): HTMLElement | null =>
+    (document.elementFromPoint(x, y)?.closest("[data-dropkey]") as HTMLElement | null) ?? null;
+
+  const onBarPointerDown = (ev: ReactPointerEvent<HTMLButtonElement>, g: CalGroup) => {
+    if (ev.button !== 0 || draggableEntries(g).length === 0) return;
+    const el = ev.currentTarget;
+    const pointerId = ev.pointerId;
+    const startX = ev.clientX;
+    const startY = ev.clientY;
+    const label = `${hm(g.time)} · ${g.title ?? "release card"}`;
+    let dragging = false;
+
+    const move = (me: PointerEvent) => {
+      if (!dragging) {
+        // 5px threshold so plain clicks still open the detail drawer
+        if (Math.hypot(me.clientX - startX, me.clientY - startY) < 5) return;
+        dragging = true;
+        dragGroup.current = g;
+        setDragKey(g.key);
+      }
+      me.preventDefault();
+      setGhost({ x: me.clientX, y: me.clientY, label });
+      const hit = hitTest(me.clientX, me.clientY);
+      setDropTarget(hit?.dataset.dropkey ?? null);
+    };
+    const finish = (ue: PointerEvent, commit: boolean) => {
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", cancel);
+      try {
+        el.releasePointerCapture(pointerId);
+      } catch {
+        /* already released */
+      }
+      if (dragging) {
+        didDrag.current = true;
+        if (commit) {
+          const hit = hitTest(ue.clientX, ue.clientY);
+          const key = hit?.dataset.dropkey;
+          if (hit && key?.startsWith("cell:")) {
+            const day = days[Number(key.slice(5))];
+            if (day) moveGroup(g, day);
+          } else if (hit && key?.startsWith("wk:")) {
+            const day = weekDays[Number(key.slice(3))];
+            const rect = hit.getBoundingClientRect();
+            const hour = Math.max(0, Math.min(23, Math.floor((ue.clientY - rect.top) / HOUR_PX)));
+            if (day) moveGroup(g, day, hour);
+          }
+        }
+      }
+      endDrag();
+    };
+    const up = (ue: PointerEvent) => finish(ue, true);
+    const cancel = (ue: PointerEvent) => finish(ue, false);
+
+    el.setPointerCapture(pointerId);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", cancel);
+  };
+
+  /** Bar onClick guard: a completed drag ends with a click we must ignore. */
+  const clickUnlessDragged = (g: CalGroup) => {
+    if (didDrag.current) {
+      didDrag.current = false;
+      return;
+    }
+    setSel(g);
+  };
+
   const days = useMemo(() => {
     const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
     const startPad = first.getDay();
@@ -245,12 +398,21 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
     return cells;
   }, [cursor]);
 
-  const shown = useMemo(
+  const platformShown = useMemo(
     () => entries.filter((e) => active.has(e.target.platform)),
     [entries, active],
   );
+  // What the grid renders: with Completed off, shipped/mocked history is hidden
+  // so only active work stays on the calendar.
+  const shown = useMemo(
+    () => (showCompleted ? platformShown : platformShown.filter((e) => !isDone(e))),
+    [platformShown, showCompleted],
+  );
+  const doneCount = useMemo(() => platformShown.filter(isDone).length, [platformShown]);
 
   // Month rollup — keeps a running scoreboard of history vs. what's coming.
+  // Counted before the Completed filter so the scoreboard stays honest even
+  // while completed cards are hidden from the grid.
   const counts = useMemo(() => {
     const c: Record<EntryState, number> = {
       shipped: 0,
@@ -260,9 +422,9 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
       failed: 0,
       upcoming: 0,
     };
-    for (const e of shown) c[entryState(e)]++;
+    for (const e of platformShown) c[entryState(e)]++;
     return c;
-  }, [shown]);
+  }, [platformShown]);
 
   function entriesOn(day: Date): CalEntry[] {
     return shown
@@ -337,12 +499,28 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
 
       <div className="cal-legend">
         {(["shipped", "mocked", "upcoming", "publishing", "needs_attention", "failed"] as EntryState[]).map((st) => (
-          <span className={`cal-legend-item st-${st}`} key={st}>
+          <span
+            className={`cal-legend-item st-${st}${
+              !showCompleted && (st === "shipped" || st === "mocked") ? " hushed" : ""
+            }`}
+            key={st}
+          >
             <i className="cal-dot" />
             {STATE_LABEL[st]}
             <b>{counts[st]}</b>
           </span>
         ))}
+        <button
+          className={`cal-done-toggle${showCompleted ? " on" : ""}`}
+          onClick={toggleCompleted}
+          title={
+            showCompleted
+              ? "Hide completed cards — keep the calendar to active work only"
+              : `Show completed history on the calendar (${doneCount} card${doneCount === 1 ? "" : "s"})`
+          }
+        >
+          ✓ Completed{showCompleted ? "" : doneCount > 0 ? ` (${doneCount} hidden)` : ""}
+        </button>
       </div>
 
       {error && <div className="banner error">{error}</div>}
@@ -422,7 +600,13 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                 const dayKey = day ? `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}` : "";
                 const confirming = confirmDay === dayKey && dayKey !== "";
                 return (
-                  <div className={`cal-cell ${day ? "" : "blank"} ${isToday ? "today" : ""}`} key={i}>
+                  <div
+                    className={`cal-cell ${day ? "" : "blank"} ${isToday ? "today" : ""}${
+                      day && dropTarget === `cell:${i}` ? " dropok" : ""
+                    }`}
+                    key={i}
+                    data-dropkey={day ? `cell:${i}` : undefined}
+                  >
                     {day && (
                       <div className="cal-date-row">
                         <span className="cal-date">{day.getDate()}</span>
@@ -457,12 +641,15 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                         </button>
                       </div>
                     )}
-                    {dayGroups.map((g) => (
+                    {dayGroups.map((g) => {
+                      const canDrag = draggableEntries(g).length > 0;
+                      return (
                       <button
                         key={g.key}
-                        className={`cal-bar st-${g.state}`}
-                        onClick={() => setSel(g)}
-                        title={`${g.entries.map((e) => platformLabel(e.target.platform)).join(", ")} · ${STATE_LABEL[g.state]} · ${g.title ?? "release card"}`}
+                        className={`cal-bar st-${g.state}${dragKey === g.key ? " dragging" : ""}${canDrag ? " grabbable" : ""}`}
+                        onPointerDown={canDrag ? (ev) => onBarPointerDown(ev, g) : undefined}
+                        onClick={() => clickUnlessDragged(g)}
+                        title={`${g.entries.map((e) => platformLabel(e.target.platform)).join(", ")} · ${STATE_LABEL[g.state]} · ${g.title ?? "release card"}${canDrag ? " · drag to another day to reschedule" : ""}`}
                       >
                         <span className="bar-logos">
                           {g.entries.map((e) => (
@@ -478,7 +665,8 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                         )}
                         <span className={`chip-state st-${g.state}`}>{STATE_ICON[g.state]}</span>
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -509,7 +697,11 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                   const isToday = sameDay(d, today);
                   const nowTop = (today.getHours() + today.getMinutes() / 60) * HOUR_PX;
                   return (
-                    <div className="cal-week-col" key={i}>
+                    <div
+                      className={`cal-week-col${dropTarget === `wk:${i}` ? " dropok" : ""}`}
+                      key={i}
+                      data-dropkey={`wk:${i}`}
+                    >
                       {Array.from({ length: 24 }, (_, h) => (
                         <div className="cal-week-slot" style={{ height: HOUR_PX }} key={h} />
                       ))}
@@ -518,13 +710,15 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
                         const t = new Date(g.time);
                         const top = (t.getHours() + t.getMinutes() / 60) * HOUR_PX;
                         const lead = g.entries[0].target.platform;
+                        const canDrag = draggableEntries(g).length > 0;
                         return (
                           <button
                             key={g.key}
-                            className={`cal-wchip st-${g.state}`}
+                            className={`cal-wchip st-${g.state}${dragKey === g.key ? " dragging" : ""}${canDrag ? " grabbable" : ""}`}
                             style={{ top, "--pc": PLATFORM_COLOR[lead] } as CSSProperties}
-                            onClick={() => setSel(g)}
-                            title={`${g.entries.map((e) => platformLabel(e.target.platform)).join(", ")} · ${STATE_LABEL[g.state]} · ${g.title ?? "release card"}`}
+                            onPointerDown={canDrag ? (ev) => onBarPointerDown(ev, g) : undefined}
+                            onClick={() => clickUnlessDragged(g)}
+                            title={`${g.entries.map((e) => platformLabel(e.target.platform)).join(", ")} · ${STATE_LABEL[g.state]} · ${g.title ?? "release card"}${canDrag ? " · drag to reschedule" : ""}`}
                           >
                             <span className="chip-time">{hm(g.time)}</span>
                             <span className="bar-logos">
@@ -547,6 +741,12 @@ export default function Calendar({ onOpenPost }: { onOpenPost: (id: string) => v
           )}
         </div>
       </div>
+
+      {ghost && (
+        <div className="cal-drag-ghost" style={{ left: ghost.x + 12, top: ghost.y + 10 }}>
+          {ghost.label}
+        </div>
+      )}
 
       {sel && (
         <EntryDetail
@@ -591,6 +791,13 @@ function EntryDetail({
   // apply to the local, not-yet-shipped targets in this release — never cloud jobs.
   const editable = entries.filter((e) => e._source === "local" && entryState(e) !== "shipped");
   const shippedCount = entries.filter((e) => entryState(e) === "shipped").length;
+  // Targets the user can hand-mark as published ("I posted this myself").
+  const markable = entries.filter((e) => {
+    const st = entryState(e);
+    return e._source === "local" && st !== "shipped" && st !== "mocked";
+  });
+  const markAllPublished = () =>
+    Promise.all(markable.map((e) => api.jobMarkPublished(e.job.id))).then(onChanged);
 
   const rescheduleAll = () =>
     Promise.all(
@@ -653,6 +860,15 @@ function EntryDetail({
                     {est === "shipped" || est === "mocked" ? "Re-publish" : "Retry"}
                   </button>
                 )}
+                {e._source === "local" && est !== "shipped" && est !== "mocked" && (
+                  <button
+                    className="ghost xs markpub"
+                    title="I posted this on the platform myself — mark it published"
+                    onClick={() => api.jobMarkPublished(e.job.id).then(onChanged)}
+                  >
+                    ✓ Mark published
+                  </button>
+                )}
               </div>
             );
           })}
@@ -677,6 +893,15 @@ function EntryDetail({
           {localEntry && (
             <button className="ghost sm" onClick={() => onOpenPost(localEntry.post_id)}>
               Open in composer
+            </button>
+          )}
+          {markable.length > 1 && (
+            <button
+              className="ghost sm markpub"
+              title="I posted these on the platforms myself — mark them all published"
+              onClick={markAllPublished}
+            >
+              ✓ Mark all published ({markable.length})
             </button>
           )}
           {editable.length > 0 && (
