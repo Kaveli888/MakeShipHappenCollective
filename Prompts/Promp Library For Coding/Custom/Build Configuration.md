@@ -1,0 +1,1 @@
+Configure build tools (Vite/Webpack/esbuild) with path aliases, environment variables, code splitting, tree shaking, source maps, bundle analysis, and production optimization.

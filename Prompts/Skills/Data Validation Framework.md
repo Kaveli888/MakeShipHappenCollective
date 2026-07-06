@@ -1,0 +1,1 @@
+Build a data validation framework with schema validation, custom rules, cross-field validation, async validation, internationalized error messages, and validation result reporting.

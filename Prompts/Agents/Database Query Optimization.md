@@ -1,0 +1,1 @@
+Profile and optimize all slow database queries. Add missing indexes, rewrite N+1 queries, implement query caching, optimize joins, add connection pooling, and set up slow query monitoring.

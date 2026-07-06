@@ -1,0 +1,1 @@
+Build a file upload system with drag-and-drop, progress tracking, chunked uploads for large files, image preview and cropping, virus scanning, and S3/cloud storage integration.

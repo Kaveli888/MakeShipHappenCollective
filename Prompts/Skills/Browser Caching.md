@@ -1,0 +1,1 @@
+Implement browser caching with service workers, Cache API, IndexedDB for offline data, cache versioning, selective cache invalidation, and offline-first architecture.

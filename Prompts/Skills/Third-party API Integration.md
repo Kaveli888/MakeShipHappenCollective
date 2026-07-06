@@ -1,0 +1,1 @@
+Build a robust third-party API integration layer with retry logic, rate limiting, error handling, request/response logging, circuit breaker pattern, and TypeScript types generated from the API schema.

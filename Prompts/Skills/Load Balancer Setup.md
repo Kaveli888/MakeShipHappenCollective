@@ -1,0 +1,1 @@
+Configure load balancers with health checks, sticky sessions, SSL termination, auto-scaling integration, connection draining, and traffic distribution algorithms.

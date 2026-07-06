@@ -1,0 +1,1 @@
+Implement connection pooling for databases and external services. Configure pool sizes, idle timeouts, health checks, connection recycling, and monitoring of pool utilization.

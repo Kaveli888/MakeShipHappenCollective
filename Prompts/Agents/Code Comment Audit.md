@@ -1,0 +1,1 @@
+Review and improve inline code documentation. Add JSDoc comments to all public APIs, document complex algorithms, add TODO/FIXME tracking, and remove outdated or misleading comments.

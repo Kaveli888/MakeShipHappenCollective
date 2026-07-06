@@ -1,0 +1,1 @@
+Set up isolated test environments with Docker containers for database, Redis, and external service mocks. Configure parallel test execution, cleanup between runs, and CI integration.

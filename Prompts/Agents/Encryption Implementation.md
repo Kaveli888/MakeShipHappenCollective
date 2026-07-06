@@ -1,0 +1,1 @@
+Implement end-to-end encryption for sensitive data. Set up TLS certificates, encrypt data at rest using AES-256, implement field-level encryption for PII, and create key rotation procedures.

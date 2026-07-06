@@ -1,0 +1,1 @@
+Configure DNS with Route53 or Cloudflare. Set up A/CNAME/MX records, implement DNS failover, subdomain routing, email authentication (SPF/DKIM/DMARC), and domain monitoring.

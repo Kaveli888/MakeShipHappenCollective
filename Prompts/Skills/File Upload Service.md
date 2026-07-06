@@ -1,0 +1,1 @@
+Build a file upload service with multipart upload, chunk upload for large files, progress tracking, file type validation, virus scanning, image processing, and S3 storage integration.

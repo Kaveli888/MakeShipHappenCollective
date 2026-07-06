@@ -1,0 +1,1 @@
+Optimize Docker images with multi-stage builds. Minimize image size, cache dependencies, use distroless base images, implement security scanning, and create separate images for dev/test/prod.

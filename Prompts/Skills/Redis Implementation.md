@@ -1,0 +1,1 @@
+Implement Redis for caching, sessions, rate limiting, and pub/sub. Configure persistence, clustering, sentinel for HA, memory management, and monitoring with RedisInsight.

@@ -1,0 +1,1 @@
+Set up consumer-driven contract testing with Pact. Define contracts for all API integrations, generate provider verification tests, and integrate contract validation into CI pipeline.

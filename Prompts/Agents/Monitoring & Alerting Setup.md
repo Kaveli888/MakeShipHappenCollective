@@ -1,0 +1,1 @@
+Set up comprehensive monitoring with Prometheus, Grafana, and PagerDuty. Create dashboards for SLIs/SLOs, configure alerts for critical metrics, and implement on-call rotation and escalation policies.

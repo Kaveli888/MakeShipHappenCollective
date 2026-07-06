@@ -1,0 +1,1 @@
+Implement a data archival system with retention policies, automated archival jobs, compressed cold storage, retrieval API, compliance tracking, and storage cost optimization.

@@ -1,0 +1,1 @@
+Set up load testing with k6 or Artillery. Define performance baselines, test API endpoints under load, identify bottlenecks, test database connection pooling, and create performance regression alerts.

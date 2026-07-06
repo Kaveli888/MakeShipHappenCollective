@@ -1,0 +1,1 @@
+Build a design system with atomic design principles. Create tokens (colors, spacing, typography), primitive components, compound components, and comprehensive Storybook documentation.

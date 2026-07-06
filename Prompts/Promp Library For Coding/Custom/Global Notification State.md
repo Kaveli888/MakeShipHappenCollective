@@ -1,0 +1,1 @@
+Build a global notification/toast system with state management. Support multiple notification types, auto-dismiss, action buttons, stacking, position configuration, and animation.

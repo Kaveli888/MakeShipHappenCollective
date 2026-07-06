@@ -1,0 +1,1 @@
+Scan the entire repository history for accidentally committed secrets including API keys, passwords, tokens, and certificates. Remove them from history, rotate compromised credentials, and set up pre-commit hooks to prevent future leaks.

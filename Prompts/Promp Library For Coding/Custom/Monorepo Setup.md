@@ -1,0 +1,1 @@
+Set up a monorepo with Turborepo or Nx. Configure workspaces, shared packages, build pipeline, dependency management, task caching, and per-package CI configuration.

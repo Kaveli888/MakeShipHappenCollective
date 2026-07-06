@@ -1,0 +1,1 @@
+Set up full-text search with Elasticsearch or Meilisearch. Design index mappings, implement search queries with relevance scoring, autocomplete, faceted search, and synonym support.

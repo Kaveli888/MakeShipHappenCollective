@@ -1,0 +1,1 @@
+Profile the application for performance issues. Optimize database queries, reduce API response times, implement caching, lazy loading, and code splitting. Target sub-100ms response times and 90+ Lighthouse scores.

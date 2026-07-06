@@ -1,0 +1,1 @@
+Implement lazy loading for images, components, and data. Use Intersection Observer, dynamic imports, React.lazy with Suspense, skeleton loaders, and progressive enhancement.

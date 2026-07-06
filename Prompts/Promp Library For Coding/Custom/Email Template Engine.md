@@ -1,0 +1,1 @@
+Build an email template engine with MJML for responsive emails, dynamic variables, conditional sections, preview mode, test sending, and template versioning.

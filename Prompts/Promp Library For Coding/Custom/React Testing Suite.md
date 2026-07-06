@@ -1,0 +1,1 @@
+Write a comprehensive test suite for React components using Testing Library. Include render tests, interaction tests, accessibility tests, snapshot tests, and custom test utilities.

@@ -1,0 +1,1 @@
+Build a comprehensive GitHub Actions CI/CD pipeline with linting, testing, building, security scanning, preview deployments, production deployments, and automated release notes generation.

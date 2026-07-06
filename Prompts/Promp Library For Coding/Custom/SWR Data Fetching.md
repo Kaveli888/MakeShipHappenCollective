@@ -1,0 +1,1 @@
+Implement data fetching with SWR including cache configuration, revalidation strategies, optimistic mutations, error handling, loading states, and global configuration.

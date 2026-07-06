@@ -1,0 +1,1 @@
+Configure a CDN (CloudFront/Cloudflare) for static assets and API caching. Set up custom domains, SSL, cache policies, invalidation, edge functions, WAF rules, and DDoS protection.

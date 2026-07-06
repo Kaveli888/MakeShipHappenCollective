@@ -1,0 +1,1 @@
+Set up a GraphQL server with schema-first design, resolvers, DataLoader for batching, subscriptions for real-time, authentication middleware, query complexity limits, and auto-generated TypeScript types.

@@ -1,0 +1,1 @@
+Audit React application performance. Profile with React DevTools, fix unnecessary re-renders, implement memo/useMemo/useCallback correctly, add code splitting, and optimize context usage.

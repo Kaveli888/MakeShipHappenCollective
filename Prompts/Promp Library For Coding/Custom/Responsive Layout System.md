@@ -1,0 +1,1 @@
+Build a responsive layout system with CSS Grid and Flexbox. Support mobile-first breakpoints, container queries, dynamic sidebars, collapsible panels, and print-friendly layouts.

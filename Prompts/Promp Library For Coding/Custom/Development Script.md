@@ -1,0 +1,1 @@
+Create development utility scripts for common tasks: database reset, seed data, generate types, run migrations, create test user, dump logs, and environment health check.

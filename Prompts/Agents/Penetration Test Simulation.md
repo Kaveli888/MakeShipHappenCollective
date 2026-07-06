@@ -1,0 +1,1 @@
+Simulate a penetration test against the application. Test for injection attacks, broken access control, security misconfigurations, cryptographic failures, and server-side request forgery. Document all findings with severity ratings.

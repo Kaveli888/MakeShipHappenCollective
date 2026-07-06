@@ -1,0 +1,1 @@
+Build a Tailwind CSS component library with consistent design tokens, responsive variants, dark mode support, custom plugins, and a documentation site with live examples.

@@ -1,0 +1,1 @@
+Build a comprehensive form validation schema with Zod. Include string validation, number ranges, email/URL formats, conditional validation, custom refinements, and internationalized error messages.

@@ -1,0 +1,1 @@
+Migrate from one database to another (e.g., MongoDB to PostgreSQL). Create schema mappings, build data migration scripts, implement dual-write during transition, validate data integrity, and update all queries.

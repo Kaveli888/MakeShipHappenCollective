@@ -1,0 +1,1 @@
+Reduce frontend bundle size by implementing code splitting, tree shaking, dynamic imports, image optimization, font subsetting, removing unused CSS, and configuring aggressive caching strategies.

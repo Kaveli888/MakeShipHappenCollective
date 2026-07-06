@@ -1,0 +1,1 @@
+Build an address form with autocomplete using Google Places API, country selector with flag icons, state/province dropdown, postal code validation, and address formatting by locale.

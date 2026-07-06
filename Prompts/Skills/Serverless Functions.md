@@ -1,0 +1,1 @@
+Implement serverless functions (AWS Lambda/Vercel/Cloudflare Workers) for event-driven processing. Handle cold starts, set up API triggers, implement middleware, and configure concurrency limits.

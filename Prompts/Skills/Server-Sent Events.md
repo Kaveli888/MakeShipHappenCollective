@@ -1,0 +1,1 @@
+Implement Server-Sent Events for real-time updates. Build event stream endpoints, client reconnection logic, event filtering, heartbeat mechanism, and fallback to polling for unsupported clients.

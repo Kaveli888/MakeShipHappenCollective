@@ -1,0 +1,1 @@
+Implement a GitOps workflow with ArgoCD or Flux. Define desired state in Git, implement automatic sync, drift detection, rollback procedures, and multi-environment management.

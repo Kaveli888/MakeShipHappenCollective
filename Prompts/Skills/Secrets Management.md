@@ -1,0 +1,1 @@
+Set up secrets management with AWS Secrets Manager or HashiCorp Vault. Implement secret rotation, access policies, audit logging, application integration, and emergency secret rotation procedures.

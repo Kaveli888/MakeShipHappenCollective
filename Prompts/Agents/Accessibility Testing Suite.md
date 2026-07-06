@@ -1,0 +1,1 @@
+Build automated accessibility tests using axe-core and Playwright. Test keyboard navigation, screen reader compatibility, color contrast, ARIA attributes, and generate WCAG compliance reports.

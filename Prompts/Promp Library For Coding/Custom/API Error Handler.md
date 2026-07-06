@@ -1,0 +1,1 @@
+Build a centralized API error handler that normalizes errors, maps status codes to user messages, handles network errors, retry logic, and provides typed error objects for consumers.

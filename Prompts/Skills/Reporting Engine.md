@@ -1,0 +1,1 @@
+Build a reporting engine with report templates, dynamic filters, aggregation functions, chart generation, PDF export, scheduled report delivery, and a WYSIWYG report builder.

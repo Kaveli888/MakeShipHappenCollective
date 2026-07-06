@@ -1,0 +1,1 @@
+Upgrade the project framework to the latest major version. Review breaking changes, update deprecated APIs, fix compatibility issues, update dependencies, and verify all features work correctly post-upgrade.

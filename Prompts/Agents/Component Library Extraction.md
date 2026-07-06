@@ -1,0 +1,1 @@
+Extract reusable UI components into a shared component library. Create a design system with tokens, build components with proper props/variants, add Storybook documentation, and publish as an internal package.

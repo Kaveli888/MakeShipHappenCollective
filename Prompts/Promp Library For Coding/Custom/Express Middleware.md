@@ -1,0 +1,1 @@
+Build Express middleware for authentication, rate limiting, request logging, CORS, error handling, and request validation. Include proper TypeScript types and unit tests.

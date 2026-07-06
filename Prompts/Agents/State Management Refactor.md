@@ -1,0 +1,1 @@
+Refactor state management for better scalability. Normalize data structures, implement selector patterns, add computed state, reduce store coupling, and optimize re-render performance.

@@ -1,0 +1,1 @@
+Implement the specified feature end-to-end including frontend components, backend API endpoints, database schema changes, tests, and documentation. Follow existing project conventions.

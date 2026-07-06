@@ -1,0 +1,1 @@
+Set up mutation testing with Stryker to evaluate test suite quality. Identify weak tests that pass despite code mutations, improve assertions, and target a mutation score above 80%.

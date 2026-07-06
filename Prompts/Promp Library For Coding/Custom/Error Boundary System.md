@@ -1,0 +1,1 @@
+Build a comprehensive error boundary system with fallback UI, error reporting, retry mechanism, error info display in dev mode, and integration with error tracking services like Sentry.

@@ -1,0 +1,1 @@
+Refactor logging for better observability. Implement structured logging, add correlation IDs, create dashboards, set up distributed tracing, and standardize log levels across all services.

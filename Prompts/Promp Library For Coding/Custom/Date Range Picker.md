@@ -1,0 +1,1 @@
+Build a date range picker component with calendar UI, preset ranges (today, last week, last month), min/max date constraints, timezone support, and keyboard navigation.

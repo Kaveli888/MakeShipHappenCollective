@@ -1,0 +1,1 @@
+Convert all infrastructure to code using Terraform/Pulumi. Define environments, networking, compute, storage, and monitoring. Implement state management, drift detection, and automated provisioning.

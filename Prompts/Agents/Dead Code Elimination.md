@@ -1,0 +1,1 @@
+Identify and remove all dead code including unused functions, unreachable branches, unused imports, deprecated features, and orphaned files. Verify removal does not break any functionality.

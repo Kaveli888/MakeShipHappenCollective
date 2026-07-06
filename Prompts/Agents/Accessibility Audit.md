@@ -1,0 +1,1 @@
+Perform a comprehensive accessibility audit. Check WCAG 2.1 AA compliance, add ARIA labels, fix keyboard navigation, ensure proper color contrast, add screen reader support, and test with assistive technologies.

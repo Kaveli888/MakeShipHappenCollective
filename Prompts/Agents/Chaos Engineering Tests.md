@@ -1,0 +1,1 @@
+Implement chaos engineering experiments to test system resilience. Simulate network failures, service outages, database disconnections, memory pressure, and disk full scenarios. Verify graceful degradation.

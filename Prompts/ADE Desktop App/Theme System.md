@@ -1,0 +1,1 @@
+Build a comprehensive theme system with CSS variables, supporting 12+ dark themes. Include live preview, smooth transitions, and persistence via localStorage.

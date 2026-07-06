@@ -1,0 +1,1 @@
+Configure auto-scaling for compute resources based on CPU, memory, and custom metrics. Set scaling policies, cool-down periods, minimum/maximum instances, and scaling event notifications.

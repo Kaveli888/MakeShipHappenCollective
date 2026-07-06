@@ -1,0 +1,1 @@
+Build a full-text search feature with auto-complete, filters, facets, highlighting, recent searches, and saved searches. Implement both frontend UI and backend search engine integration.

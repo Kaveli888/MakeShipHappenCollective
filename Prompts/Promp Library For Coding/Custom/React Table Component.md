@@ -1,0 +1,1 @@
+Build a data table component with sorting, filtering, pagination, row selection, column resizing, virtual scrolling for large datasets, CSV export, and responsive mobile view.

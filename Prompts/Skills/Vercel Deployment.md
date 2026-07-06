@@ -1,0 +1,1 @@
+Configure Vercel deployment with preview deployments, environment variables, serverless functions, edge middleware, custom domains, and CI/CD integration with GitHub.

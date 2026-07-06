@@ -1,0 +1,1 @@
+Build a search and filter form with debounced text search, multi-select filters, range sliders, tag input, clear all button, URL state sync, and result count display.

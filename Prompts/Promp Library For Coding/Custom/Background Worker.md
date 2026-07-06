@@ -1,0 +1,1 @@
+Build a background worker for async job processing with BullMQ. Implement job types, retry strategies, concurrency limits, progress reporting, and dead letter handling.

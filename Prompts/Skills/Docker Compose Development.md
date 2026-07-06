@@ -1,0 +1,1 @@
+Create a comprehensive docker-compose setup for local development with all services (app, database, cache, queue, mail). Include hot-reload, volume mounts, networking, and seed data.

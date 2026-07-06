@@ -1,0 +1,1 @@
+Implement structured JSON logging across all services. Add correlation IDs, request context, log levels, sensitive data redaction, log sampling for high-volume endpoints, and log aggregation.

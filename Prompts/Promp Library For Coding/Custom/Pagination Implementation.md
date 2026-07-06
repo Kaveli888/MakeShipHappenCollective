@@ -1,0 +1,1 @@
+Implement pagination with cursor-based and offset-based strategies. Build page navigation UI, items per page selector, total count display, keyboard shortcuts, and URL state sync.

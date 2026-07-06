@@ -1,0 +1,1 @@
+Build a comprehensive loading state system with button loading spinners, full-page overlays, inline progress indicators, optimistic placeholders, and timeout fallbacks for slow operations.

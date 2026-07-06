@@ -1,0 +1,1 @@
+Audit and optimize cloud infrastructure costs. Right-size instances, implement auto-scaling, use spot/preemptible instances, optimize storage tiers, set up cost alerts, and create a monthly cost report.

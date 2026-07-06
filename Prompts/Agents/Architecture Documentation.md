@@ -1,0 +1,1 @@
+Document the system architecture including component diagrams, data flow diagrams, sequence diagrams, deployment architecture, technology stack rationale, and design decision records (ADRs).

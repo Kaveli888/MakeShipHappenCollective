@@ -1,0 +1,1 @@
+Implement secure session management with server-side sessions, session fixation prevention, concurrent session limits, session revocation, and activity-based session extension.

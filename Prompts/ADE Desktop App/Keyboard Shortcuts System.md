@@ -1,0 +1,1 @@
+Implement a comprehensive keyboard shortcut system with customizable keybindings, chord support, context-aware shortcuts, and a searchable shortcut palette (Cmd+K style).

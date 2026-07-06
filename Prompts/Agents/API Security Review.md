@@ -1,0 +1,1 @@
+Audit all API endpoints for security issues including broken authentication, excessive data exposure, rate limiting gaps, CORS misconfiguration, and missing input validation. Implement fixes for each finding.

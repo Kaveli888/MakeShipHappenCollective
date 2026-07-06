@@ -1,0 +1,1 @@
+Create a reusable React component with TypeScript props interface, proper state management, accessibility attributes, responsive design, and Storybook stories for documentation.

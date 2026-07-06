@@ -1,0 +1,1 @@
+Build a password policy engine with strength requirements, breach detection (HaveIBeenPwned), password history, account lockout, secure reset flow, and entropy-based strength meter.

@@ -1,0 +1,1 @@
+Build a file processing service that handles upload, validation, transformation (resize, convert, compress), storage, and returns processing results with proper error handling.

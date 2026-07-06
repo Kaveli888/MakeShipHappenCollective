@@ -1,0 +1,1 @@
+Build a role-based access control system with roles, permissions, resource-level access, permission inheritance, admin management UI, and middleware for endpoint protection.

@@ -1,0 +1,1 @@
+Design a normalized database schema with proper relationships, indexes, constraints, triggers, and views. Include ER diagrams, migration scripts, seed data, and performance optimization recommendations.

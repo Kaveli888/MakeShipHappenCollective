@@ -1,0 +1,1 @@
+Build a webhook handler with signature verification, idempotent processing, event type routing, retry handling, payload logging, and failure notification for unprocessable events.

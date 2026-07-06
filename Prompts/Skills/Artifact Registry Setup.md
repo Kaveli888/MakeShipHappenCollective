@@ -1,0 +1,1 @@
+Set up an artifact registry for Docker images and packages. Configure automated builds, vulnerability scanning, retention policies, access controls, and promotion between registries.

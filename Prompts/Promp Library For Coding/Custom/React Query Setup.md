@@ -1,0 +1,1 @@
+Set up TanStack Query for data fetching with query configuration, mutation hooks, optimistic updates, infinite queries, query invalidation, prefetching, and offline support.

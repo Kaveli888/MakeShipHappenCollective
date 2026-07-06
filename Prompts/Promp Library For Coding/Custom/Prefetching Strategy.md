@@ -1,0 +1,1 @@
+Implement data prefetching for improved UX. Add hover-triggered prefetching for links, route-based prefetching, search result prefetching, and priority-based prefetch queue.

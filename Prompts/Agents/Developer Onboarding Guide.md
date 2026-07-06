@@ -1,0 +1,1 @@
+Create a comprehensive developer onboarding guide covering local setup, development workflow, code conventions, PR review process, testing requirements, deployment procedures, and troubleshooting FAQ.

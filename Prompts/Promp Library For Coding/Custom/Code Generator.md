@@ -1,0 +1,1 @@
+Build a code generator tool that scaffolds components, services, tests, and API endpoints from templates. Support custom templates, variable interpolation, and file path conventions.

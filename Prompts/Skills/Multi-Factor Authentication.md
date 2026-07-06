@@ -1,0 +1,1 @@
+Implement MFA with TOTP (Google Authenticator), SMS, email verification, backup codes, trusted devices, and MFA enforcement policies for sensitive operations.

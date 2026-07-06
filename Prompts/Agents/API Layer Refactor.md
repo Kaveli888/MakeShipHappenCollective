@@ -1,0 +1,1 @@
+Refactor the API layer to follow consistent patterns. Implement controller-service-repository pattern, add request/response DTOs, standardize error handling, and add API versioning.

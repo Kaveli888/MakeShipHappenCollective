@@ -1,0 +1,1 @@
+Implement real-time data subscriptions with WebSocket or SSE. Handle connection lifecycle, automatic reconnection, data reconciliation, optimistic updates, and offline queueing.

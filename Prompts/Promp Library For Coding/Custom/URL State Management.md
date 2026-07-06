@@ -1,0 +1,1 @@
+Implement URL-based state management for filters, sorting, and pagination. Sync URL params with component state, handle deep linking, browser history, and shareable URLs.

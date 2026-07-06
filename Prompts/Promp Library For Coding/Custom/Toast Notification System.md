@@ -1,0 +1,1 @@
+Build a toast notification system with enter/exit animations, auto-dismiss timer, action buttons, progress bar, stacking behavior, position options, and swipe-to-dismiss on mobile.

@@ -1,0 +1,1 @@
+Investigate and fix all reported bugs. Reproduce each issue, identify root causes, implement fixes, add regression tests, and verify no side effects are introduced.
