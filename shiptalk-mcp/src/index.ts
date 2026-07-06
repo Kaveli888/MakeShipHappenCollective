@@ -404,3 +404,13 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 const transport = new StdioServerTransport();
 await server.connect(transport);
 console.error(`[shiptalk-mcp] connected (db=${DB_PATH})`);
+
+// Exit with the host session — orphaned stdio servers otherwise pile up
+// (hundreds of leaked MCP procs OOM-panicked the machine on 2026-07-05).
+const exitWithHost = () => process.exit(0);
+server.onclose = exitWithHost;
+process.stdin.on("end", exitWithHost);
+process.stdin.on("close", exitWithHost);
+setInterval(() => {
+    if (process.ppid === 1) exitWithHost();
+}, 30_000).unref();

@@ -289,6 +289,16 @@ async function main(): Promise<void> {
   await server.connect(transport);
   // stderr only — stdout is the MCP channel.
   console.error("ship-memory-mcp running on stdio");
+
+  // Exit with the host session — orphaned stdio servers otherwise pile up
+  // (hundreds of leaked MCP procs OOM-panicked the machine on 2026-07-05).
+  const exitWithHost = () => process.exit(0);
+  server.onclose = exitWithHost;
+  process.stdin.on("end", exitWithHost);
+  process.stdin.on("close", exitWithHost);
+  setInterval(() => {
+    if (process.ppid === 1) exitWithHost();
+  }, 30_000).unref();
 }
 
 main().catch((err) => {
