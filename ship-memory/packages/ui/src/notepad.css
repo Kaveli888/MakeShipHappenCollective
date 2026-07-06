@@ -1,0 +1,942 @@
+/* ShipMemory notepad — iOS Notes feel: light chrome, gold accent, zero ceremony.
+   Light/dark follow the system. Hosts can override the variables. */
+
+:root {
+  --smui-accent: #d99e1b;
+  --smui-selection: rgba(217, 158, 27, 0.25);
+  --smui-bg: #ffffff;
+  --smui-sidebar-bg: #f4f3f1;
+  --smui-folders-bg: #ece9e4;
+  --smui-ink: #1c1c1e;
+  --smui-ink-2: #6e6e73;
+  --smui-row-selected: #e9e2cf;
+  --smui-border: rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --smui-bg: #1e1e1e;
+    --smui-sidebar-bg: #262626;
+    --smui-folders-bg: #1b1b1c;
+    --smui-ink: #f2f2f2;
+    --smui-ink-2: #98989e;
+    --smui-row-selected: #4a4434;
+    --smui-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--smui-ink);
+  background: var(--smui-bg);
+  overflow: hidden;
+  user-select: none;
+}
+
+.smui-root {
+  display: flex;
+  height: 100vh;
+}
+
+/* Traffic lights sit over each column's dragpad (titleBarStyle Overlay);
+   empty strip areas double as window-drag handles. */
+.smui-dragpad {
+  height: 38px;
+  flex: none;
+  width: 100%;
+}
+
+/* Shared icon-button chrome (ribbon, tab strip, pane header, explorer). */
+.smui-chrome-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--smui-ink-2);
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.smui-chrome-btn:hover:not(:disabled) {
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--smui-ink);
+}
+
+.smui-chrome-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ── Far-left ribbon (Obsidian-style icon rail) ────────────────────────── */
+
+.smui-ribbon {
+  width: 44px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--smui-folders-bg);
+  border-right: 1px solid var(--smui-border);
+  padding-bottom: 10px;
+}
+
+.smui-ribbon-btn {
+  padding: 6px;
+}
+
+.smui-ribbon-sep {
+  height: 1px;
+  width: 22px;
+  background: var(--smui-border);
+  margin: 2px 0;
+}
+
+/* ── File-explorer header actions (new note / folder / sort / collapse) ── */
+
+.smui-explorer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 8px 6px;
+  border-bottom: 1px solid var(--smui-border);
+  margin-bottom: 4px;
+}
+
+.smui-folder-create {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 8px;
+  border-bottom: 1px solid var(--smui-border);
+  margin-bottom: 4px;
+}
+
+.smui-folder-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 7px;
+  font: inherit;
+  font-size: 13px;
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--smui-ink);
+  outline: none;
+}
+
+.smui-folder-input::placeholder {
+  color: var(--smui-ink-2);
+}
+
+/* ── Left column: folder tree ──────────────────────────────────────────── */
+
+.smui-folders {
+  width: 195px;
+  min-width: 165px;
+  display: flex;
+  flex-direction: column;
+  background: var(--smui-folders-bg);
+  border-right: 1px solid var(--smui-border);
+}
+
+.smui-folders-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 8px;
+}
+
+.smui-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.smui-folder-row:hover {
+  background: rgba(127, 127, 127, 0.1);
+}
+
+.smui-folder-row.is-selected {
+  background: var(--smui-row-selected);
+}
+
+.smui-folder-row.is-drop-target {
+  background: var(--smui-selection);
+  outline: 1px solid var(--smui-accent);
+  outline-offset: -1px;
+}
+
+.smui-folder-chevron {
+  width: 13px;
+  flex: none;
+  text-align: center;
+  font-size: 13px;
+  color: var(--smui-ink-2);
+  transition: transform 0.12s ease;
+}
+
+.smui-folder-chevron.has-children {
+  cursor: pointer;
+}
+
+.smui-folder-chevron.has-children.is-open {
+  transform: rotate(90deg);
+}
+
+.smui-folder-icon {
+  flex: none;
+  font-size: 12px;
+}
+
+.smui-folder-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-folder-count {
+  flex: none;
+  font-size: 12px;
+  color: var(--smui-ink-2);
+  padding-left: 6px;
+}
+
+/* ── Middle column: notes list ─────────────────────────────────────────── */
+
+.smui-sidebar {
+  width: 300px;
+  min-width: 230px;
+  display: flex;
+  flex-direction: column;
+  background: var(--smui-sidebar-bg);
+  border-right: 1px solid var(--smui-border);
+}
+
+.smui-sidebar-header {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+
+.smui-search {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--smui-ink);
+  outline: none;
+}
+
+.smui-search::placeholder {
+  color: var(--smui-ink-2);
+}
+
+.smui-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 16px;
+  outline: none; /* focusable for ⇧↑/⇧↓ mass select; no ring */
+}
+
+.smui-list-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--smui-ink-2);
+  font-size: 13px;
+}
+
+.smui-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--smui-ink-2);
+  margin: 14px 8px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.smui-row {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: grab;
+}
+
+.smui-row:hover {
+  background: rgba(127, 127, 127, 0.1);
+}
+
+.smui-row:active {
+  cursor: grabbing;
+}
+
+.smui-row.is-selected {
+  background: var(--smui-row-selected);
+}
+
+.smui-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.smui-row-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-row-sub {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--smui-ink-2);
+  margin-top: 2px;
+}
+
+.smui-row-snippet {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-row-folder {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--smui-ink-2);
+  margin-top: 2px;
+}
+
+.smui-row-folder-icon {
+  font-size: 10px;
+}
+
+.smui-row-actions {
+  display: none;
+  gap: 2px;
+}
+
+.smui-row:hover .smui-row-actions {
+  display: flex;
+}
+
+.smui-icon-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 2px 4px;
+  opacity: 0.7;
+}
+
+.smui-icon-btn:hover {
+  opacity: 1;
+  background: rgba(127, 127, 127, 0.18);
+}
+
+.smui-icon-btn.is-on {
+  opacity: 1;
+}
+
+/* ── Main area: 1–2 tab groups (Obsidian splits) ───────────────────────── */
+
+.smui-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.smui-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.smui-group + .smui-group {
+  border-left: 1px solid var(--smui-border);
+}
+
+/* Sidebar hidden → first tab strip clears the macOS traffic lights. */
+.smui-main.is-shifted .smui-group:first-child .smui-tabstrip {
+  padding-left: 42px;
+}
+
+/* ── Tab strip ─────────────────────────────────────────────────────────── */
+
+.smui-tabstrip {
+  height: 38px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  background: var(--smui-sidebar-bg);
+  border-bottom: 1px solid var(--smui-border);
+  overflow: hidden;
+}
+
+.smui-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 180px;
+  min-width: 0;
+  padding: 4px 6px 4px 12px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  color: var(--smui-ink-2);
+  cursor: default;
+  white-space: nowrap;
+}
+
+.smui-tab:hover {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.smui-tab.is-active {
+  background: var(--smui-bg);
+  color: var(--smui-ink);
+  box-shadow: 0 0 0 1px var(--smui-border);
+}
+
+.smui-tab-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: none;
+  background: none;
+  color: var(--smui-ink-2);
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.smui-tab:hover .smui-tab-close,
+.smui-tab.is-active .smui-tab-close {
+  opacity: 0.8;
+}
+
+.smui-tab-close:hover {
+  opacity: 1;
+  background: rgba(127, 127, 127, 0.22);
+  color: var(--smui-ink);
+}
+
+.smui-tab-new {
+  flex: none;
+}
+
+.smui-tabstrip-fill {
+  flex: 1;
+  align-self: stretch;
+}
+
+.smui-tabmenu-anchor {
+  position: relative;
+  flex: none;
+}
+
+.smui-tabmenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  max-width: 280px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--smui-sidebar-bg);
+  border: 1px solid var(--smui-border);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  z-index: 50;
+}
+
+.smui-tabmenu-item {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--smui-ink);
+  text-align: left;
+  font-size: 12.5px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-tabmenu-item:hover {
+  background: rgba(127, 127, 127, 0.16);
+}
+
+.smui-tabmenu-item.is-active {
+  color: var(--smui-accent);
+}
+
+.smui-tabmenu-empty {
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--smui-ink-2);
+}
+
+/* ── Pane (one open tab's content) ─────────────────────────────────────── */
+
+.smui-pane {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.smui-pane-header {
+  height: 28px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--smui-ink-2);
+}
+
+.smui-pane-nav {
+  display: flex;
+  gap: 2px;
+  width: 64px;
+  flex: none;
+}
+
+.smui-breadcrumb {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.smui-crumb-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.smui-crumb {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smui-title-input {
+  width: min(260px, 38vw);
+  min-width: 80px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 3px 6px;
+  background: transparent;
+  color: var(--smui-ink-2);
+  font: inherit;
+  text-align: center;
+  outline: none;
+}
+
+.smui-title-input:hover,
+.smui-title-input:focus {
+  border-color: var(--smui-border);
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--smui-ink);
+}
+
+.smui-crumb-sep {
+  opacity: 0.5;
+}
+
+.smui-pane-aux {
+  width: 64px;
+  flex: none;
+  text-align: right;
+  font-size: 11px;
+}
+
+/* ── Graph view ────────────────────────────────────────────────────────── */
+
+.smui-graph {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--smui-bg);
+}
+
+.smui-graph canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.smui-note-date {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--smui-ink-2);
+  padding: 2px 0 0;
+}
+
+.smui-cm {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 28px;
+  box-sizing: border-box;
+  user-select: text;
+}
+
+.smui-cm .cm-editor {
+  height: 100%;
+}
+
+.smui-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--smui-ink-2);
+}
+
+.smui-empty-hint {
+  font-size: 12px;
+}
+
+/* ── Editor toolbar (Aa / checklist / table / attach) ──────────────────── */
+
+.smui-toolbar {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px 2px;
+  z-index: 20;
+}
+
+.smui-toolbar-group {
+  display: flex;
+  gap: 4px;
+}
+
+.smui-tool-btn {
+  border: none;
+  background: none;
+  color: var(--smui-ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.smui-tool-btn:hover:not(:disabled),
+.smui-tool-btn.is-open {
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--smui-ink);
+}
+
+.smui-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.smui-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--smui-sidebar-bg);
+  border: 1px solid var(--smui-border);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  z-index: 40;
+}
+
+.smui-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--smui-ink);
+  text-align: left;
+  font-size: 13.5px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.smui-menu-item:hover {
+  background: rgba(127, 127, 127, 0.16);
+}
+
+.smui-menu-check {
+  width: 18px;
+  flex: none;
+  color: var(--smui-ink);
+}
+
+.smui-menu-icon {
+  width: 24px;
+  flex: none;
+}
+
+.smui-menu-sep {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--smui-border);
+}
+
+.smui-menu-error {
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #d04040;
+}
+
+/* Aa popover specifics */
+
+.smui-style-title { font-size: 17px; font-weight: 700; }
+.smui-style-heading { font-size: 15px; font-weight: 700; }
+.smui-style-subheading { font-size: 13.5px; font-weight: 700; }
+.smui-style-mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+.smui-inline-row {
+  display: flex;
+  gap: 4px;
+  padding: 2px 4px 4px;
+}
+
+.smui-inline-row button {
+  flex: 1;
+  border: none;
+  background: rgba(127, 127, 127, 0.1);
+  color: var(--smui-ink);
+  font-size: 14px;
+  border-radius: 7px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.smui-inline-row button:hover {
+  background: rgba(127, 127, 127, 0.22);
+}
+
+.smui-highlight-btn {
+  color: var(--smui-accent) !important;
+}
+
+.smui-font-row {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+}
+
+.smui-font-chip {
+  flex: 1;
+  border: 1px solid var(--smui-border);
+  background: none;
+  color: var(--smui-ink);
+  border-radius: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.smui-font-chip-serif { font-family: ui-serif, "New York", Georgia, serif; }
+.smui-font-chip-mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+.smui-font-chip.is-on {
+  border-color: var(--smui-accent);
+  color: var(--smui-accent);
+}
+
+/* Recording state */
+
+.smui-menu-item.is-recording .smui-rec-dot {
+  color: #e04444;
+  animation: smui-pulse 1.1s ease-in-out infinite;
+}
+
+.smui-rec-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--smui-ink-2);
+}
+
+@keyframes smui-pulse {
+  50% { opacity: 0.25; }
+}
+
+/* Per-note font (frontmatter `font:`) */
+
+.smui-font-serif .cm-scroller {
+  font-family: ui-serif, "New York", Georgia, serif !important;
+}
+
+.smui-font-mono .cm-scroller {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace !important;
+}
+
+/* ── Inline attachment previews ────────────────────────────────────────── */
+
+.smui-attachment {
+  padding: 4px 4px 8px;
+}
+
+.smui-attachment img {
+  max-width: min(100%, 480px);
+  max-height: 360px;
+  border-radius: 10px;
+  border: 1px solid var(--smui-border);
+  display: block;
+}
+
+.smui-attachment audio {
+  width: min(100%, 360px);
+  display: block;
+}
+
+.smui-attachment video {
+  max-width: min(100%, 480px);
+  max-height: 360px;
+  border-radius: 10px;
+  display: block;
+}
+
+.smui-attachment.is-missing {
+  font-size: 12px;
+  color: var(--smui-ink-2);
+}
+
+.smui-attachment-zoomable {
+  cursor: zoom-in;
+}
+
+/* Video preview wrapper: hover reveals the open-large button */
+.smui-media-box {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.smui-expand-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.smui-media-box:hover .smui-expand-btn {
+  opacity: 1;
+}
+
+/* ── Quick-Look lightbox ───────────────────────────────────────────────── */
+
+.smui-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.82);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  animation: smui-lightbox-in 0.14s ease-out;
+}
+
+@keyframes smui-lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.smui-lightbox-media {
+  max-width: 92vw;
+  max-height: 86vh;
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.smui-lightbox-caption {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 80vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smui-lightbox-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.smui-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

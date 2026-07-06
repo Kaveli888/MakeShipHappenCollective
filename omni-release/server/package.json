@@ -1,0 +1,29 @@
+{
+  "name": "omni-release-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Omni Release backend — OAuth token vault, publishing API, job worker. Targets Supabase (Auth/Postgres/Storage) + Edge Functions.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test src/core/core.test.ts src/core/youtube.test.ts src/core/publishers.test.ts src/core/refresh.test.ts src/worker/runner.test.ts",
+    "worker": "node --env-file=.env --import tsx src/worker/index.ts",
+    "keygen": "node --import tsx -e \"import('./src/core/crypto.ts').then(m=>m.generateKeyBase64()).then(k=>console.log(k))\"",
+    "db:push": "supabase db push",
+    "fn:sync": "node scripts/sync-shared.mjs",
+    "fn:deploy": "npm run fn:sync && supabase functions deploy oauth-start oauth-callback backfill-profiles"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "@types/ws": "^8.18.1",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}

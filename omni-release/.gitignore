@@ -1,0 +1,13 @@
+# Generated runtime artifacts — regenerable, not source.
+logs/
+ready-to-post/
+data/
+proof-assets/
+output/
+*.jsonl
+.agent-browser/
+
+# Local secrets (also covered by the repo root .gitignore, repeated for safety).
+.env
+.env.*
+!.env.example

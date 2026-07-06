@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Omni Release",
+  "version": "0.1.0",
+  "identifier": "tech.makeshiphappen.omnirelease",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1430",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Omni Release",
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "backgroundColor": "#030305",
+        "width": 1100,
+        "height": 820,
+        "minWidth": 720,
+        "minHeight": 560
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1430 http://localhost:1430 https://*.supabase.co wss://*.supabase.co; img-src 'self' asset: http://asset.localhost data: blob: https://*.supabase.co https://*.ggpht.com https://*.googleusercontent.com https://*.fbcdn.net https://*.fbsbx.com https://*.cdninstagram.com https://*.twimg.com https://*.tiktokcdn.com https://*.tiktokcdn-us.com https://*.jtvnw.net https://*.rmbl.ws https://*.licdn.com; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
