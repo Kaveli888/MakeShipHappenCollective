@@ -293,8 +293,11 @@ export default function Activity({ onOpenPost }: { onOpenPost: (id: string) => v
                             {q.release_target_count || group.releaseTargetCount}
                           </span>
                           <span>{q.timezone ?? "local time"}</span>
+                          {q.post_type && <span>{q.post_type.replace(/_/g, " ")}</span>}
+                          {q.publish_surface && <span>{q.publish_surface.replace(/_/g, " ")}</span>}
                         </div>
                         {q.title && <div className="agent-title">{q.title}</div>}
+                        {q.agent_brief && <p className="agent-caption">{q.agent_brief}</p>}
                         {q.caption_preview && <p className="agent-caption">{q.caption_preview}</p>}
                         {q.needs_attention && (
                           <div className="agent-attention">

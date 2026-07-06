@@ -42,6 +42,8 @@
     "agent:once:isolated": "tsx src/agent-runner/index.ts --once --chrome-mode=isolated --allow-isolated-chrome",
     "agent:loop:live:isolated": "tsx src/agent-runner/index.ts --loop --live --chrome-mode=isolated --allow-isolated-chrome",
     "agent:tabs": "tsx src/agent-runner/openTabs.ts",
+    "agent:packets": "tsx src/agent-runner/writePackets.ts",
+    "agent:preflight": "tsx src/agent-runner/preflight.ts",
     "log:latest": "tsx src/cli/index.ts log:latest",
     "lanes": "tsx src/cli/index.ts lanes",
     "health": "tsx src/cli/index.ts health",

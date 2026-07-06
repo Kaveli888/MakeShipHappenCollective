@@ -24,6 +24,7 @@ Claude posts the way a human would, in a browser you're already logged into.
 ```
 outbox/
   due/<job_id>/card.json        # app writes when a job comes due
+  due/<job_id>/agent.json       # normalized agent packet; read this first
   due/<job_id>/media/<file>     # app copies the media here (agent uploads this)
   done/<job_id>.result.json     # agent writes after attempting
   done/<job_id>.png             # agent's screenshot proof of the post
@@ -82,6 +83,61 @@ Resolved from `ScheduledJob` + `PostPlatformTarget` + `Post` + `MediaAsset`:
 }
 ```
 
+The app also writes `due/<job_id>/agent.json` and embeds the same object at
+`card.agent`. This is the agent-facing packet. It removes guesswork for shorts,
+videos, image posts, and regular text posts:
+
+```json
+{
+  "schema_version": 1,
+  "source": "omni-release.agent-handoff",
+  "job_id": "job_…",
+  "target_id": "tgt_…",
+  "post_id": "post_…",
+  "platform": "youtube",
+  "post_type": "short_video | video_upload | video_post | image_post | link_post | regular_post",
+  "publish_surface": "youtube_video_upload | youtube_community_post | tiktok_studio_video_upload | ...",
+  "platform_url": "https://studio.youtube.com",
+  "playbook": "docs/platform-playbooks/...",
+  "required_identity": "MakeShipHappenTech YouTube channel",
+  "brief": "Plain-English action for the posting agent.",
+  "content": {
+    "title": "exact title",
+    "caption": "exact caption",
+    "hashtags": ["#ai"],
+    "full_text": "exact caption plus hashtags, ready to paste",
+    "privacy": "public",
+    "link": null,
+    "cta": null
+  },
+  "media": {
+    "kind": "none | image | video | mixed | image_carousel | video_carousel",
+    "required": "optional | image | video | image_or_video",
+    "is_short_video": true,
+    "primary": {
+      "role": "primary_video",
+      "relative_path": "media/clip.mp4",
+      "absolute_path": "/absolute/path/to/outbox/due/job_…/media/clip.mp4",
+      "mime": "video/mp4",
+      "duration_sec": 20.9,
+      "aspect_ratio": "9:16",
+      "short_candidate": true
+    },
+    "items": []
+  },
+  "checklist": ["Read agent.json first, then card.json only if extra raw detail is needed."],
+  "result_contract": {
+    "write_path": "outbox/done/job_….result.json",
+    "outcomes": ["posted", "failed", "needs_attention"],
+    "needs_attention_keeps_due_card_live": true
+  }
+}
+```
+
+Posting agents should prefer `agent.json` for routing, copy, media paths,
+playbook selection, identity checks, and result writing. Use `card.json` as the
+raw fallback only when the packet is missing.
+
 ## Result — agent writes `done/<job_id>.result.json`
 
 ```json
@@ -136,12 +192,29 @@ The local runner is the piece that turns Agent Queue into a shipping loop:
 
 ```bash
 npm run agent:chrome      # make Jake's signed-in Google Chrome attachable
+npm run agent:packets     # backfill/refresh agent.json packets for due cards
+npm run agent:preflight   # validate scheduled + due handoffs before a live run
 npm run agent:tabs        # open due platform pages in your normal signed-in Chrome
 npm run agent:once        # dry-run one pass; does not click final Post
 npm run agent:once:live   # process due cards once and publish
 npm run agent:loop        # dry-run polling loop
 npm run agent:loop:live   # live polling loop; keeps trying due cards
 ```
+
+For a specific release window, run:
+
+```bash
+npm run agent:preflight -- --at=2026-07-04T17:30 --tolerance-min=45
+```
+
+If the report shows older due cards, use the filtered command it prints:
+
+```bash
+npm run agent:loop:live -- --scheduled-after=<window-start-iso> --scheduled-before=<window-end-iso>
+```
+
+That leaves older due cards intact for review, but prevents them from being
+processed ahead of the current short/video window.
 
 The required account-safe flow is **Chrome/Profile first, Omni second**:
 
@@ -151,7 +224,9 @@ The required account-safe flow is **Chrome/Profile first, Omni second**:
    already open without the debugging port, quit Chrome completely and run the
    command again.
 3. Leave that Chrome window open.
-4. Run `npm run agent:loop:live`.
+4. Run `npm run agent:preflight -- --window-min=90`.
+5. Run `npm run agent:loop:live`, or use the filtered command from preflight
+   when stale due cards are ahead of the current release.
 
 The live runner now defaults to active Chrome mode. It attaches to
 `http://127.0.0.1:9222` and refuses to post if that signed-in Chrome session is

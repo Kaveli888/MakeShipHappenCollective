@@ -144,6 +144,10 @@ export interface AgentQueueItem {
   target_id: string | null;
   post_id: string | null;
   platform: string;
+  post_type: string | null;
+  publish_surface: string | null;
+  agent_brief: string | null;
+  agent_packet_path: string | null;
   release_platforms: string[];
   release_target_count: number;
   release_done_count: number;

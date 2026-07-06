@@ -3,15 +3,10 @@ import path from "node:path";
 import process from "node:process";
 import { spawn, type ChildProcess } from "node:child_process";
 import { chromium, type Browser, type BrowserContext, type Locator, type Page } from "playwright-core";
+import { platformUrl, postText, publishSurface, type AgentPacket, type MediaItem } from "./agentPacket.js";
 
 type Outcome = "posted" | "failed" | "needs_attention";
 type BrowserMode = "active" | "isolated";
-
-interface MediaItem {
-  file: string;
-  mime: string;
-  filename?: string | null;
-}
 
 interface AgentCard {
   job_id: string;
@@ -30,6 +25,7 @@ interface AgentCard {
   media?: MediaItem[];
   options?: Record<string, unknown>;
   instructions?: string | null;
+  agent?: AgentPacket | null;
 }
 
 interface RunnerConfig {
@@ -49,6 +45,9 @@ interface RunnerConfig {
   humanRetryMs: number;
   heartbeatMs: number;
   debugPort: number;
+  jobIdFilter: string[];
+  scheduledAfterMs: number | null;
+  scheduledBeforeMs: number | null;
 }
 
 interface JobEntry {
@@ -97,6 +96,21 @@ function numberArg(name: string, fallback: number): number {
   const raw = argValue(name, String(fallback));
   const parsed = Number(raw);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function listArg(name: string, fallback = ""): string[] {
+  return argValue(name, fallback)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function dateArg(name: string): number | null {
+  const raw = argValue(name, "");
+  if (!raw) return null;
+  const parsed = Date.parse(raw);
+  if (!Number.isFinite(parsed)) throw new Error(`Invalid ${name}: ${raw}`);
+  return parsed;
 }
 
 function browserMode(): BrowserMode {
@@ -185,6 +199,13 @@ function resolveChromeProfile(userDataDir: string): {
 function loadConfig(): RunnerConfig {
   const root = repoRoot();
   const once = hasArg("--once") || !hasArg("--loop");
+  const live = hasArg("--live");
+  const liveConfirmed = hasArg("--confirm-live-posting") || process.env.OMNI_CONFIRM_LIVE_POSTING === "1";
+  if (live && !liveConfirmed) {
+    throw new Error(
+      "Live posting is locked. Rerun with --confirm-live-posting only after Jake explicitly approves this exact live run.",
+    );
+  }
   const sourceUserDataDir = path.resolve(
     argValue("--source-chrome-user-data-dir", process.env.OMNI_SOURCE_CHROME_USER_DATA_DIR ?? chromeUserDataDir()),
   );
@@ -202,12 +223,15 @@ function loadConfig(): RunnerConfig {
     allowIsolatedChrome: hasArg("--allow-isolated-chrome") || process.env.OMNI_ALLOW_ISOLATED_CHROME === "1",
     chromePath: argValue("--chrome-path", findChromePath()),
     once,
-    live: hasArg("--live"),
+    live,
     pollMs: numberArg("--poll-ms", 15_000),
     retryMs: numberArg("--retry-ms", 45_000),
     humanRetryMs: numberArg("--human-retry-ms", 30_000),
     heartbeatMs: numberArg("--heartbeat-ms", 15_000),
     debugPort: numberArg("--debug-port", 9222),
+    jobIdFilter: listArg("--job-id", process.env.OMNI_AGENT_JOB_IDS ?? ""),
+    scheduledAfterMs: dateArg("--scheduled-after"),
+    scheduledBeforeMs: dateArg("--scheduled-before"),
   };
 }
 
@@ -257,6 +281,44 @@ async function prepareRunnerProfile(cfg: RunnerConfig): Promise<void> {
     path.join(cfg.sourceUserDataDir, cfg.profileDirectory),
     path.join(cfg.userDataDir, cfg.profileDirectory),
   );
+}
+
+async function markChromeProfileClean(profileDir: string): Promise<void> {
+  const preferencesPath = path.join(profileDir, "Preferences");
+  const raw = await fs.readFile(preferencesPath, "utf8").catch(() => null);
+  if (!raw) return;
+  try {
+    const preferences = JSON.parse(raw) as Record<string, any>;
+    preferences.profile = {
+      ...(preferences.profile ?? {}),
+      exited_cleanly: true,
+      exit_type: "Normal",
+    };
+    if (preferences.session && typeof preferences.session === "object") {
+      delete preferences.session.restore_on_startup;
+      delete preferences.session.startup_urls;
+    }
+    await fs.writeFile(preferencesPath, `${JSON.stringify(preferences)}\n`, "utf8");
+  } catch {
+    // A malformed Preferences file should not block launch; Chrome can repair it.
+  }
+}
+
+async function clearChromeSessionRestore(cfg: RunnerConfig): Promise<void> {
+  const profileDir = path.join(cfg.userDataDir, cfg.profileDirectory);
+  const cleanupTargets = [
+    path.join(cfg.userDataDir, "LOCK"),
+    path.join(cfg.userDataDir, "SingletonCookie"),
+    path.join(cfg.userDataDir, "SingletonLock"),
+    path.join(cfg.userDataDir, "SingletonSocket"),
+    path.join(profileDir, "Sessions"),
+    path.join(profileDir, "Current Session"),
+    path.join(profileDir, "Current Tabs"),
+    path.join(profileDir, "Last Session"),
+    path.join(profileDir, "Last Tabs"),
+  ];
+  await Promise.all(cleanupTargets.map((target) => fs.rm(target, { recursive: true, force: true }).catch(() => {})));
+  await markChromeProfileClean(profileDir);
 }
 
 async function readJson<T>(p: string): Promise<T | null> {
@@ -310,7 +372,21 @@ function isDue(card: AgentCard, now = Date.now()): boolean {
   return !Number.isFinite(ts) || ts <= now;
 }
 
-async function listDueJobs(outboxDir: string): Promise<JobEntry[]> {
+function scheduledTime(card: AgentCard): number | null {
+  if (!card.scheduled_for) return null;
+  const ts = Date.parse(card.scheduled_for);
+  return Number.isFinite(ts) ? ts : null;
+}
+
+function matchesRunFilters(card: AgentCard, cfg: RunnerConfig): boolean {
+  if (cfg.jobIdFilter.length > 0 && !cfg.jobIdFilter.includes(card.job_id)) return false;
+  const ts = scheduledTime(card);
+  if (cfg.scheduledAfterMs !== null && (ts === null || ts < cfg.scheduledAfterMs)) return false;
+  if (cfg.scheduledBeforeMs !== null && (ts === null || ts > cfg.scheduledBeforeMs)) return false;
+  return true;
+}
+
+async function listDueJobs(outboxDir: string, cfg: RunnerConfig): Promise<JobEntry[]> {
   const dueDir = path.join(outboxDir, "due");
   if (!(await pathExists(dueDir))) return [];
   const entries = await fs.readdir(dueDir, { withFileTypes: true });
@@ -322,6 +398,7 @@ async function listDueJobs(outboxDir: string): Promise<JobEntry[]> {
     const card = await readJson<AgentCard>(cardPath);
     if (!card || !card.job_id || !card.platform) continue;
     if (!isDue(card)) continue;
+    if (!matchesRunFilters(card, cfg)) continue;
     jobs.push({ dir, cardPath, card });
   }
   jobs.sort((a, b) => (a.card.scheduled_for ?? "").localeCompare(b.card.scheduled_for ?? ""));
@@ -389,27 +466,6 @@ async function screenshot(page: Page, outboxDir: string, jobId: string): Promise
   await page.screenshot({ path: path.join(outboxDir, "done", `${jobId}.png`), fullPage: true }).catch(() => {});
 }
 
-function normalizeText(parts: Array<string | null | undefined>): string {
-  return parts
-    .map((part) => (part ?? "").trim())
-    .filter(Boolean)
-    .join("\n\n")
-    .trim();
-}
-
-function hashtagText(card: AgentCard): string {
-  const raw = card.hashtags;
-  if (Array.isArray(raw)) return raw.map((tag) => (tag.startsWith("#") ? tag : `#${tag}`)).join(" ");
-  if (typeof raw === "string") return raw.trim();
-  return "";
-}
-
-function postText(card: AgentCard): string {
-  const tags = hashtagText(card);
-  const caption = card.caption ?? "";
-  return caption.includes(tags) ? caption.trim() : normalizeText([caption, tags]);
-}
-
 function titleText(card: AgentCard): string {
   const explicit = (card.title ?? "").trim();
   if (explicit) return explicit;
@@ -475,11 +531,46 @@ async function clickFirst(candidates: Locator[], timeoutMs = 2_500): Promise<boo
   return true;
 }
 
+async function setInputFilesViaCdp(page: Page, filePath: string): Promise<boolean> {
+  const session = await page.context().newCDPSession(page);
+  const { result } = await session.send("Runtime.evaluate", {
+    expression: "Array.from(document.querySelectorAll('input[type=\"file\"]')).find((input) => !input.disabled) || null",
+    objectGroup: "omni-file-input",
+  });
+  if (!result.objectId) return false;
+  try {
+    await session.send("DOM.setFileInputFiles", {
+      objectId: result.objectId,
+      files: [filePath],
+    });
+    await session.send("Runtime.callFunctionOn", {
+      objectId: result.objectId,
+      functionDeclaration:
+        "function(){ this.dispatchEvent(new Event('input', { bubbles: true })); this.dispatchEvent(new Event('change', { bubbles: true })); }",
+    });
+    return true;
+  } finally {
+    await session.send("Runtime.releaseObject", { objectId: result.objectId }).catch(() => {});
+  }
+}
+
+async function setInputFiles(page: Page, input: Locator, filePath: string): Promise<boolean> {
+  try {
+    await input.setInputFiles(filePath);
+    return true;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (/larger than 50Mb|not co-located/i.test(message)) {
+      return setInputFilesViaCdp(page, filePath);
+    }
+    return false;
+  }
+}
+
 async function attachFile(page: Page, clickTargets: Locator[], filePath: string, timeoutMs = 8_000): Promise<boolean> {
   const inputs = page.locator('input[type="file"]');
   if ((await inputs.count()) > 0) {
-    await inputs.first().setInputFiles(filePath);
-    return true;
+    return setInputFiles(page, inputs.first(), filePath);
   }
 
   for (const target of clickTargets) {
@@ -489,12 +580,17 @@ async function attachFile(page: Page, clickTargets: Locator[], filePath: string,
       await target.first().click({ timeout: timeoutMs });
       const chooser = await chooserPromise;
       if (chooser) {
-        await chooser.setFiles(filePath);
-        return true;
+        try {
+          await chooser.setFiles(filePath);
+          return true;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (/larger than 50Mb|not co-located/i.test(message)) return setInputFilesViaCdp(page, filePath);
+          return false;
+        }
       }
       if ((await inputs.count()) > 0) {
-        await inputs.first().setInputFiles(filePath);
-        return true;
+        return setInputFiles(page, inputs.first(), filePath);
       }
     } catch {
       // Try the next upload control.
@@ -545,33 +641,56 @@ async function attachImage(page: Page, filePath: string): Promise<boolean> {
   if (!clicked) {
     const input = page.locator('input[type="file"]').first();
     if ((await input.count()) > 0) {
-      await input.setInputFiles(filePath);
-      return true;
+      return setInputFiles(page, input, filePath);
     }
     return false;
   }
   const chooser = await chooserPromise;
   if (chooser) {
-    await chooser.setFiles(filePath);
-    return true;
+    try {
+      await chooser.setFiles(filePath);
+      return true;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (/larger than 50Mb|not co-located/i.test(message)) return setInputFilesViaCdp(page, filePath);
+      return false;
+    }
   }
   const input = page.locator('input[type="file"]').first();
   if ((await input.count()) > 0) {
-    await input.setInputFiles(filePath);
-    return true;
+    return setInputFiles(page, input, filePath);
   }
   return false;
 }
 
 function youtubeSurface(card: AgentCard): string {
-  const value = card.options?.publishSurface;
-  if (typeof value === "string") return value;
-  const firstMime = card.media?.[0]?.mime ?? "";
-  return firstMime.startsWith("video/") ? "youtube_video_upload" : "youtube_community_post";
+  return publishSurface(card);
 }
 
 function resolveMediaPath(jobDir: string, item: MediaItem): string {
   return path.resolve(jobDir, item.file);
+}
+
+function tabKeyForUrl(rawUrl: string | null | undefined): string | null {
+  if (!rawUrl || rawUrl === "about:blank") return rawUrl === "about:blank" ? "blank" : null;
+  let host = "";
+  try {
+    host = new URL(rawUrl).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return null;
+  }
+  if (host === "studio.youtube.com" || host.endsWith(".youtube.com") || host === "youtube.com") return "youtube";
+  if (host === "tiktok.com" || host.endsWith(".tiktok.com")) return "tiktok";
+  if (host === "instagram.com" || host.endsWith(".instagram.com")) return "instagram";
+  if (host === "x.com" || host.endsWith(".x.com") || host === "twitter.com" || host.endsWith(".twitter.com")) return "x";
+  if (host === "linkedin.com" || host.endsWith(".linkedin.com")) return "linkedin";
+  if (host === "facebook.com" || host.endsWith(".facebook.com")) return "facebook";
+  if (host === "rumble.com" || host.endsWith(".rumble.com")) return "rumble";
+  return null;
+}
+
+function tabKeyForCard(card: AgentCard): string | null {
+  return tabKeyForUrl(platformUrl(card)) ?? card.platform ?? null;
 }
 
 function needsAttention(errorCode: string, errorMessage: string): AttemptResult {
@@ -590,7 +709,7 @@ async function postClickOrDryRun(button: Locator, cfg: RunnerConfig, platform: s
 
 async function publishYouTubeCommunityPost(page: Page, job: JobEntry, cfg: RunnerConfig): Promise<AttemptResult> {
   const { card, dir } = job;
-  const text = (card.caption ?? "").trim();
+  const text = postText(card);
   const media = card.media ?? [];
   const image = media.find((m) => m.mime.startsWith("image/"));
   const imagePath = image ? resolveMediaPath(dir, image) : null;
@@ -1322,6 +1441,7 @@ async function launchIsolatedChrome(cfg: RunnerConfig): Promise<BrowserHandle> {
     );
   }
   await prepareRunnerProfile(cfg);
+  await clearChromeSessionRestore(cfg);
   if (!(await pathExists(path.join(cfg.userDataDir, cfg.profileDirectory)))) {
     throw new Error(
       `Chrome profile not found: ${path.join(cfg.userDataDir, cfg.profileDirectory)}. ` +
@@ -1334,6 +1454,8 @@ async function launchIsolatedChrome(cfg: RunnerConfig): Promise<BrowserHandle> {
     `--profile-directory=${cfg.profileDirectory}`,
     "--no-first-run",
     "--no-default-browser-check",
+    "--no-session-restore",
+    "--disable-session-crashed-bubble",
     "--disable-blink-features=AutomationControlled",
     "about:blank",
   ];
@@ -1352,6 +1474,7 @@ async function launchIsolatedChrome(cfg: RunnerConfig): Promise<BrowserHandle> {
     const browser = await chromium.connectOverCDP(endpoint);
     const context = browser.contexts()[0];
     if (!context) throw new Error("Chrome started but exposed no browser context.");
+    await resetStartupPages(context);
     return { browser, context, chromeProcess, ownsBrowser: true };
   } catch (err) {
     chromeProcess.kill("SIGTERM");
@@ -1380,6 +1503,55 @@ async function firstOpenPage(context: BrowserContext): Promise<Page> {
   return existing ?? context.newPage();
 }
 
+async function pageForJob(context: BrowserContext, card: AgentCard): Promise<Page> {
+  const wantedKey = tabKeyForCard(card);
+  const pages = context.pages().filter((page) => !page.isClosed());
+  const existing = wantedKey ? pages.find((page) => tabKeyForUrl(page.url()) === wantedKey) : null;
+  if (existing) {
+    await existing.bringToFront().catch(() => {});
+    return existing;
+  }
+  const blank = pages.find((page) => page.url() === "about:blank");
+  if (blank) {
+    await blank.bringToFront().catch(() => {});
+    return blank;
+  }
+  return firstOpenPage(context);
+}
+
+async function resetStartupPages(context: BrowserContext): Promise<void> {
+  const pages = context.pages().filter((page) => !page.isClosed());
+  const keep = new Set<Page>();
+  const seen = new Set<string>();
+
+  for (const page of pages) {
+    const key = tabKeyForUrl(page.url());
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    keep.add(page);
+  }
+
+  if (keep.size === 0) {
+    const blank = pages.find((page) => page.url() === "about:blank") ?? pages[0] ?? null;
+    if (blank) {
+      keep.add(blank);
+      await blank.goto("about:blank").catch(() => {});
+    }
+  }
+
+  if (keep.size === 0) {
+    try {
+      const page = await context.newPage();
+      await page.goto("about:blank").catch(() => {});
+      keep.add(page);
+    } catch {
+      // Chrome may briefly refuse new tabs during startup; the next polling pass can recover.
+    }
+  }
+
+  await Promise.all(pages.filter((page) => !keep.has(page)).map((page) => page.close().catch(() => {})));
+}
+
 async function closeBrowser(handle: BrowserHandle | null): Promise<void> {
   if (!handle) return;
   await handle.browser.close().catch(() => {});
@@ -1388,9 +1560,9 @@ async function closeBrowser(handle: BrowserHandle | null): Promise<void> {
   }
 }
 
-async function runPass(page: Page, cfg: RunnerConfig, nextAttemptAt: Map<string, number>): Promise<number> {
+async function runPass(context: BrowserContext, cfg: RunnerConfig, nextAttemptAt: Map<string, number>): Promise<number> {
   await writeHeartbeat(cfg, { status: "scanning", message: "checking outbox/due" }).catch(() => {});
-  const jobs = await listDueJobs(cfg.outboxDir);
+  const jobs = await listDueJobs(cfg.outboxDir, cfg);
   let handled = 0;
   const now = Date.now();
 
@@ -1403,6 +1575,7 @@ async function runPass(page: Page, cfg: RunnerConfig, nextAttemptAt: Map<string,
 
     try {
       console.log(`[agent-runner] attempting ${job.card.platform} ${job.card.job_id}`);
+      const page = await pageForJob(context, job.card);
       await writeHeartbeat(cfg, {
         status: "attempting",
         currentJobId: job.card.job_id,
@@ -1476,26 +1649,30 @@ async function main(): Promise<void> {
     console.log(`[agent-runner] isolated Chrome enabled: ${cfg.allowIsolatedChrome ? "yes" : "no"}`);
   }
   console.log(`[agent-runner] mode: ${cfg.live ? "LIVE - will click final Post buttons" : "DRY RUN - will stop before final Post"}`);
+  if (cfg.jobIdFilter.length > 0) console.log(`[agent-runner] job filter: ${cfg.jobIdFilter.join(", ")}`);
+  if (cfg.scheduledAfterMs !== null) console.log(`[agent-runner] scheduled after: ${new Date(cfg.scheduledAfterMs).toISOString()}`);
+  if (cfg.scheduledBeforeMs !== null) console.log(`[agent-runner] scheduled before: ${new Date(cfg.scheduledBeforeMs).toISOString()}`);
   await writeHeartbeat(cfg, { status: "starting", message: "agent runner starting" }).catch(() => {});
 
   let browser: BrowserHandle | null = null;
   let page: Page | null = null;
   const nextAttemptAt = new Map<string, number>();
 
-  async function ensurePage(): Promise<Page> {
+  async function ensureBrowser(): Promise<BrowserHandle> {
     if (!browser || !page || page.isClosed()) {
       await closeBrowser(browser);
       browser = await launchBrowser(cfg);
       page = await firstOpenPage(browser.context);
     }
-    return page;
+    return browser;
   }
 
   try {
     do {
       let handled = 0;
       try {
-        handled = await runPass(await ensurePage(), cfg, nextAttemptAt);
+        const activeBrowser = await ensureBrowser();
+        handled = await runPass(activeBrowser.context, cfg, nextAttemptAt);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         if (!isBrowserClosedError(message)) throw err;

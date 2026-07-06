@@ -41,6 +41,10 @@ pub struct AgentQueueItem {
     pub target_id: Option<String>,
     pub post_id: Option<String>,
     pub platform: String,
+    pub post_type: Option<String>,
+    pub publish_surface: Option<String>,
+    pub agent_brief: Option<String>,
+    pub agent_packet_path: Option<String>,
     pub release_platforms: Vec<String>,
     pub release_target_count: usize,
     pub release_done_count: usize,
@@ -106,6 +110,381 @@ fn platform_url(card: &Value) -> Option<String> {
         _ => return None,
     };
     Some(url.to_string())
+}
+
+fn surface_url(surface: &str) -> Option<&'static str> {
+    let url = match surface {
+        "youtube_video_upload" => "https://studio.youtube.com",
+        "youtube_community_post" => "https://www.youtube.com/@MakeShipHappenTech/posts",
+        "x_post" => "https://x.com/compose/post",
+        "linkedin_profile_post" => "https://www.linkedin.com/feed/",
+        "facebook_page_post" => "https://www.facebook.com/profile.php?id=61589607458265",
+        "instagram_browser_post" => "https://www.instagram.com/",
+        "tiktok_studio_video_upload" => "https://www.tiktok.com/upload",
+        "rumble_video_upload" => "https://rumble.com/upload.php",
+        _ => return None,
+    };
+    Some(url)
+}
+
+fn playbook_for_surface(surface: &str) -> Option<&'static str> {
+    let playbook = match surface {
+        "youtube_video_upload" => {
+            "docs/platform-playbooks/youtube-community-post.md#youtube-routing-rule"
+        }
+        "youtube_community_post" => "docs/platform-playbooks/youtube-community-post.md",
+        "x_post" => "docs/platform-playbooks/x-post.md",
+        "linkedin_profile_post" => "docs/platform-playbooks/linkedin-post.md",
+        "facebook_page_post" => "docs/platform-playbooks/facebook-post.md",
+        "instagram_browser_post" => "docs/platform-playbooks/instagram-browser-post.md",
+        "tiktok_studio_video_upload" => "docs/platform-playbooks/tiktok-upload.md",
+        "rumble_video_upload" => "docs/platform-playbooks/rumble-video-upload.md",
+        _ => return None,
+    };
+    Some(playbook)
+}
+
+fn required_identity_for_surface(surface: &str) -> &'static str {
+    match surface {
+        "youtube_video_upload" | "youtube_community_post" => "MakeShipHappenTech YouTube channel",
+        "x_post" => "@1MakeShipHappen",
+        "linkedin_profile_post" => "Jacob Felton LinkedIn profile",
+        "facebook_page_post" => "Make Ship Happen Tech Facebook Page",
+        "instagram_browser_post" => "MakeShipHappenTech Instagram account",
+        "tiktok_studio_video_upload" => "MakeShipHappen TikTok account",
+        "rumble_video_upload" => "MakeShipHappen Rumble account",
+        _ => "platform account from the due card",
+    }
+}
+
+fn media_array(card: &Value) -> Vec<Value> {
+    card.get("media")
+        .and_then(|m| m.as_array())
+        .cloned()
+        .unwrap_or_default()
+}
+
+fn media_has_prefix(media: &[Value], prefix: &str) -> bool {
+    media.iter().any(|item| {
+        item.get("mime")
+            .and_then(|m| m.as_str())
+            .map(|mime| mime.starts_with(prefix))
+            .unwrap_or(false)
+    })
+}
+
+fn media_kind(media: &[Value]) -> &'static str {
+    if media.is_empty() {
+        return "none";
+    }
+    let has_video = media_has_prefix(media, "video/");
+    let has_image = media_has_prefix(media, "image/");
+    match (media.len(), has_video, has_image) {
+        (1, true, _) => "video",
+        (1, _, true) => "image",
+        (_, true, true) => "mixed",
+        (_, true, _) => "video_carousel",
+        (_, _, true) => "image_carousel",
+        _ => "file",
+    }
+}
+
+fn first_video(media: &[Value]) -> Option<&Value> {
+    media.iter().find(|item| {
+        item.get("mime")
+            .and_then(|m| m.as_str())
+            .map(|mime| mime.starts_with("video/"))
+            .unwrap_or(false)
+    })
+}
+
+fn aspect_is_vertical_short(aspect: Option<&str>) -> bool {
+    let Some(aspect) = aspect else {
+        return false;
+    };
+    let normalized = aspect.trim().replace(' ', "");
+    normalized == "9:16" || normalized == "3:4" || normalized == "4:5"
+}
+
+fn is_short_video(media: &[Value]) -> bool {
+    let Some(video) = first_video(media) else {
+        return false;
+    };
+    is_short_video_item(video)
+}
+
+fn is_short_video_item(video: &Value) -> bool {
+    let duration_ok = video
+        .get("duration_sec")
+        .and_then(|d| d.as_f64())
+        .map(|seconds| seconds <= 61.0)
+        .unwrap_or(false);
+    let vertical_ok = aspect_is_vertical_short(video.get("aspect_ratio").and_then(|a| a.as_str()));
+    duration_ok && vertical_ok
+}
+
+fn publish_surface(card: &Value, media: &[Value]) -> String {
+    let platform = str_field(card, "platform").unwrap_or_else(|| "unknown".to_string());
+    if platform == "youtube" {
+        if let Some(surface) = card
+            .get("options")
+            .and_then(|o| o.get("publishSurface"))
+            .and_then(|x| x.as_str())
+        {
+            return surface.to_string();
+        }
+        return if media_has_prefix(media, "video/") {
+            "youtube_video_upload".to_string()
+        } else {
+            "youtube_community_post".to_string()
+        };
+    }
+    match platform.as_str() {
+        "x" => "x_post",
+        "linkedin" => "linkedin_profile_post",
+        "facebook" => "facebook_page_post",
+        "instagram" => "instagram_browser_post",
+        "tiktok" => "tiktok_studio_video_upload",
+        "rumble" => "rumble_video_upload",
+        other => other,
+    }
+    .to_string()
+}
+
+fn hashtags_array(card: &Value) -> Vec<String> {
+    card.get("hashtags")
+        .and_then(|h| h.as_array())
+        .into_iter()
+        .flatten()
+        .filter_map(|h| h.as_str())
+        .map(|h| h.trim())
+        .filter(|h| !h.is_empty())
+        .map(ToString::to_string)
+        .collect()
+}
+
+fn full_text(card: &Value) -> String {
+    let caption = str_field(card, "caption").unwrap_or_default();
+    let tags = hashtags_array(card)
+        .into_iter()
+        .map(|tag| {
+            if tag.starts_with('#') {
+                tag
+            } else {
+                format!("#{tag}")
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+    if caption.is_empty() {
+        tags
+    } else if tags.is_empty() || caption.contains(&tags) {
+        caption
+    } else {
+        format!("{caption}\n\n{tags}")
+    }
+}
+
+fn post_type(card: &Value, surface: &str, media: &[Value]) -> &'static str {
+    if media_has_prefix(media, "video/") {
+        if is_short_video(media) {
+            return "short_video";
+        }
+        if surface.ends_with("video_upload") || surface == "youtube_video_upload" {
+            return "video_upload";
+        }
+        return "video_post";
+    }
+    if media_has_prefix(media, "image/") {
+        return "image_post";
+    }
+    if str_field(card, "link").is_some() {
+        return "link_post";
+    }
+    "regular_post"
+}
+
+fn required_media_kind(surface: &str, post_type: &str) -> &'static str {
+    match surface {
+        "youtube_video_upload" | "tiktok_studio_video_upload" | "rumble_video_upload" => "video",
+        "instagram_browser_post" => "image_or_video",
+        _ if post_type == "short_video"
+            || post_type == "video_upload"
+            || post_type == "video_post" =>
+        {
+            "video"
+        }
+        _ if post_type == "image_post" => "image",
+        _ => "optional",
+    }
+}
+
+fn agent_brief(platform: &str, surface: &str, post_type: &str) -> String {
+    match surface {
+        "youtube_video_upload" => "Upload the staged video in YouTube Studio using the exact title, caption, visibility, and media from this packet.".to_string(),
+        "youtube_community_post" => "Create a YouTube channel Community post using the exact text and any staged image from this packet.".to_string(),
+        "tiktok_studio_video_upload" => "Upload the staged short/video in TikTok Studio using the exact description from this packet.".to_string(),
+        "rumble_video_upload" => "Upload the staged video to Rumble using the exact title, description, visibility, and media from this packet.".to_string(),
+        "instagram_browser_post" => "Create an Instagram browser post using the exact staged media and caption from this packet.".to_string(),
+        "facebook_page_post" => "Create a Make Ship Happen Tech Facebook Page post using the exact text and staged media from this packet.".to_string(),
+        "linkedin_profile_post" => "Create a LinkedIn profile post using the exact text and staged media from this packet.".to_string(),
+        "x_post" => "Create an X post using the exact text and staged media from this packet.".to_string(),
+        _ => format!("Publish this {post_type} to {platform} using the exact card payload."),
+    }
+}
+
+fn agent_checklist(surface: &str, post_type: &str, has_media: bool) -> Vec<&'static str> {
+    let mut steps = vec![
+        "Read agent.json first, then card.json only if extra raw detail is needed.",
+        "Open platform_url in Jake's signed-in Chrome session.",
+        "Confirm the required account/page identity before entering content.",
+        "Use content.full_text exactly; do not rewrite or summarize.",
+    ];
+    if has_media {
+        steps.push("Attach the exact staged media path from media.items; do not substitute files.");
+    }
+    if surface == "youtube_video_upload" || surface == "rumble_video_upload" {
+        steps.push(
+            "Use content.title for the video title; use content.full_text for the description.",
+        );
+    }
+    if post_type == "short_video" {
+        steps.push("Treat the vertical under-61-second video as short-form content where the platform supports it.");
+    }
+    steps.extend([
+        "Stop before posting if login, 2FA, CAPTCHA, checkpoint, missing media, rejected media, or changed UI blocks proof.",
+        "Only write posted after the platform shows the trained success signal.",
+    ]);
+    steps
+}
+
+fn media_role(index: usize, item: &Value) -> &'static str {
+    let is_primary = index == 0;
+    let mime = item.get("mime").and_then(|m| m.as_str()).unwrap_or("");
+    match (
+        is_primary,
+        mime.starts_with("video/"),
+        mime.starts_with("image/"),
+    ) {
+        (true, true, _) => "primary_video",
+        (true, _, true) => "primary_image",
+        (false, true, _) => "supporting_video",
+        (false, _, true) => "supporting_image",
+        (true, _, _) => "primary_file",
+        _ => "supporting_file",
+    }
+}
+
+fn enrich_media_for_agent(due_dir: &Path, media: &[Value]) -> Vec<Value> {
+    media
+        .iter()
+        .enumerate()
+        .map(|(i, item)| {
+            let mut out = item.clone();
+            if let Value::Object(ref mut map) = out {
+                if let Some(file) = item.get("file").and_then(|f| f.as_str()) {
+                    map.insert("relative_path".into(), Value::String(file.to_string()));
+                    map.insert(
+                        "absolute_path".into(),
+                        Value::String(due_dir.join(file).to_string_lossy().to_string()),
+                    );
+                }
+                map.insert(
+                    "role".into(),
+                    Value::String(media_role(i, item).to_string()),
+                );
+                map.insert(
+                    "short_candidate".into(),
+                    Value::Bool(is_short_video_item(item)),
+                );
+            }
+            out
+        })
+        .collect()
+}
+
+fn agent_packet(card: &Value, due_dir: &Path) -> Value {
+    let media = media_array(card);
+    let agent_media = enrich_media_for_agent(due_dir, &media);
+    let platform = str_field(card, "platform").unwrap_or_else(|| "unknown".to_string());
+    let surface = publish_surface(card, &media);
+    let ptype = post_type(card, &surface, &media);
+    let job_id = str_field(card, "job_id").unwrap_or_else(|| "unknown".to_string());
+    let platform_url = surface_url(&surface)
+        .map(ToString::to_string)
+        .or_else(|| platform_url(card));
+    let has_media = !media.is_empty();
+    let title = str_field(card, "title")
+        .or_else(|| media.first().and_then(|m| str_field(m, "filename")))
+        .unwrap_or_else(|| job_id.clone());
+
+    json!({
+        "schema_version": 1,
+        "source": "omni-release.agent-handoff",
+        "generated_at": db::now(),
+        "job_id": job_id,
+        "target_id": str_field(card, "target_id"),
+        "post_id": str_field(card, "post_id"),
+        "platform": platform,
+        "post_type": ptype,
+        "publish_surface": surface,
+        "platform_url": platform_url,
+        "playbook": playbook_for_surface(&surface),
+        "required_identity": required_identity_for_surface(&surface),
+        "brief": agent_brief(&platform, &surface, ptype),
+        "content": {
+            "title": title,
+            "caption": str_field(card, "caption"),
+            "hashtags": hashtags_array(card),
+            "full_text": full_text(card),
+            "privacy": str_field(card, "privacy").unwrap_or_else(|| "public".to_string()),
+            "link": str_field(card, "link"),
+            "cta": str_field(card, "cta"),
+        },
+        "media": {
+            "kind": media_kind(&media),
+            "required": required_media_kind(&surface, ptype),
+            "count": media.len(),
+            "is_short_video": is_short_video(&media),
+            "primary": agent_media.first().cloned().unwrap_or(Value::Null),
+            "items": agent_media,
+        },
+        "release": card.get("release").cloned().unwrap_or(Value::Null),
+        "delivery": card.get("delivery").cloned().unwrap_or(Value::Null),
+        "files": {
+            "card": "card.json",
+            "agent_packet": "agent.json",
+            "result": format!("../../done/{job_id}.result.json"),
+            "screenshot": format!("../../done/{job_id}.png"),
+        },
+        "checklist": agent_checklist(&surface, ptype, has_media),
+        "human_gates": [
+            "login_required",
+            "two_factor_required",
+            "captcha_or_checkpoint",
+            "wrong_identity",
+            "missing_media",
+            "media_rejected",
+            "upload_stalled",
+            "composer_not_found",
+            "success_missing",
+            "ui_changed"
+        ],
+        "result_contract": {
+            "write_path": format!("outbox/done/{job_id}.result.json"),
+            "posted_requires_external_url_or_visible_proof": true,
+            "outcomes": ["posted", "failed", "needs_attention"],
+            "needs_attention_keeps_due_card_live": true,
+        }
+    })
+}
+
+fn read_agent_packet(dir: &Path, card: &Value) -> Option<Value> {
+    card.get("agent").cloned().or_else(|| {
+        std::fs::read_to_string(dir.join("agent.json"))
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+    })
 }
 
 fn media_files(dir: &Path, card: &Value) -> Vec<String> {
@@ -276,7 +655,15 @@ pub fn list_queue(engine_root: &Path) -> Result<Vec<AgentQueueItem>, String> {
         let attention: Option<Value> = std::fs::read_to_string(&attention_path)
             .ok()
             .and_then(|s| serde_json::from_str(&s).ok());
-        let caption_preview = str_field(&card, "caption").map(|s| {
+        let packet = read_agent_packet(&dir, &card);
+        let caption_source = packet
+            .as_ref()
+            .and_then(|p| p.get("content"))
+            .and_then(|c| c.get("full_text"))
+            .and_then(|s| s.as_str())
+            .map(ToString::to_string)
+            .or_else(|| str_field(&card, "caption"));
+        let caption_preview = caption_source.map(|s| {
             const MAX: usize = 160;
             if s.chars().count() > MAX {
                 format!("{}…", s.chars().take(MAX).collect::<String>())
@@ -300,6 +687,15 @@ pub fn list_queue(engine_root: &Path) -> Result<Vec<AgentQueueItem>, String> {
             target_id: str_field(&card, "target_id"),
             post_id: str_field(&card, "post_id"),
             platform: str_field(&card, "platform").unwrap_or_else(|| "unknown".to_string()),
+            post_type: packet.as_ref().and_then(|p| str_field(p, "post_type")),
+            publish_surface: packet
+                .as_ref()
+                .and_then(|p| str_field(p, "publish_surface")),
+            agent_brief: packet.as_ref().and_then(|p| str_field(p, "brief")),
+            agent_packet_path: dir
+                .join("agent.json")
+                .exists()
+                .then(|| dir.join("agent.json").to_string_lossy().to_string()),
             release_platforms: release_platforms(
                 &card,
                 str_field(&card, "platform")
@@ -323,7 +719,10 @@ pub fn list_queue(engine_root: &Path) -> Result<Vec<AgentQueueItem>, String> {
                 .and_then(|r| usize_field(r, "pending_count"))
                 .unwrap_or(1),
             delivery_index: card.get("delivery").and_then(|d| usize_field(d, "index")),
-            platform_url: platform_url(&card),
+            platform_url: packet
+                .as_ref()
+                .and_then(|p| str_field(p, "platform_url"))
+                .or_else(|| platform_url(&card)),
             scheduled_for: str_field(&card, "scheduled_for"),
             timezone: str_field(&card, "timezone"),
             title: str_field(&card, "title"),
@@ -397,8 +796,14 @@ pub fn mark_stale_handoffs(conn: &Connection, engine_root: &Path) -> Result<u32,
         });
 
         let attempt_no = db::next_attempt_no(conn, &target_id).map_err(|e| e.to_string())?;
-        let att = db::start_attempt(conn, Some(&job_id), &target_id, attempt_no, "agent_watchdog")
-            .map_err(|e| e.to_string())?;
+        let att = db::start_attempt(
+            conn,
+            Some(&job_id),
+            &target_id,
+            attempt_no,
+            "agent_watchdog",
+        )
+        .map_err(|e| e.to_string())?;
         db::finish_attempt(
             conn,
             &att,
@@ -534,7 +939,7 @@ pub fn handoff(
     let release_pending_count =
         release_total.saturating_sub(release_done_count + release_attention_count);
 
-    let card = json!({
+    let mut card = json!({
         "job_id": job.id,
         "idempotency_key": job.idempotency_key,
         "target_id": target.id,
@@ -567,9 +972,15 @@ pub fn handoff(
         },
         "handed_off_at": db::now(),
     });
+    let packet = agent_packet(&card, &due);
+    if let Value::Object(ref mut obj) = card {
+        obj.insert("agent".to_string(), packet.clone());
+    }
 
     let bytes = serde_json::to_vec_pretty(&card).map_err(|e| e.to_string())?;
     std::fs::write(due.join("card.json"), bytes).map_err(|e| e.to_string())?;
+    let packet_bytes = serde_json::to_vec_pretty(&packet).map_err(|e| e.to_string())?;
+    std::fs::write(due.join("agent.json"), packet_bytes).map_err(|e| e.to_string())?;
 
     db::set_target_status(conn, &target.id, AGENT_STATUS).map_err(|e| e.to_string())?;
     let _ = db::recompute_post_status(conn, &target.post_id);

@@ -49,6 +49,13 @@ lighthouse-reports/
 # ShipSpace runtime state (contains worktree clones with .git inside)
 /.shipspace/
 
+# Runtime output, renders, and scratch — never version (large / regenerated)
+omni-release/outbox/
+shipspace-promo/
+shipspace-reveal/out/
+.shipspace-crawl/
+_prompt-recovery-backup/
+
 # Large media / private exports — not for version control
 /MSH Logo/
 /Shipmind Photos/

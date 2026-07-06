@@ -278,6 +278,10 @@ fn agent_handoff_and_ingest_roundtrip() {
         "card.json should be written"
     );
     assert!(
+        due.join("agent.json").exists(),
+        "agent.json should be written for a simple browser-agent handoff"
+    );
+    assert!(
         due.join("media").join(&storage_key).exists(),
         "media should be staged"
     );
@@ -292,6 +296,21 @@ fn agent_handoff_and_ingest_roundtrip() {
         .unwrap()
         .iter()
         .any(|p| p.as_str() == Some("facebook")));
+    assert_eq!(card["agent"]["post_type"], "short_video");
+    assert_eq!(card["agent"]["publish_surface"], "x_post");
+    assert_eq!(card["agent"]["media"]["kind"], "video");
+    assert_eq!(card["agent"]["media"]["required"], "video");
+    assert_eq!(card["agent"]["media"]["primary"]["role"], "primary_video");
+    assert!(card["agent"]["media"]["primary"]["absolute_path"]
+        .as_str()
+        .unwrap()
+        .ends_with(&format!("outbox/due/{job_id}/media/{storage_key}")));
+    assert_eq!(card["agent"]["content"]["full_text"], "hello world\n\n#ai");
+    let packet: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(due.join("agent.json")).unwrap()).unwrap();
+    assert_eq!(packet["job_id"], job_id);
+    assert_eq!(packet["post_type"], "short_video");
+    assert_eq!(packet["publish_surface"], "x_post");
     assert_eq!(
         db::get_target(&conn, &tid).unwrap().unwrap().status,
         "awaiting_agent"

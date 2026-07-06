@@ -83,6 +83,10 @@ Any lane command accepts: `--mode queue|live`, `--dry-run`,
 | `npm run dry-run`     | Full pipeline, never posts live                      |
 | `npm run research`    | Research stage only                                  |
 | `npm run queue:list`  | List ready-to-post packages                          |
+| `npm run agent:packets` | Backfill/refresh `agent.json` packets for due browser handoffs |
+| `npm run agent:preflight` | Validate scheduled/due agent handoffs before a live run |
+| `npm run agent:tabs`  | Open due platform tabs and staged media in signed-in Chrome |
+| `npm run agent:loop:live` | Run the live browser-agent polling loop          |
 | `npm run log:latest`  | Show recent log entries                              |
 | `npm run health`      | Source + health report                               |
 | `npm test`            | Vitest suite (offline pipeline integration)          |
@@ -104,17 +108,27 @@ Two modes behind one adapter interface — see
 
 - **API mode** (X / Meta / LinkedIn) — gated on `OMNI_*` credentials. The gate is
   wired; live API calls are the next step (currently falls back to ready-to-post).
-- **Browser-assisted mode** — drive a logged-in session; not yet wired (falls
-  back to ready-to-post).
+- **Browser-assisted mode** — active local app route. The scheduler writes
+  `outbox/due/<job_id>/card.json`, `agent.json`, and staged media; the browser
+  runner reads those handoffs, posts through Jake's signed-in Chrome session, and
+  writes `outbox/done/<job_id>.result.json`.
 
-Until either is configured, every run safely produces ready-to-post packages.
+Before a scheduled short/video window, run `npm run agent:preflight -- --at=<local-time>`
+to validate routing, media, packet fields, stale due backlog, and browser-agent
+heartbeat. If old handoffs are due, use the printed `--scheduled-after` /
+`--scheduled-before` command so the live loop targets the current release window.
+
+The content engine still safely produces ready-to-post packages. The desktop app
+uses the outbox bridge for scheduled browser publishing.
 
 ## What still needs setup before live posting
 
 - **X:** `OMNI_X_API_KEY`, `OMNI_X_API_SECRET`, `OMNI_X_ACCESS_TOKEN`, `OMNI_X_ACCESS_SECRET`
 - **LinkedIn:** `OMNI_LINKEDIN_ACCESS_TOKEN`, `OMNI_LINKEDIN_AUTHOR_URN`
 - **Facebook:** `OMNI_FACEBOOK_PAGE_ID`, `OMNI_FACEBOOK_PAGE_TOKEN`
-- **Browser:** `OMNI_BROWSER_SESSION` + a session adapter (Playwright / Claude-in-Chrome)
+- **Browser:** start attachable Chrome with `npm run agent:chrome`, then run
+  `npm run agent:loop:live`; use `npm run agent:packets` to normalize existing
+  due cards before handing them to an external agent.
 
 Then run with `--mode live`. The live API/browser send is the one piece left to
 implement inside `src/publish/publishers.ts`.

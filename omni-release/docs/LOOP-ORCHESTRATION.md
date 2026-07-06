@@ -14,6 +14,7 @@ Prompt loops and schedulers are related, but they are not the same thing.
 | Prompt loop | Tells an already-awake agent what to repeat. |
 | Scheduler | Wakes an agent, process, or automation at the right time. |
 | Omni Release queue | Stores what is due, where it goes, exact media, and status. |
+| Agent packet | Normalizes one due job into post type, publish surface, URL, copy, media paths, checklist, and result contract. |
 | Platform playbook | Describes the exact browser execution flow. |
 | Verification bridge | Defines the proof required before a job is complete. |
 
@@ -45,7 +46,7 @@ For example:
 
 ```text
 Publish Watchdog Loop
-  reads due cards
+  reads due agent.json packets
   calls Facebook Page Posts playbook
   verifies "Just now"
   writes posted result
