@@ -72,3 +72,13 @@ pkill -f "ShipSpace Dev.app"
 ```
 
 When scanning source, exclude `node_modules/` and `ShipSpace/.claude/worktrees/`; those copied worktrees and assets can mislead broad searches.
+
+## MCP Server Lifecycle Rule
+
+The four MCP servers in this repo (shipspace-mcp, shiptalk-mcp, shipmind-mcp,
+ship-memory/packages/mcp) MUST self-exit when their host session dies — see the
+"Exit with the host session" block at the end of each src/index.ts (commit 5f59cb3).
+Never remove or bypass those handlers, and never spawn long-lived node children
+without an equivalent cleanup path. Orphaned MCP servers accumulated to ~750
+processes / 36 GB on 2026-07-05 and kernel-panicked the machine twice.
+Full incident rules live in the "Process Hygiene" section of AGENTS.md.
