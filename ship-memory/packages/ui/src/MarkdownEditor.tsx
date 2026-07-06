@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { EditorState, type Extension } from "@codemirror/state";
 import { EditorView, keymap, placeholder } from "@codemirror/view";
-import { formatKeymap } from "./commands.js";
+import { formatKeymap } from "./commands";
 import {
   defaultKeymap,
   history,

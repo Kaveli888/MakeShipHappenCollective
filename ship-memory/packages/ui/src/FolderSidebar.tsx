@@ -5,7 +5,7 @@ import {
   IconFolderPlus,
   IconSort,
   IconSquarePen,
-} from "./icons.js";
+} from "./icons";
 
 /**
  * Left column — Apple-Notes-style folder tree.

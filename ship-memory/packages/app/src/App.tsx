@@ -11,6 +11,7 @@ import { watchImmediate, type UnwatchFn } from "@tauri-apps/plugin-fs";
 import { ShipMemory } from "@ship-memory/core";
 import { Notepad, type AttachmentOpenRequest } from "@ship-memory/ui";
 import { tauriFs } from "./tauriFs";
+import { SdSync } from "./SdSync";
 
 // Native menu bar: add Save Session (⌘S) to the top of the File menu. The
 // item just pokes the webview — Notepad listens for the event and flushes
@@ -133,10 +134,13 @@ export function App() {
   if (!engine) return null;
 
   return (
-    <Notepad
-      engine={engine}
-      vaultVersion={vaultVersion}
-      onOpenAttachment={onOpenAttachment}
-    />
+    <>
+      <Notepad
+        engine={engine}
+        vaultVersion={vaultVersion}
+        onOpenAttachment={onOpenAttachment}
+      />
+      <SdSync vaultRoot={engine.root} />
+    </>
   );
 }

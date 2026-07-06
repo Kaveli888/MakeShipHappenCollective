@@ -32,7 +32,10 @@ body,
   margin: 0;
 }
 
-body {
+.smui-root {
+  display: flex;
+  height: 100%;
+  min-height: 0;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -40,11 +43,6 @@ body {
   background: var(--smui-bg);
   overflow: hidden;
   user-select: none;
-}
-
-.smui-root {
-  display: flex;
-  height: 100vh;
 }
 
 /* Traffic lights sit over each column's dragpad (titleBarStyle Overlay);

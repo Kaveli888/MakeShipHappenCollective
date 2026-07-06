@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorView } from "@codemirror/view";
 import type { MemoryMeta, ShipMemory } from "@ship-memory/core";
-import { MarkdownEditor } from "./MarkdownEditor.js";
-import { EditorToolbar, type NoteFont } from "./EditorToolbar.js";
+import { MarkdownEditor } from "./MarkdownEditor";
+import { EditorToolbar, type NoteFont } from "./EditorToolbar";
 import {
   attachmentKind,
   attachmentPreviews,
   type AttachmentOpener,
-} from "./attachments.js";
-import { insertAtCursor } from "./commands.js";
-import { formatFullDate } from "./dates.js";
-import { folderOf } from "./FolderSidebar.js";
-import { IconArrowLeft, IconArrowRight } from "./icons.js";
+} from "./attachments";
+import { insertAtCursor } from "./commands";
+import { formatFullDate } from "./dates";
+import { folderOf } from "./FolderSidebar";
+import { IconArrowLeft, IconArrowRight } from "./icons";
 
 /**
  * One note tab — the full editing pane (header with back/forward +

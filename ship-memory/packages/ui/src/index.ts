@@ -6,11 +6,11 @@
  * future host) can mount the same component against the same hub.
  */
 
-export { Notepad, type NotepadProps } from "./Notepad.js";
-export { GraphView, type GraphViewProps } from "./GraphView.js";
-export { NotePane, type NotePaneProps } from "./NotePane.js";
-export { MarkdownEditor } from "./MarkdownEditor.js";
-export { EditorToolbar, type NoteFont } from "./EditorToolbar.js";
+export { Notepad, type NotepadProps } from "./Notepad";
+export { GraphView, type GraphViewProps } from "./GraphView";
+export { NotePane, type NotePaneProps } from "./NotePane";
+export { MarkdownEditor } from "./MarkdownEditor";
+export { EditorToolbar, type NoteFont } from "./EditorToolbar";
 export {
   attachmentKind,
   attachmentMime,
@@ -19,5 +19,5 @@ export {
   type AttachmentLoader,
   type AttachmentOpener,
   type AttachmentOpenRequest,
-} from "./attachments.js";
-export * from "./commands.js";
+} from "./attachments";
+export * from "./commands";

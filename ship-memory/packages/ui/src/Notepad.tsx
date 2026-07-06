@@ -6,11 +6,11 @@ import {
   useState,
 } from "react";
 import type { MemoryMeta, ShipMemory } from "@ship-memory/core";
-import { FolderSidebar, folderOf } from "./FolderSidebar.js";
-import { NotesList, listOrder, type SortMode } from "./NotesList.js";
-import { NotePane } from "./NotePane.js";
-import type { AttachmentOpener } from "./attachments.js";
-import { GraphView } from "./GraphView.js";
+import { FolderSidebar, folderOf } from "./FolderSidebar";
+import { NotesList, listOrder, type SortMode } from "./NotesList";
+import { NotePane } from "./NotePane";
+import type { AttachmentOpener } from "./attachments";
+import { GraphView } from "./GraphView";
 import {
   IconCalendar,
   IconChevronDown,
@@ -19,7 +19,7 @@ import {
   IconPanelLeft,
   IconPlus,
   IconX,
-} from "./icons.js";
+} from "./icons";
 import "./notepad.css";
 
 export interface NotepadProps {

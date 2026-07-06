@@ -18,7 +18,7 @@ import {
   toggleItalic,
   toggleStrike,
   toggleUnderline,
-} from "./commands.js";
+} from "./commands";
 
 export type NoteFont = "system" | "serif" | "mono";
 

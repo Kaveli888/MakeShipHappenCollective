@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { MemoryMeta } from "@ship-memory/core";
-import { folderOf } from "./FolderSidebar.js";
-import { formatListDate, sectionFor } from "./dates.js";
+import { folderOf } from "./FolderSidebar";
+import { formatListDate, sectionFor } from "./dates";
 
 export type SortMode = "modified" | "title";
 
