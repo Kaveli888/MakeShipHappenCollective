@@ -10,10 +10,27 @@
   --smui-folders-bg: #03060a;
   --smui-ink: #eafcff;
   --smui-ink-2: #8fb3bc;
+  --smui-warm: #ffd36a;
   --smui-row-selected: rgba(91, 230, 242, 0.13);
   --smui-border: rgba(75, 208, 224, 0.14);
+  --smui-border-strong: rgba(116, 235, 247, 0.3);
+  --smui-glass: rgba(5, 13, 19, 0.62);
+  --smui-glass-strong: rgba(7, 19, 27, 0.78);
+  --smui-radius-shell: 0;
+  --smui-radius-panel: 20px;
+  --smui-radius-control: 999px;
+  --smui-panel-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(91, 230, 242, 0.04),
+    0 18px 46px rgba(0, 0, 0, 0.34);
   --smui-hud: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas,
     monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
@@ -21,25 +38,196 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  background: #03060a;
 }
 
 .smui-root {
   display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
+  box-sizing: border-box;
+  padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   color: var(--smui-ink);
-  background: var(--smui-bg);
+  background:
+    linear-gradient(135deg, #020509 0%, #07121b 48%, #031016 100%);
   overflow: hidden;
   user-select: none;
 }
 
-/* Traffic lights sit over each column's dragpad (titleBarStyle Overlay);
-   empty strip areas double as window-drag handles. */
+.smui-frame {
+  position: relative;
+  z-index: 0;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--smui-radius-shell);
+  background:
+    linear-gradient(145deg, rgba(11, 29, 39, 0.72), rgba(2, 8, 13, 0.88) 52%, rgba(4, 17, 21, 0.74));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(91, 230, 242, 0.06),
+    0 0 0 1px rgba(255, 211, 106, 0.04);
+  backdrop-filter: blur(26px) saturate(145%);
+  -webkit-backdrop-filter: blur(26px) saturate(145%);
+}
+
+.smui-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 30%),
+    linear-gradient(315deg, rgba(91, 230, 242, 0.08), rgba(91, 230, 242, 0) 42%),
+    linear-gradient(90deg, rgba(255, 211, 106, 0.05), rgba(255, 211, 106, 0) 22%);
+}
+
+.smui-frame > * {
+  position: relative;
+  z-index: 1;
+}
+
+.smui-appbar {
+  position: relative;
+  flex: none;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 14px 0 0;
+  border: 0;
+  border-bottom: 1px solid rgba(75, 208, 224, 0.18);
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 23, 29, 0.82), rgba(2, 8, 12, 0.68)),
+    linear-gradient(90deg, rgba(91, 230, 242, 0.08), rgba(255, 211, 106, 0.04) 32%, rgba(91, 230, 242, 0.03));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(91, 230, 242, 0.05);
+}
+
+.smui-appbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(91, 230, 242, 0.1), transparent);
+  opacity: 0.34;
+}
+
+.smui-appbar-traffic-spacer {
+  width: 104px;
+  flex: none;
+  align-self: stretch;
+}
+
+.smui-appbar-brand {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--smui-ink);
+  pointer-events: none;
+}
+
+.smui-appbar-logo {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  overflow: hidden;
+  border-radius: 5px;
+  background: rgba(91, 230, 242, 0.07);
+  box-shadow:
+    inset 0 0 0 1px rgba(91, 230, 242, 0.12),
+    0 0 14px rgba(91, 230, 242, 0.08);
+}
+
+.smui-appbar-logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.smui-appbar-logo span {
+  font-family: var(--smui-hud);
+  font-size: 7px;
+  font-weight: 700;
+  color: var(--smui-accent);
+  letter-spacing: 0;
+}
+
+.smui-appbar-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.smui-appbar-fill {
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.smui-shell {
+  position: relative;
+  z-index: 0;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 13, 18, 0.34), rgba(2, 8, 13, 0.18));
+}
+
+.smui-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 30%),
+    linear-gradient(315deg, rgba(91, 230, 242, 0.08), rgba(91, 230, 242, 0) 42%),
+    linear-gradient(90deg, rgba(255, 211, 106, 0.05), rgba(255, 211, 106, 0) 22%);
+}
+
+.smui-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Empty strip areas double as window-drag handles inside the Tauri shell. */
 .smui-dragpad {
-  height: 38px;
+  height: 8px;
   flex: none;
   width: 100%;
 }
@@ -49,17 +237,24 @@ body,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background: none;
+  border: 1px solid transparent;
+  background: rgba(91, 230, 242, 0.02);
   color: var(--smui-ink-2);
-  border-radius: 6px;
+  border-radius: var(--smui-radius-control);
   padding: 4px;
   cursor: pointer;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
 .smui-chrome-btn:hover:not(:disabled) {
-  background: rgba(91, 230, 242, 0.1);
+  background: rgba(91, 230, 242, 0.12);
+  border-color: rgba(91, 230, 242, 0.2);
   color: var(--smui-ink);
+  box-shadow: 0 0 18px rgba(91, 230, 242, 0.11);
 }
 
 .smui-chrome-btn:disabled {
@@ -76,9 +271,12 @@ body,
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  background: var(--smui-folders-bg);
-  border-right: 1px solid var(--smui-border);
-  padding-bottom: 10px;
+  padding: 0 5px 10px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(5, 14, 20, 0.74), rgba(2, 7, 11, 0.58));
+  border: 1px solid var(--smui-border);
+  border-radius: calc(var(--smui-radius-panel) - 2px);
+  box-shadow: var(--smui-panel-shadow);
 }
 
 .smui-ribbon-btn {
@@ -88,6 +286,11 @@ body,
 /* Panel toggles glow when their column is currently visible. */
 .smui-ribbon-btn.is-on {
   color: var(--smui-accent);
+  background: rgba(91, 230, 242, 0.1);
+  border-color: rgba(91, 230, 242, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 20px rgba(91, 230, 242, 0.1);
 }
 
 .smui-ribbon-btn.is-on:hover {
@@ -97,7 +300,7 @@ body,
 .smui-ribbon-sep {
   height: 1px;
   width: 22px;
-  background: var(--smui-border);
+  background: linear-gradient(90deg, transparent, var(--smui-border-strong), transparent);
   margin: 2px 0;
 }
 
@@ -108,7 +311,7 @@ body,
   justify-content: center;
   gap: 6px;
   padding: 0 8px 6px;
-  border-bottom: 1px solid var(--smui-border);
+  border-bottom: 1px solid rgba(75, 208, 224, 0.1);
   margin-bottom: 4px;
 }
 
@@ -117,19 +320,19 @@ body,
   align-items: center;
   gap: 4px;
   padding: 0 8px 8px;
-  border-bottom: 1px solid var(--smui-border);
+  border-bottom: 1px solid rgba(75, 208, 224, 0.1);
   margin-bottom: 4px;
 }
 
 .smui-folder-input {
   flex: 1;
   min-width: 0;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid rgba(91, 230, 242, 0.12);
+  border-radius: var(--smui-radius-control);
   padding: 5px 7px;
   font: inherit;
   font-size: 13px;
-  background: rgba(91, 230, 242, 0.1);
+  background: rgba(91, 230, 242, 0.09);
   color: var(--smui-ink);
   outline: none;
 }
@@ -145,8 +348,11 @@ body,
   min-width: 165px;
   display: flex;
   flex-direction: column;
-  background: var(--smui-folders-bg);
-  border-right: 1px solid var(--smui-border);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(5, 14, 20, 0.78), rgba(2, 7, 11, 0.62));
+  border: 1px solid var(--smui-border);
+  border-radius: var(--smui-radius-panel);
+  box-shadow: var(--smui-panel-shadow);
 }
 
 .smui-folders-scroll {
@@ -160,18 +366,26 @@ body,
   align-items: center;
   gap: 5px;
   padding: 5px 8px;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
   font-size: 13px;
   cursor: default;
   white-space: nowrap;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    box-shadow 0.14s ease;
 }
 
 .smui-folder-row:hover {
   background: rgba(91, 230, 242, 0.06);
+  border-color: rgba(91, 230, 242, 0.1);
 }
 
 .smui-folder-row.is-selected {
   background: var(--smui-row-selected);
+  border-color: rgba(91, 230, 242, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .smui-folder-row.is-drop-target {
@@ -223,8 +437,11 @@ body,
   min-width: 230px;
   display: flex;
   flex-direction: column;
-  background: var(--smui-sidebar-bg);
-  border-right: 1px solid var(--smui-border);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(6, 16, 23, 0.8), rgba(3, 8, 14, 0.64));
+  border: 1px solid var(--smui-border);
+  border-radius: var(--smui-radius-panel);
+  box-shadow: var(--smui-panel-shadow);
 }
 
 .smui-sidebar-header {
@@ -236,13 +453,26 @@ body,
 .smui-search {
   flex: 1;
   min-width: 0;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border: 1px solid rgba(91, 230, 242, 0.13);
+  border-radius: var(--smui-radius-control);
+  padding: 7px 12px;
   font-size: 13px;
-  background: rgba(91, 230, 242, 0.1);
+  background: rgba(91, 230, 242, 0.09);
   color: var(--smui-ink);
   outline: none;
+  box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.18);
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.smui-search:focus {
+  background: rgba(91, 230, 242, 0.12);
+  border-color: rgba(91, 230, 242, 0.35);
+  box-shadow:
+    inset 0 1px 8px rgba(0, 0, 0, 0.18),
+    0 0 24px rgba(91, 230, 242, 0.1);
 }
 
 .smui-search::placeholder {
@@ -276,13 +506,19 @@ body,
 .smui-row {
   display: flex;
   align-items: center;
-  border-radius: 10px;
+  border: 1px solid transparent;
+  border-radius: 16px;
   padding: 8px 10px;
   cursor: grab;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    box-shadow 0.14s ease;
 }
 
 .smui-row:hover {
   background: rgba(91, 230, 242, 0.06);
+  border-color: rgba(91, 230, 242, 0.1);
 }
 
 .smui-row:active {
@@ -291,6 +527,10 @@ body,
 
 .smui-row.is-selected {
   background: var(--smui-row-selected);
+  border-color: rgba(91, 230, 242, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 22px rgba(91, 230, 242, 0.07);
 }
 
 .smui-row-main {
@@ -347,7 +587,7 @@ body,
   background: none;
   cursor: pointer;
   font-size: 12px;
-  border-radius: 6px;
+  border-radius: var(--smui-radius-control);
   padding: 2px 4px;
   opacity: 0.7;
 }
@@ -367,6 +607,7 @@ body,
   flex: 1;
   min-width: 0;
   display: flex;
+  gap: 8px;
 }
 
 .smui-group {
@@ -374,15 +615,26 @@ body,
   min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(6, 15, 22, 0.74), rgba(2, 7, 12, 0.86));
+  border: 1px solid var(--smui-border);
+  border-radius: var(--smui-radius-panel);
+  box-shadow: var(--smui-panel-shadow);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .smui-group + .smui-group {
-  border-left: 1px solid var(--smui-border);
+  border-left-color: var(--smui-border);
 }
 
-/* Sidebar hidden → first tab strip clears the macOS traffic lights. */
-.smui-main.is-shifted .smui-group:first-child .smui-tabstrip {
-  padding-left: 42px;
+.smui-group.is-focused {
+  border-color: rgba(91, 230, 242, 0.26);
+  box-shadow:
+    var(--smui-panel-shadow),
+    0 0 34px rgba(91, 230, 242, 0.08),
+    0 0 44px rgba(255, 211, 106, 0.025);
 }
 
 /* ── Tab strip ─────────────────────────────────────────────────────────── */
@@ -394,8 +646,8 @@ body,
   align-items: center;
   gap: 2px;
   padding: 0 8px;
-  background: var(--smui-sidebar-bg);
-  border-bottom: 1px solid var(--smui-border);
+  background: rgba(4, 12, 18, 0.62);
+  border-bottom: 1px solid rgba(75, 208, 224, 0.12);
   overflow: hidden;
 }
 
@@ -406,7 +658,8 @@ body,
   max-width: 180px;
   min-width: 0;
   padding: 4px 6px 4px 12px;
-  border-radius: 7px;
+  border: 1px solid transparent;
+  border-radius: var(--smui-radius-control);
   font-family: var(--smui-hud);
   font-size: 11px;
   letter-spacing: 0.04em;
@@ -417,12 +670,16 @@ body,
 
 .smui-tab:hover {
   background: rgba(91, 230, 242, 0.08);
+  border-color: rgba(91, 230, 242, 0.12);
 }
 
 .smui-tab.is-active {
-  background: var(--smui-bg);
+  background: rgba(8, 24, 31, 0.78);
   color: var(--smui-ink);
-  box-shadow: 0 0 0 1px var(--smui-border);
+  border-color: rgba(91, 230, 242, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(91, 230, 242, 0.08);
 }
 
 .smui-tab-title {
@@ -439,7 +696,7 @@ body,
   border: none;
   background: none;
   color: var(--smui-ink-2);
-  border-radius: 4px;
+  border-radius: var(--smui-radius-control);
   padding: 2px;
   cursor: pointer;
   opacity: 0;
@@ -477,10 +734,12 @@ body,
   min-width: 180px;
   max-width: 280px;
   padding: 6px;
-  border-radius: 10px;
-  background: var(--smui-sidebar-bg);
-  border: 1px solid var(--smui-border);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  border-radius: 16px;
+  background: rgba(5, 15, 22, 0.88);
+  border: 1px solid var(--smui-border-strong);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
   z-index: 50;
 }
 
@@ -493,7 +752,7 @@ body,
   text-align: left;
   font-size: 12.5px;
   padding: 5px 8px;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -521,6 +780,7 @@ body,
   min-height: 0;
   display: flex;
   flex-direction: column;
+  background: rgba(2, 7, 12, 0.42);
 }
 
 .smui-pane-header {
@@ -533,6 +793,8 @@ body,
   font-size: 10.5px;
   letter-spacing: 0.1em;
   color: var(--smui-ink-2);
+  background: rgba(2, 8, 13, 0.24);
+  border-bottom: 1px solid rgba(75, 208, 224, 0.08);
 }
 
 .smui-crumb {
@@ -573,7 +835,7 @@ body,
   width: min(260px, 38vw);
   min-width: 80px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--smui-radius-control);
   padding: 3px 6px;
   background: transparent;
   color: var(--smui-ink-2);
@@ -607,7 +869,7 @@ body,
   min-height: 0;
   position: relative;
   overflow: hidden;
-  background: var(--smui-bg);
+  background: linear-gradient(180deg, rgba(3, 9, 15, 0.86), rgba(1, 5, 9, 0.96));
 }
 
 .smui-graph canvas {
@@ -618,7 +880,8 @@ body,
 
 /* ── Oracle view — a self-contained cool data-console, theme-independent ── */
 .smui-galaxy {
-  background: #04070c;
+  background:
+    linear-gradient(145deg, rgba(3, 8, 13, 0.96), rgba(2, 8, 13, 0.86) 52%, rgba(3, 14, 16, 0.92));
   --gx-cyan: #5be6f2;
   --gx-line: rgba(75, 208, 224, 0.32);
   --gx-dim: #5f8790;
@@ -661,10 +924,11 @@ body,
   color: var(--gx-dim);
   background: rgba(6, 16, 20, 0.68);
   border: 1px solid var(--gx-line);
-  border-radius: 7px;
+  border-radius: var(--smui-radius-control);
   padding: 7px 10px;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 .smui-galaxy-ctl:hover {
   color: var(--gx-cyan);
@@ -674,19 +938,6 @@ body,
   background: var(--gx-cyan);
   border-color: var(--gx-cyan);
   font-weight: 600;
-}
-
-.smui-galaxy-err {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 4;
-  color: var(--gx-dim);
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 12px;
-  letter-spacing: 0.06em;
 }
 
 /* HUD corner brackets frame the instrument */
@@ -751,6 +1002,45 @@ body,
   pointer-events: auto;
 }
 
+.smui-galaxy-privacy-toggle {
+  align-self: flex-start;
+  width: 28px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--gx-line);
+  border-radius: var(--smui-radius-control);
+  background: rgba(6, 16, 20, 0.68);
+  color: var(--gx-dim);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.smui-galaxy-privacy-toggle svg {
+  transition: transform 0.16s ease;
+}
+.smui-galaxy-privacy-toggle.is-open svg {
+  transform: rotate(180deg);
+}
+.smui-galaxy-privacy-toggle:hover,
+.smui-galaxy-privacy-toggle:focus-visible {
+  color: var(--gx-cyan);
+  background: rgba(91, 230, 242, 0.08);
+  border-color: var(--gx-cyan);
+  box-shadow: 0 0 14px rgba(91, 230, 242, 0.12);
+}
+.smui-galaxy-privacy-toggle:focus-visible {
+  outline: 1px solid var(--gx-cyan);
+  outline-offset: 2px;
+}
+
+.smui-galaxy-worlds {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 .smui-galaxy-world {
   display: flex;
   align-items: center;
@@ -758,7 +1048,7 @@ body,
   min-width: 168px;
   padding: 3px 7px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--smui-radius-control);
   background: none;
   cursor: pointer;
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
@@ -810,7 +1100,7 @@ body,
   color: #eafcff;
   background: rgba(4, 12, 16, 0.88);
   border: 1px solid var(--gx-line);
-  border-radius: 6px;
+  border-radius: var(--smui-radius-control);
   padding: 4px 8px;
   max-width: 260px;
   white-space: nowrap;
@@ -906,10 +1196,12 @@ body,
   transform: translateX(-50%);
   min-width: 220px;
   padding: 8px;
-  border-radius: 12px;
-  background: var(--smui-sidebar-bg);
-  border: 1px solid var(--smui-border);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  border-radius: 18px;
+  background: rgba(5, 15, 22, 0.9);
+  border: 1px solid var(--smui-border-strong);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
   z-index: 40;
 }
 
@@ -923,7 +1215,7 @@ body,
   text-align: left;
   font-size: 13.5px;
   padding: 6px 8px;
-  border-radius: 7px;
+  border-radius: 12px;
   cursor: pointer;
 }
 
@@ -973,7 +1265,7 @@ body,
   background: rgba(91, 230, 242, 0.06);
   color: var(--smui-ink);
   font-size: 14px;
-  border-radius: 7px;
+  border-radius: var(--smui-radius-control);
   padding: 6px 0;
   cursor: pointer;
 }
@@ -997,7 +1289,7 @@ body,
   border: 1px solid var(--smui-border);
   background: none;
   color: var(--smui-ink);
-  border-radius: 8px;
+  border-radius: var(--smui-radius-control);
   padding: 6px 0;
   font-size: 13px;
   cursor: pointer;

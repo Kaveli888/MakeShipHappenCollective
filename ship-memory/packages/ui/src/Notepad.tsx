@@ -1,9 +1,11 @@
 import {
+  Component,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import type { MemoryMeta, ShipMemory } from "@ship-memory/core";
 import { FolderSidebar, folderOf } from "./FolderSidebar";
@@ -37,6 +39,8 @@ export interface NotepadProps {
    * Return true if handled; false/absent falls back to the in-page lightbox.
    */
   onOpenAttachment?: AttachmentOpener;
+  /** Optional host app mark shown in the static window chrome. */
+  appLogoSrc?: string;
 }
 
 /** One open view — a note (with its own back/forward history) or the graph. */
@@ -53,6 +57,33 @@ interface TabGroup {
   id: string;
   tabs: Tab[];
   activeId: string | null;
+}
+
+class PaneErrorBoundary extends Component<
+  { children: ReactNode; title: string },
+  { error: Error | null }
+> {
+  state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error(`ShipMemory pane failed: ${this.props.title}`, error);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="smui-empty">
+          <p>{this.props.title} is unavailable</p>
+          <p className="smui-empty-hint">{this.state.error.message}</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 let uidSeq = 0;
@@ -127,6 +158,7 @@ export function Notepad({
   engine,
   vaultVersion = 0,
   onOpenAttachment,
+  appLogoSrc,
 }: NotepadProps) {
   const [metas, setMetas] = useState<MemoryMeta[]>([]);
   const [query, setQuery] = useState("");
@@ -829,158 +861,175 @@ export function Notepad({
         if (Array.from(e.dataTransfer.types).includes("Files")) e.preventDefault();
       }}
     >
-      <nav className="smui-ribbon">
-        <div className="smui-dragpad" data-tauri-drag-region="" />
-        <button
-          className={`smui-chrome-btn smui-ribbon-btn${foldersHidden ? "" : " is-on"}`}
-          title={foldersHidden ? "Show folders" : "Hide folders"}
-          onClick={toggleFolders}
-        >
-          <IconPanelLeft />
-        </button>
-        <button
-          className={`smui-chrome-btn smui-ribbon-btn${listHidden ? "" : " is-on"}`}
-          title={listHidden ? "Show notes list" : "Hide notes list"}
-          onClick={toggleList}
-        >
-          <IconPanelRight />
-        </button>
-        <div className="smui-ribbon-sep" />
-        <button
-          className="smui-chrome-btn smui-ribbon-btn"
-          title="Search notes"
-          onClick={focusSearch}
-        >
-          <IconFileSearch />
-        </button>
-        <button
-          className="smui-chrome-btn smui-ribbon-btn"
-          title="Open galaxy view"
-          onClick={openGraph}
-        >
-          <IconGraph />
-        </button>
-        <button
-          className="smui-chrome-btn smui-ribbon-btn"
-          title="Open today's daily note"
-          onClick={() => void openDailyNote()}
-        >
-          <IconCalendar />
-        </button>
-      </nav>
-      {!foldersHidden && (
-        <FolderSidebar
-          metas={metas}
-          extraFolders={extraFolders}
-          selected={folder}
-          collapsed={collapsed}
-          sortMode={sortMode}
-          onSelect={selectFolder}
-          onToggleCollapse={toggleCollapse}
-          onNewFolder={newFolder}
-          onNewNote={() => void createNote()}
-          onDropNote={dropNoteOnFolder}
-          onToggleSort={toggleSort}
-          onCollapseAll={collapseAllFolders}
-        />
-      )}
-      {!listHidden && (
-        <aside className="smui-sidebar">
-          <div className="smui-dragpad" data-tauri-drag-region="" />
-          <div className="smui-sidebar-header">
-            <input
-              ref={searchRef}
-              className="smui-search"
-              type="search"
-              placeholder="Search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+      <div className="smui-frame">
+        <header className="smui-appbar" data-tauri-drag-region="">
+          <div className="smui-appbar-traffic-spacer" data-tauri-drag-region="" />
+          <div className="smui-appbar-brand" data-tauri-drag-region="">
+            <span className="smui-appbar-logo" aria-hidden="true">
+              {appLogoSrc ? <img src={appLogoSrc} alt="" /> : <span>SM</span>}
+            </span>
+            <span className="smui-appbar-title">ShipMemory</span>
           </div>
-          <NotesList
-            metas={shown}
-            selectedSlugs={selectedSlugs}
-            sort={sortMode}
-            onSelect={selectRow}
-            onShiftSelect={shiftSelectTo}
-            onArrowNav={arrowNav}
-            onDeleteSelection={() => void deleteSelection()}
-            onSelectAll={selectAllRows}
-            onTogglePin={(m) => void togglePin(m)}
-            onMove={(m) => void moveNote(m)}
-            onDelete={(m) => void deleteNote(m)}
-          />
-        </aside>
-      )}
-      <main
-        className={`smui-main${foldersHidden && listHidden ? " is-shifted" : ""}`}
-      >
-        {groups.map((g) => (
-          <section
-            key={g.id}
-            className={`smui-group${g.id === focusedGroupId ? " is-focused" : ""}`}
-            onMouseDownCapture={() => setFocusedGroupId(g.id)}
-          >
-            <TabStrip
-              group={g}
-              titleFor={tabTitle}
-              onActivate={(tid) => activateTab(g.id, tid)}
-              onClose={(tid) => closeTab(g.id, tid)}
-              onNewTab={() => newTabIn(g.id)}
+          <div className="smui-appbar-fill" data-tauri-drag-region="" />
+        </header>
+        <div className="smui-shell">
+          <nav className="smui-ribbon">
+            <div className="smui-dragpad" data-tauri-drag-region="" />
+            <button
+              className={`smui-chrome-btn smui-ribbon-btn${foldersHidden ? "" : " is-on"}`}
+              title={foldersHidden ? "Show folders" : "Hide folders"}
+              onClick={toggleFolders}
+            >
+              <IconPanelLeft />
+            </button>
+            <button
+              className={`smui-chrome-btn smui-ribbon-btn${listHidden ? "" : " is-on"}`}
+              title={listHidden ? "Show notes list" : "Hide notes list"}
+              onClick={toggleList}
+            >
+              <IconPanelRight />
+            </button>
+            <div className="smui-ribbon-sep" />
+            <button
+              className="smui-chrome-btn smui-ribbon-btn"
+              title="Search notes"
+              onClick={focusSearch}
+            >
+              <IconFileSearch />
+            </button>
+            <button
+              className="smui-chrome-btn smui-ribbon-btn"
+              title="Open galaxy view"
+              onClick={openGraph}
+            >
+              <IconGraph />
+            </button>
+            <button
+              className="smui-chrome-btn smui-ribbon-btn"
+              title="Open today's daily note"
+              onClick={() => void openDailyNote()}
+            >
+              <IconCalendar />
+            </button>
+          </nav>
+          {!foldersHidden && (
+            <FolderSidebar
+              metas={metas}
+              extraFolders={extraFolders}
+              selected={folder}
+              collapsed={collapsed}
+              sortMode={sortMode}
+              onSelect={selectFolder}
+              onToggleCollapse={toggleCollapse}
+              onNewFolder={newFolder}
+              onNewNote={() => void createNote()}
+              onDropNote={dropNoteOnFolder}
+              onToggleSort={toggleSort}
+              onCollapseAll={collapseAllFolders}
             />
-            {g.tabs.map((t) => {
-              const active = t.id === g.activeId;
-              if (t.kind === "graph") {
-                return (
-                  <div
-                    key={t.id}
-                    className="smui-pane"
-                    style={active ? undefined : { display: "none" }}
-                  >
-                    <div className="smui-pane-header">
-                      <div className="smui-pane-nav" />
-                      <div className="smui-breadcrumb">
-                        <span className="smui-crumb">Galaxy</span>
-                      </div>
-                      <div className="smui-pane-aux" />
-                    </div>
-                    <GraphView
-                      metas={metas}
-                      visible={active}
-                      onOpenNote={openNoteFromGraph}
-                    />
-                  </div>
-                );
-              }
-              const slug = tabSlug(t);
-              return (
-                <NotePane
-                  key={t.id}
-                  engine={engine}
-                  slug={slug}
-                  meta={slug ? (metaBySlug.get(slug) ?? null) : null}
-                  vaultVersion={vaultVersion}
-                  visible={active}
-                  canBack={t.hIndex > 0}
-                  canForward={t.hIndex < t.history.length - 1}
-                  onBack={() => navigateHistory(g.id, t.id, -1)}
-                  onForward={() => navigateHistory(g.id, t.id, 1)}
-                  onSaved={() => void refreshList()}
-                  saveSignal={saveSignal}
-                  onOpenAttachment={onOpenAttachment}
-                  autoFocusSlug={autoFocusSlug}
+          )}
+          {!listHidden && (
+            <aside className="smui-sidebar">
+              <div className="smui-dragpad" data-tauri-drag-region="" />
+              <div className="smui-sidebar-header">
+                <input
+                  ref={searchRef}
+                  className="smui-search"
+                  type="search"
+                  placeholder="Search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
-              );
-            })}
-            {g.tabs.length === 0 && (
-              <div className="smui-empty">
-                <p>No file is open</p>
-                <p className="smui-empty-hint">⌘N new note · ⌘T new tab</p>
               </div>
-            )}
-          </section>
-        ))}
-      </main>
+              <NotesList
+                metas={shown}
+                selectedSlugs={selectedSlugs}
+                sort={sortMode}
+                onSelect={selectRow}
+                onShiftSelect={shiftSelectTo}
+                onArrowNav={arrowNav}
+                onDeleteSelection={() => void deleteSelection()}
+                onSelectAll={selectAllRows}
+                onTogglePin={(m) => void togglePin(m)}
+                onMove={(m) => void moveNote(m)}
+                onDelete={(m) => void deleteNote(m)}
+              />
+            </aside>
+          )}
+          <main
+            className={`smui-main${foldersHidden && listHidden ? " is-shifted" : ""}`}
+          >
+            {groups.map((g) => (
+              <section
+                key={g.id}
+                className={`smui-group${g.id === focusedGroupId ? " is-focused" : ""}`}
+                onMouseDownCapture={() => setFocusedGroupId(g.id)}
+              >
+                <TabStrip
+                  group={g}
+                  titleFor={tabTitle}
+                  onActivate={(tid) => activateTab(g.id, tid)}
+                  onClose={(tid) => closeTab(g.id, tid)}
+                  onNewTab={() => newTabIn(g.id)}
+                />
+                {g.tabs.map((t) => {
+                  const active = t.id === g.activeId;
+                  if (t.kind === "graph") {
+                    return (
+                      <div
+                        key={t.id}
+                        className="smui-pane"
+                        style={active ? undefined : { display: "none" }}
+                      >
+                        <div className="smui-pane-header">
+                          <div className="smui-pane-nav" />
+                          <div className="smui-breadcrumb">
+                            <span className="smui-crumb">Galaxy</span>
+                          </div>
+                          <div className="smui-pane-aux" />
+                        </div>
+                        <PaneErrorBoundary title="Galaxy">
+                          <GraphView
+                            metas={metas}
+                            visible={active}
+                            onOpenNote={openNoteFromGraph}
+                          />
+                        </PaneErrorBoundary>
+                      </div>
+                    );
+                  }
+                  const slug = tabSlug(t);
+                  return (
+                    <PaneErrorBoundary key={t.id} title="Note pane">
+                      <NotePane
+                        engine={engine}
+                        slug={slug}
+                        meta={slug ? (metaBySlug.get(slug) ?? null) : null}
+                        vaultVersion={vaultVersion}
+                        visible={active}
+                        canBack={t.hIndex > 0}
+                        canForward={t.hIndex < t.history.length - 1}
+                        onBack={() => navigateHistory(g.id, t.id, -1)}
+                        onForward={() => navigateHistory(g.id, t.id, 1)}
+                        onSaved={() => void refreshList()}
+                        saveSignal={saveSignal}
+                        onOpenAttachment={onOpenAttachment}
+                        autoFocusSlug={autoFocusSlug}
+                      />
+                    </PaneErrorBoundary>
+                  );
+                })}
+                {g.tabs.length === 0 && (
+                  <div className="smui-empty">
+                    <p>No file is open</p>
+                    <p className="smui-empty-hint">⌘N new note · ⌘T new tab</p>
+                  </div>
+                )}
+              </section>
+            ))}
+          </main>
+        </div>
+      </div>
     </div>
   );
 }
