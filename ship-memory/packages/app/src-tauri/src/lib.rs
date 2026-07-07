@@ -32,7 +32,11 @@ fn list_removable_volumes() -> Vec<VolumeInfo> {
     };
     for entry in entries.flatten() {
         let name = entry.file_name().to_string_lossy().to_string();
-        if name.starts_with('.') {
+        // Skip dotfiles and macOS bookkeeping entries. The latter (e.g.
+        // `com.apple.TimeMachine.localsnapshots`) are real, non-symlink dirs
+        // under /Volumes that would otherwise pass the checks below and show
+        // up as bogus "cards" — and never let the empty-state message appear.
+        if name.starts_with('.') || name.starts_with("com.apple.") {
             continue;
         }
         let path = entry.path();
