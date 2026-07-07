@@ -16,6 +16,14 @@ use std::time::UNIX_EPOCH;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
 
+fn is_shipmemory_shell_webview(label: &str) -> bool {
+    label == "main" || label.starts_with("viewer-")
+}
+
+fn should_allow_shell_navigation(label: &str, scheme: &str) -> bool {
+    !(is_shipmemory_shell_webview(label) && scheme.eq_ignore_ascii_case("file"))
+}
+
 #[derive(Serialize, Clone)]
 struct VolumeInfo {
     name: String,
@@ -226,6 +234,22 @@ async fn import_dir_to_vault(
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
+        .plugin(
+            tauri::plugin::Builder::<tauri::Wry, ()>::new("shipmemory-navigation-guard")
+                .on_navigation(|webview, url| {
+                    let label = webview.label();
+                    if should_allow_shell_navigation(label, url.scheme()) {
+                        return true;
+                    }
+
+                    eprintln!(
+                        "[shipmemory] blocked file navigation label={} url={}",
+                        label, url
+                    );
+                    false
+                })
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             list_removable_volumes,
             sync_vault_to_dir,
