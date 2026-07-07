@@ -1,407 +1,671 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MemoryMeta } from "@ship-memory/core";
 
 /**
- * Obsidian-style graph view: a force-directed canvas of every note and its
- * `[[wikilinks]]`. The physics run on preallocated typed arrays with alpha
- * decay, so the sim always settles and stops (no per-frame allocation, no
- * runaway loop — the failure mode that froze the ShipSpace graph). Hover
- * highlights a node's neighborhood; click opens the note; drag background to
- * pan, scroll to zoom, drag nodes to rearrange.
+ * Oracle view — the vault as a true-3D WebGL data-orb. A dense volumetric
+ * cloud of glowing particles is the body of the galaxy; every note is a
+ * bright category node coloured by the "world" it belongs to (project cluster
+ * from folder + source + tags), sized by connectivity, wired by `[[wikilinks]]`.
+ * Drag to orbit, scroll to fly *into* the cloud (perspective dolly), click a
+ * node to open it.
+ *
+ * Pure new *lens* on the same vault: reads metas, opens notes, nothing more.
+ * The render loop only runs while the tab is visible (paused otherwise), so it
+ * never burns CPU in the background — and the GL context is released on unmount.
  */
 
-const REPULSION = 1800;
-const SPRING = 0.06;
-const SPRING_LEN = 110;
-const CENTER_PULL = 0.015;
-const DAMPING = 0.8;
-const ALPHA_DECAY = 0.985;
-const MIN_ALPHA = 0.02;
+// ── Worlds — vivid category nodes on the cyan field ─────────────────────────
+export type World =
+  | "shipspace" | "aos" | "msht" | "ref" | "logs" | "trueyou" | "loose";
 
-interface GNode {
-  slug: string;
-  title: string;
-  deg: number;
+export const WORLDS: Record<
+  World,
+  { label: string; color: string; rgb: [number, number, number] }
+> = {
+  shipspace: { label: "ShipSpace", color: "#f5c542", rgb: [0.96, 0.77, 0.26] },
+  aos: { label: "Ship Agentic OS", color: "#32e6f0", rgb: [0.2, 0.9, 0.94] },
+  msht: { label: "MakeShipHappen", color: "#e0559f", rgb: [0.88, 0.33, 0.62] },
+  ref: { label: "Reference", color: "#5b8cff", rgb: [0.36, 0.55, 1.0] },
+  logs: { label: "Agent Logs", color: "#57d98a", rgb: [0.34, 0.85, 0.54] },
+  trueyou: { label: "True You", color: "#ff7a59", rgb: [1.0, 0.48, 0.35] },
+  loose: { label: "Loose", color: "#9aa3b2", rgb: [0.6, 0.64, 0.7] },
+};
+export const WORLD_ORDER: World[] = [
+  "shipspace", "aos", "msht", "ref", "logs", "trueyou", "loose",
+];
+
+const HUB_SLUGS = new Set([
+  "ship-memory", "architecture", "connectors", "pricing-decision",
+]);
+const TWO_PI = Math.PI * 2;
+const ORB_R = 620;
+// Dust scales with the vault: ~60 motes per note, so the orb literally grows
+// as you save to Ship Memory (floored so a small vault still reads as a cloud,
+// capped so a huge vault stays performant).
+const DUST_PER_NOTE = 60;
+const DUST_MIN = 400;
+const DUST_MAX = 6000;
+// Focus fly-in: the blue dust field clears as you dolly inside a cluster
+// (fully gone by NEAR, fully back by FAR), so a zoomed section shows only
+// its note stars and links.
+const DUST_FADE_FAR = 950;
+const DUST_FADE_NEAR = 420;
+
+function tagsOf(m: MemoryMeta): string[] {
+  const t = (m.frontmatter as { tags?: unknown }).tags;
+  return Array.isArray(t) ? t.map((x) => String(x).toLowerCase()) : [];
 }
 
-class GraphSim {
-  private ctx: CanvasRenderingContext2D;
-  private nodes: GNode[] = [];
-  /** Flat [i, j, i, j, …] index pairs, deduped, i < j. */
+/** Classify a note into a world. Order matters — first match wins. */
+export function worldOf(m: MemoryMeta): World {
+  const tags = tagsOf(m);
+  const type = String((m.frontmatter as { type?: unknown }).type ?? "").toLowerCase();
+  const folder = String((m.frontmatter as { folder?: unknown }).folder ?? "");
+  const opath = String((m.frontmatter as { obsidianPath?: unknown }).obsidianPath ?? "");
+  if (HUB_SLUGS.has(m.slug) || type === "reference") return "ref";
+  if (tags.includes("chat")) return "logs";
+  if (tags.includes("makeshiphappen.tech")) return "msht";
+  if (
+    /^(ship )?agentic os/i.test(folder) ||
+    /agentic os|ship aos/i.test(opath) ||
+    tags.some((t) => t === "ship-agentic-os" || t === "agentic-os" || t === "ship-aos")
+  )
+    return "aos";
+  if (tags.includes("shipspace") || type === "session-summary") return "shipspace";
+  if (/^true you/i.test(folder) || tags.includes("true-you")) return "trueyou";
+  return "loose";
+}
+
+// ── deterministic layout helpers ────────────────────────────────────────────
+// Seeded PRNG so dust and node jitter are STABLE across saves and sessions —
+// the orb must not reshuffle every time the vault changes (comets land on a
+// still sky; only what's new moves).
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashStr(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Memory heat: 1 = touched today (burns, pulses), cooling to 0.25 embers. */
+function heatOf(modified: number): number {
+  const days = (Date.now() - modified) / 86400000;
+  if (days < 1) return 1;
+  if (days < 7) return 1 - (0.35 * (days - 1)) / 6;
+  if (days < 30) return 0.65 - (0.4 * (days - 7)) / 23;
+  return 0.25;
+}
+
+// ── mat4 helpers (column-major) ─────────────────────────────────────────────
+type M4 = Float32Array;
+function ident(o: M4): M4 { o.set([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); return o; }
+function perspective(o: M4, fovy: number, aspect: number, near: number, far: number): M4 {
+  const f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
+  o[0]=f/aspect;o[1]=0;o[2]=0;o[3]=0; o[4]=0;o[5]=f;o[6]=0;o[7]=0;
+  o[8]=0;o[9]=0;o[10]=(far+near)*nf;o[11]=-1; o[12]=0;o[13]=0;o[14]=2*far*near*nf;o[15]=0;
+  return o;
+}
+function mul(o: M4, a: M4, b: M4): M4 {
+  const t = new Float32Array(16);
+  for (let r=0;r<4;r++) for (let c=0;c<4;c++)
+    t[c*4+r] = a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];
+  o.set(t); return o;
+}
+function rotY(o: M4, a: number): M4 { ident(o); const c=Math.cos(a),s=Math.sin(a); o[0]=c;o[2]=-s;o[8]=s;o[10]=c; return o; }
+function rotX(o: M4, a: number): M4 { ident(o); const c=Math.cos(a),s=Math.sin(a); o[5]=c;o[6]=s;o[9]=-s;o[10]=c; return o; }
+function transl(o: M4, x: number, y: number, z: number): M4 { ident(o); o[12]=x;o[13]=y;o[14]=z; return o; }
+
+const VS = `
+  attribute vec3 aPos; attribute vec3 aColor; attribute float aSize; attribute float aSeed; attribute float aHeat; attribute float aKind;
+  uniform mat4 uProj; uniform mat4 uView; uniform float uTime; uniform float uFocal; uniform float uDust;
+  varying vec3 vColor; varying float vFade;
+  void main(){
+    vec4 vp = uView * vec4(aPos,1.0);
+    float dist = -vp.z;
+    gl_Position = uProj * vp;
+    // Hot memories pulse hard; cool ones barely shimmer.
+    float amp = mix(0.10, 0.42, aHeat);
+    float tw = (1.0 - amp) + amp*sin(uTime*1.8 + aSeed*6.2831);
+    gl_PointSize = clamp(aSize * uFocal / max(dist,0.1), 0.6, 180.0) * tw;
+    float far = smoothstep(3800.0, 150.0, dist);
+    float near = smoothstep(3.0, 130.0, dist);
+    vColor = aColor;
+    // dust (aKind=1) obeys the fly-in fade; note stars (aKind=0) always show
+    vFade = far * near * (0.78 + 0.22*tw) * mix(0.30, 1.25, aHeat) * mix(1.0, uDust, aKind);
+    if (dist <= 0.2) gl_Position = vec4(2.0,2.0,2.0,1.0);
+  }`;
+const FS = `
+  precision mediump float;
+  varying vec3 vColor; varying float vFade;
+  void main(){
+    vec2 pc = gl_PointCoord - 0.5;
+    float d = length(pc);
+    if (d > 0.5) discard;
+    float a = pow(smoothstep(0.5, 0.0, d), 1.25);
+    float core = smoothstep(0.22, 0.0, d) * 0.85;
+    gl_FragColor = vec4((vColor + core) * a * vFade, a * vFade);
+  }`;
+
+class GalaxyGL {
+  private gl: WebGLRenderingContext;
+  private prog: WebGLProgram | null = null;
+  private octx: CanvasRenderingContext2D;
+  private buffers: WebGLBuffer[] = [];
+  private uProj!: WebGLUniformLocation | null;
+  private uView!: WebGLUniformLocation | null;
+  private uTime!: WebGLUniformLocation | null;
+  private uFocal!: WebGLUniformLocation | null;
+  private uDust!: WebGLUniformLocation | null;
+
+  private count = 0;
+  private nodePos = new Float32Array(0);
+  private metas: MemoryMeta[] = [];
+  private deg = new Int32Array(0);
   private edges: number[] = [];
-  private x = new Float64Array(0);
-  private y = new Float64Array(0);
-  private vx = new Float64Array(0);
-  private vy = new Float64Array(0);
-  private alpha = 0;
+  private hub = -1;
+  private slugIndex = new Map<string, number>();
+
+  // Save-comet + flare state (drawn on the 2D overlay, sim clock seconds).
+  private tNow = 0;
+  private comets: { slug: string; from: [number, number, number]; t0: number }[] = [];
+  private bursts: { slug: string; t0: number; big: boolean }[] = [];
+  private lastFlare = new Map<string, number>();
+
+  private proj: M4 = new Float32Array(16);
+  private view: M4 = new Float32Array(16);
+  private mT: M4 = new Float32Array(16);
+  private mX: M4 = new Float32Array(16);
+  private mY: M4 = new Float32Array(16);
+  private tmp: M4 = new Float32Array(16);
+
+  private yaw = 0.6;
+  private pitch = -0.25;
+  private dist = 1480;
+  private dustFade = 1;
+  private lastT = 0;
+  private autoSpin = true;
+  private filter: World | null = null;
+
+  private W = 0;
+  private H = 0;
+  private dpr = 1;
+  private focal = 1;
+
+  private hover = -1;
+  private selected = -1;
+  private drag: { lx: number; ly: number; moved: boolean; node: number } | null = null;
+
   private raf = 0;
   private running = false;
   private visible = true;
-  // View transform: screen = world * k + (tx, ty), in CSS px.
-  private tx = 0;
-  private ty = 0;
-  private k = 1;
-  private centered = false;
-  private hover = -1;
-  private hoverAdj = new Set<number>();
-  private drag: { node: number; lastX: number; lastY: number; moved: boolean } | null =
-    null;
+  private t0 = 0;
   private ac = new AbortController();
+  private tip: HTMLDivElement;
+  private reduced: boolean;
+
+  ok = false;
 
   constructor(
-    private canvas: HTMLCanvasElement,
+    private glc: HTMLCanvasElement,
+    private ov: HTMLCanvasElement,
     private onOpen: (slug: string) => void,
   ) {
-    this.ctx = canvas.getContext("2d")!;
+    const gl = glc.getContext("webgl", { alpha: true, premultipliedAlpha: false, antialias: true });
+    this.octx = ov.getContext("2d")!;
+    this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!gl) { this.gl = null as unknown as WebGLRenderingContext; this.tip = document.createElement("div"); return; }
+    this.gl = gl;
+    this.ok = true;
+
+    const sh = (type: number, src: string) => {
+      const s = gl.createShader(type)!;
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error("[galaxy] shader", gl.getShaderInfoLog(s));
+      return s;
+    };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog); gl.useProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error("[galaxy] link", gl.getProgramInfoLog(prog));
+    this.prog = prog;
+    this.uProj = gl.getUniformLocation(prog, "uProj");
+    this.uView = gl.getUniformLocation(prog, "uView");
+    this.uTime = gl.getUniformLocation(prog, "uTime");
+    this.uFocal = gl.getUniformLocation(prog, "uFocal");
+    this.uDust = gl.getUniformLocation(prog, "uDust");
+    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+    const tip = document.createElement("div");
+    tip.className = "smui-galaxy-tip";
+    glc.parentElement?.appendChild(tip);
+    this.tip = tip;
+
     const opts = { signal: this.ac.signal };
-    canvas.addEventListener("pointerdown", this.onDown, opts);
-    canvas.addEventListener("pointermove", this.onMove, opts);
-    canvas.addEventListener("pointerup", this.onUp, opts);
-    canvas.addEventListener("pointerleave", this.onLeave, opts);
-    canvas.addEventListener("wheel", this.onWheel, {
-      signal: this.ac.signal,
-      passive: false,
-    });
+    glc.addEventListener("pointerdown", this.onDown, opts);
+    glc.addEventListener("pointermove", this.onMove, opts);
+    glc.addEventListener("pointerup", this.onUp, opts);
+    glc.addEventListener("pointerleave", this.onLeave, opts);
+    glc.addEventListener("wheel", this.onWheel, { signal: this.ac.signal, passive: false });
   }
 
   destroy() {
     this.stop();
     this.ac.abort();
+    this.tip.remove();
+    const gl = this.gl;
+    if (gl) {
+      for (const b of this.buffers) gl.deleteBuffer(b);
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    }
   }
 
-  /** Rebuild nodes/edges from metas, keeping positions of surviving notes. */
+  setAutoSpin(v: boolean) { this.autoSpin = v; }
+  setFilter(w: World | null) { this.filter = w; }
+  recenter() { this.yaw = 0.6; this.pitch = -0.25; this.dist = 1480; }
+
   setData(metas: MemoryMeta[]) {
-    const prev = new Map<string, [number, number, number, number]>();
-    for (let i = 0; i < this.nodes.length; i++) {
-      prev.set(this.nodes[i].slug, [this.x[i], this.y[i], this.vx[i], this.vy[i]]);
-    }
-    const nodes: GNode[] = metas.map((m) => ({
-      slug: m.slug,
-      title: m.title,
-      deg: 0,
-    }));
-    // Wikilinks may target a slug or a title — index both.
-    const index = new Map<string, number>();
-    metas.forEach((m, i) => {
-      index.set(m.title.toLowerCase(), i);
-      index.set(m.slug.toLowerCase(), i);
+    const gl = this.gl;
+    if (!gl || !this.prog) return;
+    const N = metas.length;
+    this.metas = metas;
+
+    // world membership + counts
+    const worldCount = new Map<World, number>();
+    const worlds = metas.map((m) => {
+      const w = worldOf(m);
+      worldCount.set(w, (worldCount.get(w) ?? 0) + 1);
+      return w;
     });
+    const present = WORLD_ORDER.filter((w) => (worldCount.get(w) ?? 0) > 0);
+
+    // edges + degree
+    const index = new Map<string, number>();
+    metas.forEach((m, i) => { index.set(m.title.toLowerCase(), i); index.set(m.slug.toLowerCase(), i); });
     const edges: number[] = [];
     const seen = new Set<number>();
+    const deg = new Int32Array(N);
     metas.forEach((m, i) => {
       for (const raw of m.links) {
         const target = raw.split("|")[0].split("#")[0].trim().toLowerCase();
         const j = index.get(target);
         if (j === undefined || j === i) continue;
-        const a = Math.min(i, j);
-        const b = Math.max(i, j);
-        const key = a * 65536 + b;
+        const a = Math.min(i, j), b = Math.max(i, j), key = a * 65536 + b;
         if (seen.has(key)) continue;
-        seen.add(key);
-        edges.push(a, b);
-        nodes[a].deg++;
-        nodes[b].deg++;
+        seen.add(key); edges.push(a, b); deg[a]++; deg[b]++;
       }
     });
-    const n = nodes.length;
-    const x = new Float64Array(n);
-    const y = new Float64Array(n);
-    const vx = new Float64Array(n);
-    const vy = new Float64Array(n);
-    for (let i = 0; i < n; i++) {
-      const p = prev.get(nodes[i].slug);
-      if (p) {
-        [x[i], y[i], vx[i], vy[i]] = p;
-      } else {
-        // Golden-angle spiral spreads newcomers without overlaps.
-        const r = 60 * Math.sqrt(i + 1);
-        const a = i * 2.39996;
-        x[i] = Math.cos(a) * r;
-        y[i] = Math.sin(a) * r;
-      }
+    this.edges = edges; this.deg = deg;
+    let hub = -1, maxDeg = 0;
+    for (let i = 0; i < N; i++) if (deg[i] > maxDeg) { maxDeg = deg[i]; hub = i; }
+    this.hub = hub;
+
+    // world lobe directions on a sphere
+    const wdir = new Map<World, [number, number, number]>();
+    present.forEach((w, wi) => {
+      const phi = Math.acos(1 - 2 * (wi + 0.5) / present.length);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * wi;
+      wdir.set(w, [Math.sin(phi) * Math.cos(theta), Math.cos(phi) * 0.75, Math.sin(phi) * Math.sin(theta)]);
+    });
+
+    // node 3D positions inside their world lobe — everything derives from the
+    // slug hash, so a note keeps its exact spot across saves and app restarts.
+    const nodePos = new Float32Array(N * 3);
+    this.slugIndex = new Map();
+    for (let i = 0; i < N; i++) {
+      this.slugIndex.set(metas[i].slug, i);
+      const w = worlds[i];
+      const d = wdir.get(w)!;
+      const rng = mulberry32(hashStr(metas[i].slug));
+      const shell = ORB_R * (0.42 + 0.36 * rng());
+      nodePos[i*3]   = d[0] * shell + (rng() - 0.5) * ORB_R * 0.34;
+      nodePos[i*3+1] = d[1] * shell + (rng() - 0.5) * ORB_R * 0.34;
+      nodePos[i*3+2] = d[2] * shell + (rng() - 0.5) * ORB_R * 0.34;
     }
-    const changed =
-      n !== this.nodes.length || edges.length !== this.edges.length;
-    this.nodes = nodes;
-    this.edges = edges;
-    this.x = x;
-    this.y = y;
-    this.vx = vx;
-    this.vy = vy;
-    this.hover = -1;
-    this.hoverAdj.clear();
-    this.alpha = Math.max(this.alpha, changed ? 0.9 : 0.06);
+    this.nodePos = nodePos;
+
+    // interleaved particle attributes: dust + nodes. Dust comes from a fixed
+    // seed: growing the vault appends new motes without moving existing ones.
+    const dustN = Math.min(DUST_MAX, Math.max(DUST_MIN, N * DUST_PER_NOTE));
+    const P = dustN + N;
+    this.count = P;
+    const aPos = new Float32Array(P * 3), aCol = new Float32Array(P * 3);
+    const aSize = new Float32Array(P), aSeed = new Float32Array(P);
+    const aHeat = new Float32Array(P);
+    const aKind = new Float32Array(P);
+    aKind.fill(1, 0, dustN); // dust fades on fly-in; nodes (0) never do
+    const rand = mulberry32(0xc0ffee);
+    for (let i = 0; i < dustN; i++) {
+      const u = rand() * 2 - 1, th = rand() * TWO_PI, sp = Math.sqrt(1 - u * u);
+      const r = ORB_R * Math.pow(rand(), 0.55) * (0.9 + 0.2 * rand());
+      let x = r * sp * Math.cos(th), y = r * u * 0.92, z = r * sp * Math.sin(th);
+      x += Math.sin(y * 0.01) * 22; z += Math.cos(y * 0.011) * 22;
+      aPos[i*3]=x; aPos[i*3+1]=y; aPos[i*3+2]=z;
+      const b = 0.33 + 0.27 * rand();
+      const coreT = 1 - r / ORB_R;
+      aCol[i*3]=(0.22 + coreT*0.38)*b; aCol[i*3+1]=(0.76 + coreT*0.22)*b; aCol[i*3+2]=0.88*b;
+      aSize[i] = 10 + rand() * 14;
+      aSeed[i] = rand();
+      aHeat[i] = 0.55; // dust is heat-neutral
+    }
+    for (let i = 0; i < N; i++) {
+      const p = dustN + i, c = WORLDS[worlds[i]].rgb;
+      const rng = mulberry32(hashStr(metas[i].slug) ^ 0x9e3779b9);
+      aPos[p*3]=nodePos[i*3]; aPos[p*3+1]=nodePos[i*3+1]; aPos[p*3+2]=nodePos[i*3+2];
+      aCol[p*3]=c[0]*1.25; aCol[p*3+1]=c[1]*1.25; aCol[p*3+2]=c[2]*1.25;
+      aSize[p] = 66 + Math.sqrt(deg[i]) * 30 + (metas[i].slug === "ship-memory" ? 44 : 0);
+      aSeed[p] = rng();
+      aHeat[p] = heatOf(metas[i].modified);
+    }
+
+    for (const b of this.buffers) gl.deleteBuffer(b);
+    this.buffers = [];
+    const bind = (data: Float32Array, attr: string, size: number) => {
+      const b = gl.createBuffer()!;
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(this.prog!, attr);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+      this.buffers.push(b);
+    };
+    bind(aPos, "aPos", 3); bind(aCol, "aColor", 3); bind(aSize, "aSize", 1); bind(aSeed, "aSeed", 1); bind(aHeat, "aHeat", 1); bind(aKind, "aKind", 1);
+
     this.resize();
     this.start();
   }
 
   setVisible(v: boolean) {
     this.visible = v;
-    if (v) {
-      this.resize();
-      this.start();
-    } else {
-      this.stop();
-    }
+    if (v) { this.resize(); this.start(); } else this.stop();
   }
 
   resize() {
-    const host = this.canvas.parentElement;
-    if (!host) return;
-    const w = host.clientWidth;
-    const h = host.clientHeight;
-    if (!w || !h) return; // hidden pane — wait for the ResizeObserver
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = Math.round(w * dpr);
-    this.canvas.height = Math.round(h * dpr);
-    this.canvas.style.width = `${w}px`;
-    this.canvas.style.height = `${h}px`;
-    if (!this.centered) {
-      this.tx = w / 2;
-      this.ty = h / 2;
-      this.centered = true;
+    const host = this.glc.parentElement;
+    if (!host || !this.gl) return;
+    const w = host.clientWidth, h = host.clientHeight;
+    if (!w || !h) return;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.W = w; this.H = h;
+    for (const c of [this.glc, this.ov]) {
+      c.width = Math.round(w * this.dpr);
+      c.height = Math.round(h * this.dpr);
+      c.style.width = `${w}px`; c.style.height = `${h}px`;
     }
-    this.draw();
+    this.gl.viewport(0, 0, this.glc.width, this.glc.height);
+    this.focal = this.glc.height * 0.5;
+  }
+
+  private buildView() {
+    transl(this.mT, 0, 0, -this.dist);
+    rotX(this.mX, this.pitch);
+    rotY(this.mY, this.yaw);
+    mul(this.tmp, this.mX, this.mY);
+    mul(this.view, this.mT, this.tmp);
+  }
+
+  private project(x: number, y: number, z: number): [number, number, number, boolean] {
+    const v = this.view, p = this.proj;
+    const vx = v[0]*x+v[4]*y+v[8]*z+v[12];
+    const vy = v[1]*x+v[5]*y+v[9]*z+v[13];
+    const vz = v[2]*x+v[6]*y+v[10]*z+v[14];
+    const vw = v[3]*x+v[7]*y+v[11]*z+v[15];
+    const cx = p[0]*vx+p[4]*vy+p[8]*vz+p[12]*vw;
+    const cy = p[1]*vx+p[5]*vy+p[9]*vz+p[13]*vw;
+    const cw = p[3]*vx+p[7]*vy+p[11]*vz+p[15]*vw;
+    if (cw <= 0.01) return [0, 0, 0, false];
+    // device px — the overlay canvas is dpr-scaled
+    return [
+      (cx/cw*0.5+0.5)*this.W*this.dpr,
+      (1-(cy/cw*0.5+0.5))*this.H*this.dpr,
+      this.focal/(-vz),
+      true,
+    ];
   }
 
   private start() {
-    if (this.running || !this.visible) return;
+    if (this.running || !this.visible || !this.gl) return;
     this.running = true;
-    const loop = () => {
+    this.t0 = this.t0 || performance.now();
+    const loop = (now: number) => {
       if (!this.running) return;
-      const live = this.tick();
-      this.draw();
-      if (live) this.raf = requestAnimationFrame(loop);
-      else this.running = false;
+      this.render((now - this.t0) / 1000);
+      this.raf = requestAnimationFrame(loop);
     };
     this.raf = requestAnimationFrame(loop);
   }
 
-  private stop() {
-    this.running = false;
-    cancelAnimationFrame(this.raf);
+  private stop() { this.running = false; cancelAnimationFrame(this.raf); }
+
+  /** New note saved → streak a comet in from deep space and land on it. */
+  comet(slug: string) {
+    if (!this.visible || this.reduced) return;
+    const i = this.slugIndex.get(slug);
+    if (i === undefined) return;
+    const u = Math.random() * 2 - 1, th = Math.random() * TWO_PI;
+    const sp = Math.sqrt(1 - u * u), R = 2600;
+    this.comets.push({
+      slug,
+      from: [
+        this.nodePos[i*3] + R * sp * Math.cos(th),
+        this.nodePos[i*3+1] + R * u,
+        this.nodePos[i*3+2] + R * sp * Math.sin(th),
+      ],
+      t0: this.tNow,
+    });
   }
 
-  private tick(): boolean {
-    const n = this.nodes.length;
-    if (!n || this.alpha <= MIN_ALPHA) return false;
-    const { x, y, vx, vy, edges } = this;
-    const a = this.alpha;
-    for (let i = 0; i < n; i++) {
-      for (let j = i + 1; j < n; j++) {
-        let dx = x[i] - x[j];
-        let dy = y[i] - y[j];
-        let d2 = dx * dx + dy * dy;
-        if (d2 < 0.01) {
-          dx = 0.5;
-          dy = 0.5;
-          d2 = 0.5;
-        }
-        const d = Math.sqrt(d2);
-        const f = (REPULSION * a) / d2;
-        const fx = (dx / d) * f;
-        const fy = (dy / d) * f;
-        vx[i] += fx;
-        vy[i] += fy;
-        vx[j] -= fx;
-        vy[j] -= fy;
-      }
-    }
-    for (let e = 0; e < edges.length; e += 2) {
-      const i = edges[e];
-      const j = edges[e + 1];
-      const dx = x[j] - x[i];
-      const dy = y[j] - y[i];
-      const d = Math.sqrt(dx * dx + dy * dy) || 1;
-      const f = (SPRING * a * (d - SPRING_LEN)) / d;
-      vx[i] += dx * f;
-      vy[i] += dy * f;
-      vx[j] -= dx * f;
-      vy[j] -= dy * f;
-    }
-    const held = this.drag?.node ?? -1;
-    for (let i = 0; i < n; i++) {
-      if (i === held) {
-        vx[i] = 0;
-        vy[i] = 0;
-        continue;
-      }
-      vx[i] = (vx[i] - x[i] * CENTER_PULL * a) * DAMPING;
-      vy[i] = (vy[i] - y[i] * CENTER_PULL * a) * DAMPING;
-      x[i] += vx[i];
-      y[i] += vy[i];
-    }
-    this.alpha *= ALPHA_DECAY;
-    return this.alpha > MIN_ALPHA;
+  /** Existing note saved → quick ring-flare on its star (throttled per note). */
+  flare(slug: string) {
+    if (!this.visible || this.reduced) return;
+    const last = this.lastFlare.get(slug) ?? -Infinity;
+    if (this.tNow - last < 10) return;
+    this.lastFlare.set(slug, this.tNow);
+    this.bursts.push({ slug, t0: this.tNow, big: false });
   }
 
-  private radius(i: number): number {
-    return 3.5 + Math.sqrt(this.nodes[i].deg) * 1.7;
+  private render(t: number) {
+    const gl = this.gl;
+    if (!gl || !this.count) return;
+    this.tNow = t;
+    const dt = Math.min(0.1, Math.max(0, t - this.lastT));
+    this.lastT = t;
+    if (this.autoSpin && !this.reduced) this.yaw += 0.0016;
+    // Fly-in focus: ease the dust toward hidden when inside DUST_FADE_NEAR,
+    // toward visible past DUST_FADE_FAR (temporal ease = no pop on a flick).
+    const k = Math.min(1, Math.max(0, (this.dist - DUST_FADE_NEAR) / (DUST_FADE_FAR - DUST_FADE_NEAR)));
+    const target = k * k * (3 - 2 * k);
+    this.dustFade += (target - this.dustFade) * (this.reduced ? 1 : Math.min(1, dt * 5));
+    perspective(this.proj, (58 * Math.PI) / 180, this.W / this.H, 8, 5000);
+    this.buildView();
+    gl.clearColor(0.016, 0.027, 0.047, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniformMatrix4fv(this.uProj, false, this.proj);
+    gl.uniformMatrix4fv(this.uView, false, this.view);
+    gl.uniform1f(this.uTime, this.reduced ? 0.5 : t);
+    gl.uniform1f(this.uFocal, this.focal * 1.4);
+    gl.uniform1f(this.uDust, this.dustFade);
+    gl.drawArrays(gl.POINTS, 0, this.count);
+    this.drawOverlay();
   }
 
-  private draw() {
-    const { ctx, canvas } = this;
-    const dpr = window.devicePixelRatio || 1;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const cs = getComputedStyle(canvas);
-    const ink = cs.getPropertyValue("--smui-ink").trim() || "#888";
-    const ink2 = cs.getPropertyValue("--smui-ink-2").trim() || "#888";
-    const accent = cs.getPropertyValue("--smui-accent").trim() || "#d99e1b";
-    const n = this.nodes.length;
-    if (!n) {
-      ctx.fillStyle = ink2;
-      ctx.font = `${13 * dpr}px -apple-system, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.fillText("No notes to graph", canvas.width / 2, canvas.height / 2);
-      return;
+  private drawOverlay() {
+    const g = this.octx, ov = this.ov, s = this.dpr;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, ov.width, ov.height);
+    const cx = ov.width / 2, cy = ov.height / 2, R = Math.min(ov.width, ov.height) * 0.34;
+    g.strokeStyle = "#4bd0e0"; g.lineWidth = 1 * s;
+    g.globalAlpha = 0.12; g.beginPath(); g.arc(cx, cy, R, 0, TWO_PI); g.stroke();
+    g.globalAlpha = 0.06; g.beginPath(); g.moveTo(ov.width * 0.06, cy); g.lineTo(ov.width * 0.94, cy); g.stroke();
+    g.globalAlpha = 0.18; const tk = 8 * s;
+    for (const a of [0, Math.PI/2, Math.PI, 3*Math.PI/2]) {
+      const ox = Math.cos(a), oy = Math.sin(a);
+      g.beginPath(); g.moveTo(cx+ox*(R-tk), cy+oy*(R-tk)); g.lineTo(cx+ox*(R+tk), cy+oy*(R+tk)); g.stroke();
     }
-    ctx.setTransform(dpr * this.k, 0, 0, dpr * this.k, dpr * this.tx, dpr * this.ty);
-    ctx.lineWidth = 1 / this.k;
-    ctx.globalAlpha = 0.15;
-    ctx.strokeStyle = ink2;
-    ctx.beginPath();
+    // links
+    g.lineWidth = 1 * s;
     for (let e = 0; e < this.edges.length; e += 2) {
-      const i = this.edges[e];
-      const j = this.edges[e + 1];
-      if (this.hover >= 0 && (i === this.hover || j === this.hover)) continue;
-      ctx.moveTo(this.x[i], this.y[i]);
-      ctx.lineTo(this.x[j], this.y[j]);
+      const i = this.edges[e], j = this.edges[e + 1];
+      const a = this.project(this.nodePos[i*3], this.nodePos[i*3+1], this.nodePos[i*3+2]);
+      const b = this.project(this.nodePos[j*3], this.nodePos[j*3+1], this.nodePos[j*3+2]);
+      if (!a[3] || !b[3]) continue;
+      const lit = this.hover >= 0 && (i === this.hover || j === this.hover);
+      g.globalAlpha = lit ? 0.6 : 0.12;
+      g.strokeStyle = lit ? "#8ff3fb" : "#3a5f68";
+      g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke();
     }
-    ctx.stroke();
-    if (this.hover >= 0) {
-      ctx.globalAlpha = 0.65;
-      ctx.strokeStyle = accent;
-      ctx.beginPath();
-      for (let e = 0; e < this.edges.length; e += 2) {
-        const i = this.edges[e];
-        const j = this.edges[e + 1];
-        if (i !== this.hover && j !== this.hover) continue;
-        ctx.moveTo(this.x[i], this.y[i]);
-        ctx.lineTo(this.x[j], this.y[j]);
+    // save-comets: streak in from deep space, land, then burst
+    this.comets = this.comets.filter((c) => {
+      const i = this.slugIndex.get(c.slug);
+      if (i === undefined) return false;
+      const tc = (this.tNow - c.t0) / 1.3;
+      if (tc >= 1) { this.bursts.push({ slug: c.slug, t0: this.tNow, big: true }); return false; }
+      const ease = (k: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, k)), 3);
+      const at = (k: number): [number, number, number] => {
+        const e = ease(k);
+        return [
+          c.from[0] + (this.nodePos[i*3] - c.from[0]) * e,
+          c.from[1] + (this.nodePos[i*3+1] - c.from[1]) * e,
+          c.from[2] + (this.nodePos[i*3+2] - c.from[2]) * e,
+        ];
+      };
+      const hd = at(tc), tl = at(tc - 0.16);
+      const hp = this.project(hd[0], hd[1], hd[2]);
+      const tp = this.project(tl[0], tl[1], tl[2]);
+      if (!hp[3]) return true;
+      if (tp[3]) {
+        // trail: wide faint pass + narrow bright pass
+        g.globalAlpha = 0.25; g.strokeStyle = "#5be6f2"; g.lineWidth = 5 * s;
+        g.beginPath(); g.moveTo(tp[0], tp[1]); g.lineTo(hp[0], hp[1]); g.stroke();
+        g.globalAlpha = 0.85; g.strokeStyle = "#eafcff"; g.lineWidth = 1.8 * s;
+        g.beginPath(); g.moveTo(tp[0], tp[1]); g.lineTo(hp[0], hp[1]); g.stroke();
       }
-      ctx.stroke();
-    }
-    for (let i = 0; i < n; i++) {
-      const lit = this.hover === -1 || i === this.hover || this.hoverAdj.has(i);
-      ctx.globalAlpha = lit ? 0.9 : 0.25;
-      ctx.fillStyle = i === this.hover ? accent : ink2;
-      ctx.beginPath();
-      ctx.arc(this.x[i], this.y[i], this.radius(i), 0, Math.PI * 2);
-      ctx.fill();
-    }
-    const showAll = this.k > 0.45;
-    ctx.textAlign = "center";
-    ctx.font = `${11 / this.k}px -apple-system, BlinkMacSystemFont, sans-serif`;
-    for (let i = 0; i < n; i++) {
-      const isHover = i === this.hover;
-      const isAdj = this.hoverAdj.has(i);
-      if (!showAll && !isHover && !isAdj) continue;
-      ctx.globalAlpha = isHover ? 1 : this.hover >= 0 && !isAdj ? 0.15 : 0.55;
-      ctx.fillStyle = isHover ? ink : ink2;
-      ctx.fillText(
-        this.nodes[i].title,
-        this.x[i],
-        this.y[i] + this.radius(i) + 13 / this.k,
-      );
-    }
-    ctx.globalAlpha = 1;
+      const hr = 7 * s;
+      const rg = g.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], hr);
+      rg.addColorStop(0, "rgba(255,255,255,0.95)");
+      rg.addColorStop(0.4, "rgba(91,230,242,0.55)");
+      rg.addColorStop(1, "rgba(91,230,242,0)");
+      g.globalAlpha = 1; g.fillStyle = rg;
+      g.beginPath(); g.arc(hp[0], hp[1], hr, 0, TWO_PI); g.fill();
+      return true;
+    });
+
+    // landing bursts + save flares: expanding ring in the note's world colour
+    this.bursts = this.bursts.filter((b) => {
+      const i = this.slugIndex.get(b.slug);
+      if (i === undefined) return false;
+      const d = (this.tNow - b.t0) / (b.big ? 0.7 : 0.45);
+      if (d >= 1) return false;
+      const p = this.project(this.nodePos[i*3], this.nodePos[i*3+1], this.nodePos[i*3+2]);
+      if (!p[3]) return true;
+      const col = WORLDS[worldOf(this.metas[i])].color;
+      const R = (b.big ? 46 : 20) * s * d + 4 * s;
+      g.globalAlpha = (1 - d) * 0.9;
+      g.strokeStyle = col; g.lineWidth = (b.big ? 2 : 1.5) * s;
+      g.beginPath(); g.arc(p[0], p[1], R, 0, TWO_PI); g.stroke();
+      if (b.big) {
+        g.globalAlpha = (1 - d) * 0.5;
+        g.beginPath(); g.arc(p[0], p[1], R * 0.55, 0, TWO_PI); g.stroke();
+      }
+      return true;
+    });
+
+    // label + ring for hovered/selected
+    const lab = (i: number) => {
+      if (i < 0 || i >= this.metas.length) return;
+      const p = this.project(this.nodePos[i*3], this.nodePos[i*3+1], this.nodePos[i*3+2]);
+      if (!p[3]) return;
+      g.globalAlpha = 0.9;
+      g.strokeStyle = WORLDS[worldOf(this.metas[i])].color;
+      g.lineWidth = 1.5 * s;
+      g.beginPath(); g.arc(p[0], p[1], Math.max(10 * s, 22 * s * p[2]), 0, TWO_PI); g.stroke();
+      g.globalAlpha = 1; g.fillStyle = "#eafcff";
+      g.font = `${12 * s}px ui-monospace, Menlo, monospace`; g.textAlign = "center";
+      const ti = this.metas[i].title;
+      g.fillText(ti.length > 30 ? ti.slice(0, 29) + "…" : ti, p[0], p[1] - Math.max(16 * s, 26 * s * p[2]));
+    };
+    if (this.selected >= 0 && this.selected !== this.hover) lab(this.selected);
+    if (this.hover >= 0) lab(this.hover);
+    g.globalAlpha = 1;
   }
 
-  private toWorld(e: PointerEvent | WheelEvent): [number, number] {
-    const rect = this.canvas.getBoundingClientRect();
-    return [
-      (e.clientX - rect.left - this.tx) / this.k,
-      (e.clientY - rect.top - this.ty) / this.k,
-    ];
-  }
-
-  private pick(wx: number, wy: number): number {
-    let best = -1;
-    let bestD2 = Infinity;
-    for (let i = 0; i < this.nodes.length; i++) {
-      const t = Math.max(this.radius(i) + 3, 8 / this.k);
-      const dx = this.x[i] - wx;
-      const dy = this.y[i] - wy;
-      const d2 = dx * dx + dy * dy;
-      if (d2 <= t * t && d2 < bestD2) {
-        best = i;
-        bestD2 = d2;
-      }
+  private pick(mx: number, my: number): number {
+    let best = -1, bd = Infinity;
+    for (let i = 0; i < this.metas.length; i++) {
+      if (this.filter && worldOf(this.metas[i]) !== this.filter) continue;
+      const p = this.project(this.nodePos[i*3], this.nodePos[i*3+1], this.nodePos[i*3+2]);
+      if (!p[3]) continue;
+      const rr = Math.max(14, 26 * p[2]);
+      const dx = p[0]/this.dpr - mx, dy = p[1]/this.dpr - my, d2 = dx*dx + dy*dy;
+      if (d2 <= rr*rr && d2 < bd) { best = i; bd = d2; }
     }
     return best;
   }
 
-  private setHover(i: number) {
-    if (i === this.hover) return;
-    this.hover = i;
-    this.hoverAdj.clear();
-    if (i >= 0) {
-      for (let e = 0; e < this.edges.length; e += 2) {
-        if (this.edges[e] === i) this.hoverAdj.add(this.edges[e + 1]);
-        else if (this.edges[e + 1] === i) this.hoverAdj.add(this.edges[e]);
-      }
-    }
-    this.canvas.style.cursor = i >= 0 ? "pointer" : "default";
-    this.draw();
+  private local(e: PointerEvent): [number, number] {
+    const r = this.glc.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
   }
 
   private onDown = (e: PointerEvent) => {
-    this.canvas.setPointerCapture(e.pointerId);
-    const [wx, wy] = this.toWorld(e);
-    this.drag = {
-      node: this.pick(wx, wy),
-      lastX: e.clientX,
-      lastY: e.clientY,
-      moved: false,
-    };
+    this.glc.setPointerCapture(e.pointerId);
+    const [mx, my] = this.local(e);
+    this.drag = { lx: e.clientX, ly: e.clientY, moved: false, node: this.pick(mx, my) };
+    this.glc.classList.add("is-dragging");
   };
 
   private onMove = (e: PointerEvent) => {
     if (this.drag) {
-      const dx = e.clientX - this.drag.lastX;
-      const dy = e.clientY - this.drag.lastY;
+      const dx = e.clientX - this.drag.lx, dy = e.clientY - this.drag.ly;
       if (Math.abs(dx) + Math.abs(dy) > 2) this.drag.moved = true;
-      this.drag.lastX = e.clientX;
-      this.drag.lastY = e.clientY;
-      if (this.drag.node >= 0) {
-        this.x[this.drag.node] += dx / this.k;
-        this.y[this.drag.node] += dy / this.k;
-        this.alpha = Math.max(this.alpha, 0.3);
-        this.start();
-      } else {
-        this.tx += dx;
-        this.ty += dy;
-        this.draw();
+      this.drag.lx = e.clientX; this.drag.ly = e.clientY;
+      if (this.drag.moved) {
+        this.yaw += dx * 0.006;
+        this.pitch = Math.max(-1.4, Math.min(1.4, this.pitch + dy * 0.006));
       }
       return;
     }
-    const [wx, wy] = this.toWorld(e);
-    this.setHover(this.pick(wx, wy));
+    const [mx, my] = this.local(e);
+    const i = this.pick(mx, my);
+    if (i !== this.hover) { this.hover = i; this.glc.classList.toggle("is-picking", i >= 0); }
+    if (i >= 0) {
+      this.tip.textContent = this.metas[i].title;
+      this.tip.style.left = `${mx}px`; this.tip.style.top = `${my}px`;
+      this.tip.classList.add("is-shown");
+    } else this.tip.classList.remove("is-shown");
   };
 
   private onUp = () => {
     const d = this.drag;
     this.drag = null;
-    if (d && !d.moved && d.node >= 0) this.onOpen(this.nodes[d.node].slug);
+    this.glc.classList.remove("is-dragging");
+    if (d && !d.moved && d.node >= 0) {
+      this.selected = d.node;
+      this.onOpen(this.metas[d.node].slug);
+    }
   };
 
   private onLeave = () => {
-    if (!this.drag) this.setHover(-1);
+    this.hover = -1;
+    this.tip.classList.remove("is-shown");
   };
 
   private onWheel = (e: WheelEvent) => {
     e.preventDefault();
-    const rect = this.canvas.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
-    const nk = Math.min(5, Math.max(0.12, this.k * Math.exp(-e.deltaY * 0.0015)));
-    const wx = (px - this.tx) / this.k;
-    const wy = (py - this.ty) / this.k;
-    this.tx = px - wx * nk;
-    this.ty = py - wy * nk;
-    this.k = nk;
-    this.draw();
+    this.dist = Math.max(70, Math.min(3400, this.dist * Math.exp(e.deltaY * 0.0022)));
   };
 }
 
@@ -413,36 +677,101 @@ export interface GraphViewProps {
 }
 
 export function GraphView({ metas, visible, onOpenNote }: GraphViewProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const simRef = useRef<GraphSim | null>(null);
+  const glRef = useRef<HTMLCanvasElement>(null);
+  const ovRef = useRef<HTMLCanvasElement>(null);
+  const simRef = useRef<GalaxyGL | null>(null);
   const openRef = useRef(onOpenNote);
   openRef.current = onOpenNote;
+  const [filter, setFilter] = useState<World | null>(null);
+  const [spin, setSpin] = useState(true);
+  const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const sim = new GraphSim(canvas, (slug) => openRef.current(slug));
-    simRef.current = sim;
-    const ro = new ResizeObserver(() => sim.resize());
-    ro.observe(canvas.parentElement!);
-    return () => {
-      ro.disconnect();
-      sim.destroy();
-      simRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    simRef.current?.setData(metas);
+  const worlds = useMemo(() => {
+    const count = new Map<World, number>();
+    for (const m of metas) {
+      const w = worldOf(m);
+      count.set(w, (count.get(w) ?? 0) + 1);
+    }
+    return WORLD_ORDER.filter((w) => count.has(w)).map((w) => ({
+      key: w, label: WORLDS[w].label, color: WORLDS[w].color, count: count.get(w) ?? 0,
+    }));
   }, [metas]);
 
   useEffect(() => {
-    simRef.current?.setVisible(visible);
-  }, [visible]);
+    const glc = glRef.current, ov = ovRef.current;
+    if (!glc || !ov) return;
+    const sim = new GalaxyGL(glc, ov, (slug) => openRef.current(slug));
+    simRef.current = sim;
+    if (!sim.ok) { setFailed(true); return; }
+    const ro = new ResizeObserver(() => sim.resize());
+    ro.observe(glc.parentElement!);
+    return () => { ro.disconnect(); sim.destroy(); simRef.current = null; };
+  }, []);
+
+  // On every vault refresh: rebuild the sky, then comet new notes in and
+  // flare edited ones. First load just records the baseline (no fireworks).
+  const knownRef = useRef<Map<string, number> | null>(null);
+  useEffect(() => {
+    const sim = simRef.current;
+    if (!sim) return;
+    sim.setData(metas);
+    const known = knownRef.current;
+    if (known) {
+      for (const m of metas) {
+        const was = known.get(m.slug);
+        if (was === undefined) sim.comet(m.slug);
+        else if (m.modified !== was) sim.flare(m.slug);
+      }
+    }
+    knownRef.current = new Map(metas.map((m) => [m.slug, m.modified]));
+  }, [metas]);
+  useEffect(() => { simRef.current?.setVisible(visible); }, [visible]);
+  useEffect(() => { simRef.current?.setFilter(filter); }, [filter]);
+  useEffect(() => { simRef.current?.setAutoSpin(spin); }, [spin]);
 
   return (
-    <div className="smui-graph">
-      <canvas ref={canvasRef} />
+    <div className="smui-graph smui-galaxy">
+      <canvas ref={glRef} className="smui-galaxy-gl" />
+      <canvas ref={ovRef} className="smui-galaxy-ov" />
+      <span className="smui-galaxy-br tl" />
+      <span className="smui-galaxy-br tr" />
+      <span className="smui-galaxy-br bl" />
+      <span className="smui-galaxy-br br" />
+      <div className="smui-galaxy-head">
+        <span className="smui-galaxy-online">Online</span>
+        <span>Vault Oracle · {metas.length} signals</span>
+      </div>
+      <div className="smui-galaxy-controls">
+        <button
+          className={`smui-galaxy-ctl${spin ? " is-on" : ""}`}
+          onClick={() => setSpin((s) => !s)}
+        >
+          Auto-spin
+        </button>
+        <button className="smui-galaxy-ctl" onClick={() => simRef.current?.recenter()}>
+          Recenter
+        </button>
+      </div>
+      <div className="smui-galaxy-legend">
+        {worlds.map((w) => (
+          <button
+            key={w.key}
+            className={`smui-galaxy-world${filter === w.key ? " is-active" : ""}${
+              filter && filter !== w.key ? " is-dim" : ""
+            }`}
+            style={{ color: w.color }}
+            onClick={() => setFilter((f) => (f === w.key ? null : w.key))}
+            title={filter === w.key ? "Show all worlds" : `Isolate ${w.label}`}
+          >
+            <span className="smui-galaxy-swatch" style={{ background: w.color }} />
+            <span className="smui-galaxy-wlabel">{w.label}</span>
+            <span className="smui-galaxy-wn">{w.count}</span>
+          </button>
+        ))}
+      </div>
+      {failed && (
+        <div className="smui-galaxy-err">WebGL unavailable — cannot render the orb.</div>
+      )}
     </div>
   );
 }

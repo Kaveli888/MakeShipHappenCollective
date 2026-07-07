@@ -1,28 +1,19 @@
-/* ShipMemory notepad — iOS Notes feel: light chrome, gold accent, zero ceremony.
-   Light/dark follow the system. Hosts can override the variables. */
+/* ShipMemory notepad — the Vault Oracle instrument: near-black grounds, cyan
+   accent, mono HUD chrome. One committed dark look (space is dark); the whole
+   app matches the Galaxy pane. Hosts can override the variables. */
 
 :root {
-  --smui-accent: #d99e1b;
-  --smui-selection: rgba(217, 158, 27, 0.25);
-  --smui-bg: #ffffff;
-  --smui-sidebar-bg: #f4f3f1;
-  --smui-folders-bg: #ece9e4;
-  --smui-ink: #1c1c1e;
-  --smui-ink-2: #6e6e73;
-  --smui-row-selected: #e9e2cf;
-  --smui-border: rgba(0, 0, 0, 0.08);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --smui-bg: #1e1e1e;
-    --smui-sidebar-bg: #262626;
-    --smui-folders-bg: #1b1b1c;
-    --smui-ink: #f2f2f2;
-    --smui-ink-2: #98989e;
-    --smui-row-selected: #4a4434;
-    --smui-border: rgba(255, 255, 255, 0.1);
-  }
+  --smui-accent: #5be6f2;
+  --smui-selection: rgba(91, 230, 242, 0.22);
+  --smui-bg: #070c14;
+  --smui-sidebar-bg: #050910;
+  --smui-folders-bg: #03060a;
+  --smui-ink: #eafcff;
+  --smui-ink-2: #8fb3bc;
+  --smui-row-selected: rgba(91, 230, 242, 0.13);
+  --smui-border: rgba(75, 208, 224, 0.14);
+  --smui-hud: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas,
+    monospace;
 }
 
 html,
@@ -67,7 +58,7 @@ body,
 }
 
 .smui-chrome-btn:hover:not(:disabled) {
-  background: rgba(127, 127, 127, 0.16);
+  background: rgba(91, 230, 242, 0.1);
   color: var(--smui-ink);
 }
 
@@ -92,6 +83,15 @@ body,
 
 .smui-ribbon-btn {
   padding: 6px;
+}
+
+/* Panel toggles glow when their column is currently visible. */
+.smui-ribbon-btn.is-on {
+  color: var(--smui-accent);
+}
+
+.smui-ribbon-btn.is-on:hover {
+  color: var(--smui-accent);
 }
 
 .smui-ribbon-sep {
@@ -129,7 +129,7 @@ body,
   padding: 5px 7px;
   font: inherit;
   font-size: 13px;
-  background: rgba(127, 127, 127, 0.16);
+  background: rgba(91, 230, 242, 0.1);
   color: var(--smui-ink);
   outline: none;
 }
@@ -167,7 +167,7 @@ body,
 }
 
 .smui-folder-row:hover {
-  background: rgba(127, 127, 127, 0.1);
+  background: rgba(91, 230, 242, 0.06);
 }
 
 .smui-folder-row.is-selected {
@@ -240,7 +240,7 @@ body,
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 13px;
-  background: rgba(127, 127, 127, 0.16);
+  background: rgba(91, 230, 242, 0.1);
   color: var(--smui-ink);
   outline: none;
 }
@@ -264,12 +264,13 @@ body,
 }
 
 .smui-section-title {
-  font-size: 12px;
-  font-weight: 700;
+  font-family: var(--smui-hud);
+  font-size: 10.5px;
+  font-weight: 600;
   color: var(--smui-ink-2);
   margin: 14px 8px 6px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.18em;
 }
 
 .smui-row {
@@ -281,7 +282,7 @@ body,
 }
 
 .smui-row:hover {
-  background: rgba(127, 127, 127, 0.1);
+  background: rgba(91, 230, 242, 0.06);
 }
 
 .smui-row:active {
@@ -353,7 +354,7 @@ body,
 
 .smui-icon-btn:hover {
   opacity: 1;
-  background: rgba(127, 127, 127, 0.18);
+  background: rgba(91, 230, 242, 0.12);
 }
 
 .smui-icon-btn.is-on {
@@ -406,14 +407,16 @@ body,
   min-width: 0;
   padding: 4px 6px 4px 12px;
   border-radius: 7px;
-  font-size: 12.5px;
+  font-family: var(--smui-hud);
+  font-size: 11px;
+  letter-spacing: 0.04em;
   color: var(--smui-ink-2);
   cursor: default;
   white-space: nowrap;
 }
 
 .smui-tab:hover {
-  background: rgba(127, 127, 127, 0.12);
+  background: rgba(91, 230, 242, 0.08);
 }
 
 .smui-tab.is-active {
@@ -449,7 +452,7 @@ body,
 
 .smui-tab-close:hover {
   opacity: 1;
-  background: rgba(127, 127, 127, 0.22);
+  background: rgba(91, 230, 242, 0.14);
   color: var(--smui-ink);
 }
 
@@ -498,7 +501,7 @@ body,
 }
 
 .smui-tabmenu-item:hover {
-  background: rgba(127, 127, 127, 0.16);
+  background: rgba(91, 230, 242, 0.1);
 }
 
 .smui-tabmenu-item.is-active {
@@ -526,8 +529,14 @@ body,
   display: flex;
   align-items: center;
   padding: 0 10px;
-  font-size: 12px;
+  font-family: var(--smui-hud);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
   color: var(--smui-ink-2);
+}
+
+.smui-crumb {
+  text-transform: uppercase;
 }
 
 .smui-pane-nav {
@@ -576,7 +585,7 @@ body,
 .smui-title-input:hover,
 .smui-title-input:focus {
   border-color: var(--smui-border);
-  background: rgba(127, 127, 127, 0.12);
+  background: rgba(91, 230, 242, 0.08);
   color: var(--smui-ink);
 }
 
@@ -605,6 +614,216 @@ body,
   position: absolute;
   inset: 0;
   display: block;
+}
+
+/* ── Oracle view — a self-contained cool data-console, theme-independent ── */
+.smui-galaxy {
+  background: #04070c;
+  --gx-cyan: #5be6f2;
+  --gx-line: rgba(75, 208, 224, 0.32);
+  --gx-dim: #5f8790;
+}
+
+.smui-galaxy canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.smui-galaxy-gl {
+  z-index: 0;
+  cursor: grab;
+  touch-action: none;
+}
+.smui-galaxy-gl.is-dragging {
+  cursor: grabbing;
+}
+.smui-galaxy-gl.is-picking {
+  cursor: pointer;
+}
+.smui-galaxy-ov {
+  z-index: 1;
+  pointer-events: none;
+}
+
+.smui-galaxy-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+.smui-galaxy-ctl {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gx-dim);
+  background: rgba(6, 16, 20, 0.68);
+  border: 1px solid var(--gx-line);
+  border-radius: 7px;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.smui-galaxy-ctl:hover {
+  color: var(--gx-cyan);
+}
+.smui-galaxy-ctl.is-on {
+  color: #04070c;
+  background: var(--gx-cyan);
+  border-color: var(--gx-cyan);
+  font-weight: 600;
+}
+
+.smui-galaxy-err {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  color: var(--gx-dim);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* HUD corner brackets frame the instrument */
+.smui-galaxy-br {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--gx-line);
+  pointer-events: none;
+  z-index: 2;
+}
+.smui-galaxy-br.tl { top: 14px; left: 14px; border-right: 0; border-bottom: 0; }
+.smui-galaxy-br.tr { top: 14px; right: 14px; border-left: 0; border-bottom: 0; }
+.smui-galaxy-br.bl { bottom: 14px; left: 14px; border-right: 0; border-top: 0; }
+.smui-galaxy-br.br { bottom: 14px; right: 14px; border-left: 0; border-top: 0; }
+
+/* Top HUD status line */
+.smui-galaxy-head {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 2;
+  pointer-events: none;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gx-dim);
+}
+.smui-galaxy-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gx-cyan);
+}
+.smui-galaxy-online::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gx-cyan);
+  box-shadow: 0 0 8px var(--gx-cyan);
+  animation: smui-gx-pulse 2.4s ease-in-out infinite;
+}
+@keyframes smui-gx-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.smui-galaxy-legend {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 2;
+  pointer-events: none;
+}
+.smui-galaxy-legend > * {
+  pointer-events: auto;
+}
+
+.smui-galaxy-world {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 168px;
+  padding: 3px 7px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-align: left;
+  transition: background 0.15s, opacity 0.15s;
+}
+.smui-galaxy-world:hover {
+  background: rgba(91, 230, 242, 0.08);
+}
+.smui-galaxy-world.is-active {
+  background: rgba(91, 230, 242, 0.12);
+}
+.smui-galaxy-world.is-dim {
+  opacity: 0.34;
+}
+.smui-galaxy-world:focus-visible {
+  outline: 1px solid var(--gx-cyan);
+  outline-offset: 1px;
+}
+
+.smui-galaxy-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 8px currentColor;
+}
+.smui-galaxy-wlabel {
+  color: #a6c4cb;
+}
+.smui-galaxy-wn {
+  margin-left: auto;
+  color: var(--gx-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.smui-galaxy-tip {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -150%);
+  transition: opacity 0.12s;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #eafcff;
+  background: rgba(4, 12, 16, 0.88);
+  border: 1px solid var(--gx-line);
+  border-radius: 6px;
+  padding: 4px 8px;
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.smui-galaxy-tip.is-shown {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smui-galaxy-tip { transition: none; }
+  .smui-galaxy-online::before { animation: none; }
 }
 
 .smui-note-date {
@@ -671,7 +890,7 @@ body,
 
 .smui-tool-btn:hover:not(:disabled),
 .smui-tool-btn.is-open {
-  background: rgba(127, 127, 127, 0.16);
+  background: rgba(91, 230, 242, 0.1);
   color: var(--smui-ink);
 }
 
@@ -709,7 +928,7 @@ body,
 }
 
 .smui-menu-item:hover {
-  background: rgba(127, 127, 127, 0.16);
+  background: rgba(91, 230, 242, 0.1);
 }
 
 .smui-menu-check {
@@ -751,7 +970,7 @@ body,
 .smui-inline-row button {
   flex: 1;
   border: none;
-  background: rgba(127, 127, 127, 0.1);
+  background: rgba(91, 230, 242, 0.06);
   color: var(--smui-ink);
   font-size: 14px;
   border-radius: 7px;
@@ -760,7 +979,7 @@ body,
 }
 
 .smui-inline-row button:hover {
-  background: rgba(127, 127, 127, 0.22);
+  background: rgba(91, 230, 242, 0.14);
 }
 
 .smui-highlight-btn {

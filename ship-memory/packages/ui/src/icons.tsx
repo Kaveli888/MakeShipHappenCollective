@@ -36,6 +36,15 @@ export function IconPanelLeft(p: P) {
   );
 }
 
+export function IconPanelRight(p: P) {
+  return (
+    <Svg {...p}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M15 3v18" />
+    </Svg>
+  );
+}
+
 export function IconFileSearch(p: P) {
   return (
     <Svg {...p}>

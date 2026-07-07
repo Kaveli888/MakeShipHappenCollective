@@ -17,6 +17,7 @@ import {
   IconFileSearch,
   IconGraph,
   IconPanelLeft,
+  IconPanelRight,
   IconPlus,
   IconX,
 } from "./icons";
@@ -142,8 +143,17 @@ export function Notepad({
   const [sortMode, setSortMode] = useState<SortMode>(() =>
     window.localStorage.getItem("smui-sort") === "title" ? "title" : "modified",
   );
-  const [sidebarHidden, setSidebarHidden] = useState(
-    () => window.localStorage.getItem("smui-sidebar") === "hidden",
+  // Each left column collapses on its own. Legacy "smui-sidebar=hidden" (one
+  // toggle that hid both) seeds both columns so existing installs don't jump.
+  const [foldersHidden, setFoldersHidden] = useState(
+    () =>
+      window.localStorage.getItem("smui-folders-hidden") === "1" ||
+      window.localStorage.getItem("smui-sidebar") === "hidden",
+  );
+  const [listHidden, setListHidden] = useState(
+    () =>
+      window.localStorage.getItem("smui-list-hidden") === "1" ||
+      window.localStorage.getItem("smui-sidebar") === "hidden",
   );
   // Obsidian-style workspace: 1–2 tab groups, each with its own tab strip.
   const [groups, setGroups] = useState<TabGroup[]>(() => [
@@ -508,23 +518,32 @@ export function Notepad({
     });
   }, []);
 
-  const toggleSidebar = useCallback(() => {
-    setSidebarHidden((prev) => {
+  const toggleFolders = useCallback(() => {
+    setFoldersHidden((prev) => {
       const next = !prev;
-      window.localStorage.setItem("smui-sidebar", next ? "hidden" : "shown");
+      window.localStorage.setItem("smui-folders-hidden", next ? "1" : "0");
+      return next;
+    });
+  }, []);
+
+  const toggleList = useCallback(() => {
+    setListHidden((prev) => {
+      const next = !prev;
+      window.localStorage.setItem("smui-list-hidden", next ? "1" : "0");
       return next;
     });
   }, []);
 
   const focusSearch = useCallback(() => {
-    if (sidebarHidden) {
-      setSidebarHidden(false);
-      window.localStorage.setItem("smui-sidebar", "shown");
+    // Search lives in the notes-list column — reveal it first if hidden.
+    if (listHidden) {
+      setListHidden(false);
+      window.localStorage.setItem("smui-list-hidden", "0");
       window.setTimeout(() => searchRef.current?.focus(), 60);
     } else {
       searchRef.current?.focus();
     }
-  }, [sidebarHidden]);
+  }, [listHidden]);
 
   const selectFolder = useCallback((f: string | null) => {
     setFolder(f);
@@ -789,7 +808,7 @@ export function Notepad({
 
   const tabTitle = useCallback(
     (t: Tab) => {
-      if (t.kind === "graph") return "Graph view";
+      if (t.kind === "graph") return "Galaxy";
       const slug = tabSlug(t);
       if (!slug) return "New tab";
       return metaBySlug.get(slug)?.title ?? slug;
@@ -813,11 +832,18 @@ export function Notepad({
       <nav className="smui-ribbon">
         <div className="smui-dragpad" data-tauri-drag-region="" />
         <button
-          className="smui-chrome-btn smui-ribbon-btn"
-          title="Toggle sidebar"
-          onClick={toggleSidebar}
+          className={`smui-chrome-btn smui-ribbon-btn${foldersHidden ? "" : " is-on"}`}
+          title={foldersHidden ? "Show folders" : "Hide folders"}
+          onClick={toggleFolders}
         >
           <IconPanelLeft />
+        </button>
+        <button
+          className={`smui-chrome-btn smui-ribbon-btn${listHidden ? "" : " is-on"}`}
+          title={listHidden ? "Show notes list" : "Hide notes list"}
+          onClick={toggleList}
+        >
+          <IconPanelRight />
         </button>
         <div className="smui-ribbon-sep" />
         <button
@@ -829,7 +855,7 @@ export function Notepad({
         </button>
         <button
           className="smui-chrome-btn smui-ribbon-btn"
-          title="Open graph view"
+          title="Open galaxy view"
           onClick={openGraph}
         >
           <IconGraph />
@@ -842,51 +868,53 @@ export function Notepad({
           <IconCalendar />
         </button>
       </nav>
-      {!sidebarHidden && (
-        <>
-          <FolderSidebar
-            metas={metas}
-            extraFolders={extraFolders}
-            selected={folder}
-            collapsed={collapsed}
-            sortMode={sortMode}
-            onSelect={selectFolder}
-            onToggleCollapse={toggleCollapse}
-            onNewFolder={newFolder}
-            onNewNote={() => void createNote()}
-            onDropNote={dropNoteOnFolder}
-            onToggleSort={toggleSort}
-            onCollapseAll={collapseAllFolders}
-          />
-          <aside className="smui-sidebar">
-            <div className="smui-dragpad" data-tauri-drag-region="" />
-            <div className="smui-sidebar-header">
-              <input
-                ref={searchRef}
-                className="smui-search"
-                type="search"
-                placeholder="Search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <NotesList
-              metas={shown}
-              selectedSlugs={selectedSlugs}
-              sort={sortMode}
-              onSelect={selectRow}
-              onShiftSelect={shiftSelectTo}
-              onArrowNav={arrowNav}
-              onDeleteSelection={() => void deleteSelection()}
-              onSelectAll={selectAllRows}
-              onTogglePin={(m) => void togglePin(m)}
-              onMove={(m) => void moveNote(m)}
-              onDelete={(m) => void deleteNote(m)}
-            />
-          </aside>
-        </>
+      {!foldersHidden && (
+        <FolderSidebar
+          metas={metas}
+          extraFolders={extraFolders}
+          selected={folder}
+          collapsed={collapsed}
+          sortMode={sortMode}
+          onSelect={selectFolder}
+          onToggleCollapse={toggleCollapse}
+          onNewFolder={newFolder}
+          onNewNote={() => void createNote()}
+          onDropNote={dropNoteOnFolder}
+          onToggleSort={toggleSort}
+          onCollapseAll={collapseAllFolders}
+        />
       )}
-      <main className={`smui-main${sidebarHidden ? " is-shifted" : ""}`}>
+      {!listHidden && (
+        <aside className="smui-sidebar">
+          <div className="smui-dragpad" data-tauri-drag-region="" />
+          <div className="smui-sidebar-header">
+            <input
+              ref={searchRef}
+              className="smui-search"
+              type="search"
+              placeholder="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <NotesList
+            metas={shown}
+            selectedSlugs={selectedSlugs}
+            sort={sortMode}
+            onSelect={selectRow}
+            onShiftSelect={shiftSelectTo}
+            onArrowNav={arrowNav}
+            onDeleteSelection={() => void deleteSelection()}
+            onSelectAll={selectAllRows}
+            onTogglePin={(m) => void togglePin(m)}
+            onMove={(m) => void moveNote(m)}
+            onDelete={(m) => void deleteNote(m)}
+          />
+        </aside>
+      )}
+      <main
+        className={`smui-main${foldersHidden && listHidden ? " is-shifted" : ""}`}
+      >
         {groups.map((g) => (
           <section
             key={g.id}
@@ -912,7 +940,7 @@ export function Notepad({
                     <div className="smui-pane-header">
                       <div className="smui-pane-nav" />
                       <div className="smui-breadcrumb">
-                        <span className="smui-crumb">Graph view</span>
+                        <span className="smui-crumb">Galaxy</span>
                       </div>
                       <div className="smui-pane-aux" />
                     </div>
