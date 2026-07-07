@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   formatBytes,
+  importDirToVault,
   listVolumes,
   onSyncProgress,
   syncVaultToDir,
@@ -22,9 +23,11 @@ import {
 const CARD_SUBDIR = "ShipMemory";
 
 type Phase = "idle" | "syncing" | "done" | "error";
+type Mode = "backup" | "restore";
 
 export function SdSync({ vaultRoot }: { vaultRoot: string }) {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<Mode>("backup");
   const [volumes, setVolumes] = useState<VolumeInfo[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -66,8 +69,12 @@ export function SdSync({ vaultRoot }: { vaultRoot: string }) {
     unlistenRef.current = await onSyncProgress(setProgress);
 
     try {
-      const dest = `${selected.replace(/\/+$/, "")}/${CARD_SUBDIR}`;
-      const rep = await syncVaultToDir(vaultRoot, dest);
+      const card = `${selected.replace(/\/+$/, "")}/${CARD_SUBDIR}`;
+      // Back up = vault → card; restore = card → vault (import, fill-gaps).
+      const rep =
+        mode === "backup"
+          ? await syncVaultToDir(vaultRoot, card)
+          : await importDirToVault(card, vaultRoot);
       setReport(rep);
       setPhase("done");
     } catch (e) {
@@ -77,7 +84,7 @@ export function SdSync({ vaultRoot }: { vaultRoot: string }) {
       unlistenRef.current?.();
       unlistenRef.current = null;
     }
-  }, [selected, vaultRoot]);
+  }, [selected, vaultRoot, mode]);
 
   const pct =
     progress && progress.total > 0
@@ -99,15 +106,50 @@ export function SdSync({ vaultRoot }: { vaultRoot: string }) {
         <div style={scrim} onClick={() => phase !== "syncing" && setOpen(false)}>
           <div style={card} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <h2 style={{ margin: 0, fontSize: 17 }}>Back up to SD card</h2>
+              <h2 style={{ margin: 0, fontSize: 17 }}>
+                {mode === "backup"
+                  ? "Back up to SD card"
+                  : "Restore from SD card"}
+              </h2>
               <span style={{ marginLeft: "auto", opacity: 0.5, fontSize: 12 }}>
-                one-way · never deletes
+                {mode === "backup"
+                  ? "one-way · never deletes"
+                  : "additive · never overwrites"}
               </span>
             </div>
 
-            <p style={{ margin: "6px 0 14px", fontSize: 13, opacity: 0.7 }}>
-              Copies new and changed notes into a{" "}
-              <code style={code}>{CARD_SUBDIR}/</code> folder on the card.
+            <div style={toggle}>
+              <button
+                type="button"
+                onClick={() => setMode("backup")}
+                disabled={phase === "syncing"}
+                style={mode === "backup" ? toggleOn : toggleOff}
+              >
+                ⤓ Back up to card
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("restore")}
+                disabled={phase === "syncing"}
+                style={mode === "restore" ? toggleOn : toggleOff}
+              >
+                ⤒ Restore to vault
+              </button>
+            </div>
+
+            <p style={{ margin: "10px 0 14px", fontSize: 13, opacity: 0.7 }}>
+              {mode === "backup" ? (
+                <>
+                  Copies new and changed notes into a{" "}
+                  <code style={code}>{CARD_SUBDIR}/</code> folder on the card.
+                </>
+              ) : (
+                <>
+                  Imports notes from the card's{" "}
+                  <code style={code}>{CARD_SUBDIR}/</code> folder that aren't
+                  already in your vault.
+                </>
+              )}
             </p>
 
             {phase === "idle" || phase === "done" || phase === "error" ? (
@@ -139,8 +181,12 @@ export function SdSync({ vaultRoot }: { vaultRoot: string }) {
 
                 {phase === "done" && report && (
                   <div style={reportBox}>
-                    ✓ Backed up — {report.copied} copied, {report.skipped}{" "}
-                    unchanged, {formatBytes(report.bytes)} written.
+                    ✓ {mode === "backup" ? "Backed up" : "Restored"} —{" "}
+                    {report.copied}{" "}
+                    {mode === "backup" ? "copied" : "imported"},{" "}
+                    {report.skipped}{" "}
+                    {mode === "backup" ? "unchanged" : "already present"},{" "}
+                    {formatBytes(report.bytes)} written.
                     {report.errors.length > 0 && (
                       <div style={{ color: "#d66", marginTop: 6 }}>
                         {report.errors.length} file
@@ -172,7 +218,13 @@ export function SdSync({ vaultRoot }: { vaultRoot: string }) {
                     disabled={!selected}
                     style={{ ...primaryBtn, opacity: selected ? 1 : 0.4 }}
                   >
-                    {phase === "done" ? "Sync again" : "Sync now"}
+                    {mode === "backup"
+                      ? phase === "done"
+                        ? "Sync again"
+                        : "Sync now"
+                      : phase === "done"
+                        ? "Restore again"
+                        : "Restore now"}
                   </button>
                 </div>
               </>
@@ -230,6 +282,34 @@ const card: React.CSSProperties = {
   border: "1px solid rgba(128,128,128,0.28)",
   boxShadow: "0 24px 60px rgba(0,0,0,0.45)",
   fontFamily: "-apple-system, sans-serif",
+};
+const toggle: React.CSSProperties = {
+  display: "flex",
+  gap: 4,
+  marginTop: 12,
+  padding: 3,
+  borderRadius: 10,
+  background: "rgba(128,128,128,0.14)",
+};
+const toggleBase: React.CSSProperties = {
+  flex: 1,
+  padding: "7px 10px",
+  borderRadius: 8,
+  border: "none",
+  fontSize: 12,
+  fontWeight: 600,
+  cursor: "pointer",
+};
+const toggleOn: React.CSSProperties = {
+  ...toggleBase,
+  background: "#3b82f6",
+  color: "#fff",
+};
+const toggleOff: React.CSSProperties = {
+  ...toggleBase,
+  background: "transparent",
+  color: "inherit",
+  opacity: 0.7,
 };
 const row: React.CSSProperties = {
   display: "flex",

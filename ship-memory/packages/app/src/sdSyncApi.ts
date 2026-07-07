@@ -31,9 +31,18 @@ export function listVolumes(): Promise<VolumeInfo[]> {
   return invoke<VolumeInfo[]>("list_removable_volumes");
 }
 
-/** One-way additive mirror of the vault hub into `dest` on the card. */
+/** Back up: one-way additive mirror of the vault hub into `dest` on the card. */
 export function syncVaultToDir(src: string, dest: string): Promise<SyncReport> {
   return invoke<SyncReport>("sync_vault_to_dir", { src, dest });
+}
+
+/**
+ * Restore: import a card's `ShipMemory/` backup (`src`) into the vault
+ * (`dest`). Additive and non-destructive — only copies notes the vault is
+ * missing, never overwriting existing ones.
+ */
+export function importDirToVault(src: string, dest: string): Promise<SyncReport> {
+  return invoke<SyncReport>("import_dir_to_vault", { src, dest });
 }
 
 /** Subscribe to live copy progress. Remember to call the returned unlisten. */

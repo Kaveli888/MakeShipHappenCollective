@@ -102,9 +102,85 @@ fn needs_copy(src: &Path, dst: &Path) -> bool {
     }
 }
 
-/// Mirror `src` (the vault hub) into `dest` on the card. One-way, additive:
-/// copies new/changed files, never deletes. Emits `sd-sync://progress` as it
-/// goes so the UI can show a live count.
+/// Shared copy engine for both directions. Walks `src`, mirroring files into
+/// `dest`, emitting `sd-sync://progress` as it goes. Never deletes anything.
+///
+/// `overwrite` decides what happens when a file exists on both sides:
+///   - `true`  (export → card): copy when newer/different (`needs_copy`).
+///   - `false` (import → vault): copy ONLY files the vault is missing, so an
+///     existing note is never clobbered by a stale card copy. FAT32's coarse
+///     2s mtime means "newer" is unreliable across the card, which is exactly
+///     why import fills-gaps-only rather than trusting timestamps.
+fn mirror_dir(
+    app: &AppHandle,
+    src: &Path,
+    dest: &Path,
+    overwrite: bool,
+) -> Result<SyncReport, String> {
+    fs::create_dir_all(dest)
+        .map_err(|e| format!("Can't create destination {}: {e}", dest.display()))?;
+
+    let mut files = Vec::new();
+    collect_files(src, &mut files);
+    let total = files.len();
+
+    let mut report = SyncReport {
+        copied: 0,
+        skipped: 0,
+        bytes: 0,
+        errors: Vec::new(),
+        dest: dest.to_string_lossy().to_string(),
+    };
+
+    for (i, f) in files.iter().enumerate() {
+        let rel = f.strip_prefix(src).unwrap_or(f);
+        let target = dest.join(rel);
+        let _ = app.emit(
+            "sd-sync://progress",
+            SyncProgress {
+                done: i,
+                total,
+                current: rel.to_string_lossy().to_string(),
+            },
+        );
+
+        let should_copy = if overwrite {
+            needs_copy(f, &target)
+        } else {
+            !target.exists()
+        };
+        if !should_copy {
+            report.skipped += 1;
+            continue;
+        }
+        if let Some(parent) = target.parent() {
+            if let Err(e) = fs::create_dir_all(parent) {
+                report.errors.push(format!("{}: {e}", rel.to_string_lossy()));
+                continue;
+            }
+        }
+        match fs::copy(f, &target) {
+            Ok(n) => {
+                report.copied += 1;
+                report.bytes += n;
+            }
+            Err(e) => report.errors.push(format!("{}: {e}", rel.to_string_lossy())),
+        }
+    }
+
+    let _ = app.emit(
+        "sd-sync://progress",
+        SyncProgress {
+            done: total,
+            total,
+            current: String::new(),
+        },
+    );
+    Ok(report)
+}
+
+/// Back up: mirror the vault hub (`src`) into `dest` on the card. One-way,
+/// additive — copies new/changed files, never deletes.
 #[tauri::command]
 async fn sync_vault_to_dir(
     app: AppHandle,
@@ -118,64 +194,32 @@ async fn sync_vault_to_dir(
         if !src.is_dir() {
             return Err(format!("Vault folder not found: {}", src.display()));
         }
-        fs::create_dir_all(&dest)
-            .map_err(|e| format!("Can't create destination {}: {e}", dest.display()))?;
-
-        let mut files = Vec::new();
-        collect_files(&src, &mut files);
-        let total = files.len();
-
-        let mut report = SyncReport {
-            copied: 0,
-            skipped: 0,
-            bytes: 0,
-            errors: Vec::new(),
-            dest: dest.to_string_lossy().to_string(),
-        };
-
-        for (i, f) in files.iter().enumerate() {
-            let rel = f.strip_prefix(&src).unwrap_or(f);
-            let target = dest.join(rel);
-            let _ = app.emit(
-                "sd-sync://progress",
-                SyncProgress {
-                    done: i,
-                    total,
-                    current: rel.to_string_lossy().to_string(),
-                },
-            );
-
-            if !needs_copy(f, &target) {
-                report.skipped += 1;
-                continue;
-            }
-            if let Some(parent) = target.parent() {
-                if let Err(e) = fs::create_dir_all(parent) {
-                    report.errors.push(format!("{}: {e}", rel.to_string_lossy()));
-                    continue;
-                }
-            }
-            match fs::copy(f, &target) {
-                Ok(n) => {
-                    report.copied += 1;
-                    report.bytes += n;
-                }
-                Err(e) => report.errors.push(format!("{}: {e}", rel.to_string_lossy())),
-            }
-        }
-
-        let _ = app.emit(
-            "sd-sync://progress",
-            SyncProgress {
-                done: total,
-                total,
-                current: String::new(),
-            },
-        );
-        Ok(report)
+        mirror_dir(&app, &src, &dest, true)
     })
     .await
     .map_err(|e| format!("sync task failed: {e}"))?
+}
+
+/// Restore: pull a card's `ShipMemory/` backup (`src`) into the vault
+/// (`dest`). Additive and non-destructive — imports only notes the vault
+/// doesn't already have, so nothing local is ever overwritten or deleted.
+#[tauri::command]
+async fn import_dir_to_vault(
+    app: AppHandle,
+    src: String,
+    dest: String,
+) -> Result<SyncReport, String> {
+    let src = PathBuf::from(src);
+    let dest = PathBuf::from(dest);
+
+    tauri::async_runtime::spawn_blocking(move || {
+        if !src.is_dir() {
+            return Err(format!("No ShipMemory backup found on this card: {}", src.display()));
+        }
+        mirror_dir(&app, &src, &dest, false)
+    })
+    .await
+    .map_err(|e| format!("import task failed: {e}"))?
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -184,7 +228,8 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             list_removable_volumes,
-            sync_vault_to_dir
+            sync_vault_to_dir,
+            import_dir_to_vault
         ])
         .run(tauri::generate_context!())
         .expect("error while running ShipMemory");
