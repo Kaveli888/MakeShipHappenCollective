@@ -8,10 +8,13 @@
 mod agent;
 mod commands;
 mod db;
+mod media_ops;
 mod models;
 mod publish;
 mod scheduler;
 
+#[cfg(test)]
+mod media_ops_tests;
 #[cfg(test)]
 mod spine_tests;
 
