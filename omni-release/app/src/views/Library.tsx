@@ -234,6 +234,39 @@ function MediaDetail({
   const [saving, setSaving] = useState(false);
   const [cloudMsg, setCloudMsg] = useState<string | null>(null);
   const [pushing, setPushing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [working, setWorking] = useState(false);
+
+  async function migrateToShipMemory() {
+    setCloudMsg(null);
+    setWorking(true);
+    try {
+      await api.mediaMigrateShipMemory(asset.id);
+      onSaved();
+    } catch (e) {
+      setCloudMsg(e instanceof Error ? e.message : String(e));
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function deleteFromDisk() {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setCloudMsg(null);
+    setWorking(true);
+    try {
+      await api.mediaDelete(asset.id);
+      onSaved();
+    } catch (e) {
+      setCloudMsg(e instanceof Error ? e.message : String(e));
+      setConfirmDelete(false);
+    } finally {
+      setWorking(false);
+    }
+  }
 
   async function pushToCloud() {
     setCloudMsg(null);
@@ -314,6 +347,29 @@ function MediaDetail({
           <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
         <div className="drawer-actions">
+          <button
+            className="ghost"
+            disabled={working}
+            style={confirmDelete ? { color: "#ef4444" } : undefined}
+            onClick={deleteFromDisk}
+            title={
+              asset.source === "shipmemory"
+                ? "Removes the Library entry only — the Ship Memory file is untouched"
+                : "Permanently deletes the file from this app's storage"
+            }
+          >
+            {confirmDelete ? "Really delete?" : "Delete"}
+          </button>
+          {asset.source !== "shipmemory" && (
+            <button
+              className="ghost"
+              disabled={working}
+              onClick={migrateToShipMemory}
+              title="Move the file into the Ship Memory hub and keep only a reference here"
+            >
+              {working ? "Moving…" : "→ Ship Memory"}
+            </button>
+          )}
           <button className="ghost" onClick={() => api.mediaSetStatus(asset.id, "archived").then(onSaved)}>
             Archive
           </button>

@@ -342,6 +342,120 @@ pub fn media_import(
     Ok(asset)
 }
 
+/// Delete a Library asset from disk and the database. Refuses while any post
+/// still uses it. Copied assets lose their file + thumbnail; referenced assets
+/// lose only the row + local thumbnail — the Ship Memory hub file is never
+/// touched (it belongs to Ship Memory, not us).
+#[tauri::command]
+pub fn media_delete(app: AppHandle, state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = lock(&state)?;
+    let m = db::get_media(&conn, &id)
+        .map_err(|e| e.to_string())?
+        .ok_or("media not found")?;
+    let used = db::media_usage_count(&conn, &id).map_err(|e| e.to_string())?;
+    if used > 0 {
+        return Err(format!(
+            "in use by {used} release card(s) — remove it from those cards first"
+        ));
+    }
+    db::delete_media_row(&conn, &id).map_err(|e| e.to_string())?;
+    // Row is gone; file cleanup is best-effort (a stray file is harmless,
+    // a dangling row is not).
+    let media_dir = app_media_dir(&app)?;
+    if m.source.as_deref() != Some(MEDIA_SOURCE_SHIPMEMORY) {
+        let _ = std::fs::remove_file(media_dir.join(&m.storage_key));
+    }
+    if let Some(tk) = &m.thumbnail_key {
+        let _ = std::fs::remove_file(media_dir.join(tk));
+    }
+    db::audit(
+        &conn,
+        "user",
+        "media.delete",
+        Some("media"),
+        Some(&id),
+        serde_json::json!({
+            "filename": m.filename,
+            "bytes": m.byte_size,
+            "source": m.source,
+        }),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// Move a copied asset's bytes into the Ship Memory hub and convert the row
+/// into a reference — reclaims the local duplicate while every post keeps
+/// working (the asset id never changes).
+#[tauri::command]
+pub fn media_migrate_shipmemory(
+    app: AppHandle,
+    state: State<DbState>,
+    id: String,
+) -> Result<MediaAsset, String> {
+    let conn = lock(&state)?;
+    let m = db::get_media(&conn, &id)
+        .map_err(|e| e.to_string())?
+        .ok_or("media not found")?;
+    if m.source.as_deref() == Some(MEDIA_SOURCE_SHIPMEMORY) {
+        return Err("already referenced from Ship Memory".into());
+    }
+    let src = app_media_dir(&app)?.join(&m.storage_key);
+    if !src.is_file() {
+        return Err(format!("local file missing: {}", src.display()));
+    }
+    let att = shipmemory_attachments_dir()?;
+    std::fs::create_dir_all(&att).map_err(|e| e.to_string())?;
+
+    // Prefer the human filename; fall back to the storage key. De-conflict
+    // with -2/-3 suffixes, matching Ship Memory's own convention.
+    let preferred = if valid_attachment_name(&m.filename) {
+        m.filename.clone()
+    } else {
+        m.storage_key.clone()
+    };
+    let (stem, ext) = match preferred.rsplit_once('.') {
+        Some((s, e)) if !s.is_empty() => (s.to_string(), Some(e.to_string())),
+        _ => (preferred.clone(), None),
+    };
+    let mut candidate = preferred.clone();
+    let mut n = 1u32;
+    while att.join(&candidate).exists() {
+        n += 1;
+        candidate = match &ext {
+            Some(e) => format!("{stem}-{n}.{e}"),
+            None => format!("{stem}-{n}"),
+        };
+        if n > 999 {
+            return Err("could not find a free attachment name".into());
+        }
+    }
+    let dest = att.join(&candidate);
+    std::fs::copy(&src, &dest).map_err(|e| format!("copy to hub failed: {e}"))?;
+    let src_len = std::fs::metadata(&src).map(|md| md.len()).unwrap_or(0);
+    let dest_len = std::fs::metadata(&dest).map(|md| md.len()).unwrap_or(u64::MAX);
+    if src_len != dest_len {
+        let _ = std::fs::remove_file(&dest);
+        return Err("copy verification failed (size mismatch); nothing changed".into());
+    }
+    db::set_media_source_key(&conn, &id, Some(MEDIA_SOURCE_SHIPMEMORY), &candidate)
+        .map_err(|e| e.to_string())?;
+    // DB now points at the hub — the local duplicate is dead weight.
+    let _ = std::fs::remove_file(&src);
+    db::audit(
+        &conn,
+        "user",
+        "media.migrate_shipmemory",
+        Some("media"),
+        Some(&id),
+        serde_json::json!({ "from": m.storage_key, "to": candidate, "bytes": m.byte_size }),
+    )
+    .map_err(|e| e.to_string())?;
+    db::get_media(&conn, &id)
+        .map_err(|e| e.to_string())?
+        .ok_or("media vanished mid-migration".into())
+}
+
 /// Media files available in the Ship Memory hub's attachments dir that the
 /// Library can reference without copying.
 #[tauri::command]

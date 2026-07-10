@@ -52,6 +52,9 @@ export const api = {
     invoke<ShipMemoryMediaItem[]>("shipmemory_media_list"),
   mediaImportShipMemory: (name: string) =>
     invoke<MediaAsset>("media_import_shipmemory", { name }),
+  mediaDelete: (id: string) => invoke<void>("media_delete", { id }),
+  mediaMigrateShipMemory: (id: string) =>
+    invoke<MediaAsset>("media_migrate_shipmemory", { id }),
   mediaList: (includeArchived = false) =>
     invoke<MediaAsset[]>("media_list", { includeArchived }),
   mediaThumb: (id: string) => invoke<string | null>("media_thumb", { id }),
