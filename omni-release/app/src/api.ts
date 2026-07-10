@@ -11,6 +11,7 @@ import type {
   PostBundle,
   PublishAttempt,
   PublishOutcome,
+  ShipMemoryMediaItem,
 } from "./types.js";
 
 /* ---------- legacy content engine bridge (returns JSON strings) ---------- */
@@ -47,6 +48,10 @@ export const api = {
   // media library
   pickMediaFiles: () => invoke<string[]>("pick_media_files"),
   mediaImport: (path: string) => invoke<MediaAsset>("media_import", { path }),
+  shipmemoryMediaList: () =>
+    invoke<ShipMemoryMediaItem[]>("shipmemory_media_list"),
+  mediaImportShipMemory: (name: string) =>
+    invoke<MediaAsset>("media_import_shipmemory", { name }),
   mediaList: (includeArchived = false) =>
     invoke<MediaAsset[]>("media_list", { includeArchived }),
   mediaThumb: (id: string) => invoke<string | null>("media_thumb", { id }),

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../api.js";
-import type { MediaAsset } from "../types.js";
+import type { MediaAsset, ShipMemoryMediaItem } from "../types.js";
 import { fmtBytes, fmtDuration, fmtTime } from "../util.js";
 import { cloudConfigured, ensureWorkspace, getUser, uploadMediaToStorage } from "../cloud/cloud.js";
 
@@ -29,6 +29,7 @@ export default function Library({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sel, setSel] = useState<MediaAsset | null>(null);
+  const [smPicker, setSmPicker] = useState<ShipMemoryMediaItem[] | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -59,6 +60,29 @@ export default function Library({
     }
   }
 
+  async function openShipMemoryPicker() {
+    setError(null);
+    try {
+      setSmPicker(await api.shipmemoryMediaList());
+    } catch (e) {
+      setError(String(e));
+    }
+  }
+
+  async function importFromShipMemory(name: string) {
+    setError(null);
+    try {
+      setBusy(true);
+      await api.mediaImportShipMemory(name);
+      setSmPicker(null);
+      await refresh();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function composeFrom(m: MediaAsset) {
     try {
       const postId = await api.postCreate(m.id);
@@ -75,12 +99,65 @@ export default function Library({
           <h2>Media Library</h2>
           <p className="sub">Import assets once, then attach them to release cards.</p>
         </div>
-        <button className="primary" disabled={busy} onClick={importVideos}>
-          {busy ? "Importing…" : "+ Import media"}
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="ghost" disabled={busy} onClick={openShipMemoryPicker}>
+            ⚭ From Ship Memory
+          </button>
+          <button className="primary" disabled={busy} onClick={importVideos}>
+            {busy ? "Importing…" : "+ Import media"}
+          </button>
+        </div>
       </div>
 
       {error && <div className="banner error">{error}</div>}
+
+      {smPicker && (
+        <div className="panel" style={{ marginBottom: 12 }}>
+          <div className="view-head" style={{ marginBottom: 8 }}>
+            <div>
+              <strong>Ship Memory attachments</strong>
+              <p className="sub">
+                Referenced in place — nothing is copied into Omni Release.
+              </p>
+            </div>
+            <button className="ghost sm" onClick={() => setSmPicker(null)}>
+              Close
+            </button>
+          </div>
+          {smPicker.length === 0 ? (
+            <p className="sub">
+              No media in the Ship Memory attachments folder yet. Add
+              video/images to a note in Ship Memory first.
+            </p>
+          ) : (
+            <div>
+              {smPicker.map((f) => (
+                <div
+                  key={f.name}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "6px 0",
+                  }}
+                >
+                  <span>
+                    {f.kind === "video" ? "🎬" : "🖼"} {f.name}{" "}
+                    <span className="sub">{fmtBytes(f.byteSize)}</span>
+                  </span>
+                  <button
+                    className="ghost sm"
+                    disabled={busy}
+                    onClick={() => importFromShipMemory(f.name)}
+                  >
+                    Reference →
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {items.length === 0 ? (
         <div className="empty-state">
@@ -104,6 +181,11 @@ export default function Library({
                   {fmtBytes(m.byte_size)}
                 </span>
                 {m.aspect_ratio && <span className="chip">{m.aspect_ratio}</span>}
+                {m.source === "shipmemory" && (
+                  <span className="chip" title="Referenced from Ship Memory — no local copy">
+                    ⚭ Ship Memory
+                  </span>
+                )}
               </div>
               <button
                 className="ghost sm"

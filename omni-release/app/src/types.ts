@@ -47,7 +47,16 @@ export interface MediaAsset {
   notes: string | null;
   status: string;
   checksum: string | null;
+  /** null = copied into the app media dir; "shipmemory" = referenced in place
+   * from the Ship Memory hub's attachments (no duplicate bytes). */
+  source: string | null;
   created_at: string;
+}
+
+export interface ShipMemoryMediaItem {
+  name: string;
+  byteSize: number;
+  kind: "video" | "image";
 }
 
 export interface Post {

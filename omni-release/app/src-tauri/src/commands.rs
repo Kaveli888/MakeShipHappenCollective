@@ -43,6 +43,44 @@ fn app_media_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(media)
 }
 
+pub const MEDIA_SOURCE_SHIPMEMORY: &str = "shipmemory";
+
+/// The Ship Memory hub's attachments dir (`$SHIP_MEMORY_HUB/.shipmemory/attachments`,
+/// hub defaulting to ~/ShipMemory). Referenced media lives here — omni-release
+/// reads it in place instead of duplicating bytes into its own media dir.
+pub fn shipmemory_attachments_dir() -> Result<PathBuf, String> {
+    let hub = std::env::var("SHIP_MEMORY_HUB")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .map(PathBuf::from)
+        .or_else(|| {
+            std::env::var("HOME")
+                .ok()
+                .map(|h| PathBuf::from(h).join("ShipMemory"))
+        })
+        .ok_or("cannot locate Ship Memory hub (no SHIP_MEMORY_HUB or HOME)")?;
+    Ok(hub.join(".shipmemory").join("attachments"))
+}
+
+/// A referenced storage_key must be a bare filename — no separators, no
+/// traversal — so it can only resolve inside the attachments dir.
+fn valid_attachment_name(name: &str) -> bool {
+    !name.is_empty() && !name.contains('/') && !name.contains('\\') && name != "." && name != ".."
+}
+
+/// Absolute path of an asset's bytes: the Ship Memory hub for referenced
+/// assets, the app media dir for copied ones.
+pub fn resolve_media_path(app: &AppHandle, m: &MediaAsset) -> Result<PathBuf, String> {
+    if m.source.as_deref() == Some(MEDIA_SOURCE_SHIPMEMORY) {
+        if !valid_attachment_name(&m.storage_key) {
+            return Err(format!("invalid ship memory media key: {}", m.storage_key));
+        }
+        Ok(shipmemory_attachments_dir()?.join(&m.storage_key))
+    } else {
+        Ok(app_media_dir(app)?.join(&m.storage_key))
+    }
+}
+
 fn lock<'a>(
     state: &'a State<DbState>,
 ) -> Result<std::sync::MutexGuard<'a, rusqlite::Connection>, String> {
@@ -287,6 +325,7 @@ pub fn media_import(
         notes: None,
         status: "ready".into(),
         checksum: None,
+        source: None,
         created_at: db::now(),
     };
     let conn = lock(&state)?;
@@ -298,6 +337,145 @@ pub fn media_import(
         Some("media"),
         Some(&id),
         serde_json::json!({ "filename": asset.filename, "bytes": byte_size }),
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(asset)
+}
+
+/// Media files available in the Ship Memory hub's attachments dir that the
+/// Library can reference without copying.
+#[tauri::command]
+pub fn shipmemory_media_list() -> Result<Vec<serde_json::Value>, String> {
+    let dir = shipmemory_attachments_dir()?;
+    if !dir.is_dir() {
+        return Ok(vec![]);
+    }
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(&dir).map_err(|e| e.to_string())? {
+        let Ok(entry) = entry else { continue };
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+        let Some(name) = path.file_name().and_then(|n| n.to_str()).map(String::from) else {
+            continue;
+        };
+        let ext = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .map(|s| s.to_ascii_lowercase())
+            .unwrap_or_default();
+        if !allowed_ext(&ext) {
+            continue;
+        }
+        let bytes = entry.metadata().map(|m| m.len()).unwrap_or(0);
+        out.push(serde_json::json!({
+            "name": name,
+            "byteSize": bytes,
+            "kind": if is_image_ext(&ext) { "image" } else { "video" },
+        }));
+    }
+    out.sort_by(|a, b| a["name"].as_str().cmp(&b["name"].as_str()));
+    Ok(out)
+}
+
+/// Add a Library entry that REFERENCES a Ship Memory attachment in place.
+/// No bytes are copied — only a small local thumbnail is generated. Importing
+/// the same attachment twice returns the existing entry instead of a duplicate.
+#[tauri::command]
+pub fn media_import_shipmemory(
+    app: AppHandle,
+    state: State<DbState>,
+    name: String,
+) -> Result<MediaAsset, String> {
+    if !valid_attachment_name(&name) {
+        return Err(format!("invalid attachment name: {name}"));
+    }
+    let ext = Path::new(&name)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|s| s.to_ascii_lowercase())
+        .unwrap_or_default();
+    if !allowed_ext(&ext) {
+        return Err(format!(
+            "unsupported file type '.{ext}'. Allowed: {}, {}",
+            ALLOWED_VIDEO_EXT.join(", "),
+            ALLOWED_IMAGE_EXT.join(", ")
+        ));
+    }
+    let src = shipmemory_attachments_dir()?.join(&name);
+    if !src.is_file() {
+        return Err(format!("not found in Ship Memory attachments: {name}"));
+    }
+    let byte_size = std::fs::metadata(&src).map_err(|e| e.to_string())?.len() as i64;
+    if byte_size > MAX_BYTES {
+        return Err(format!(
+            "file too large ({byte_size} bytes); max is {MAX_BYTES}."
+        ));
+    }
+
+    // Re-importing the same attachment is a no-op returning the existing row.
+    {
+        let conn = lock(&state)?;
+        if let Some(existing) =
+            db::find_media_by_source_key(&conn, MEDIA_SOURCE_SHIPMEMORY, &name)
+                .map_err(|e| e.to_string())?
+        {
+            return Ok(existing);
+        }
+    }
+
+    let is_image = is_image_ext(&ext);
+    let media_dir = app_media_dir(&app)?; // thumbs still live locally (tiny)
+    let id = db::new_id("med");
+    let probe = ffprobe(&src);
+    let thumb_name = format!("thumbs/{id}.jpg");
+    let thumb_path = media_dir.join(&thumb_name);
+    let made_thumb = if is_image {
+        make_image_thumb(&src, &thumb_path)
+    } else {
+        make_thumbnail(&src, &thumb_path)
+    };
+    let thumb_key = if made_thumb { Some(thumb_name) } else { None };
+
+    let mime_type = if is_image {
+        let sub = if ext == "jpg" { "jpeg" } else { ext.as_str() };
+        format!("image/{sub}")
+    } else {
+        format!("video/{ext}")
+    };
+
+    let asset = MediaAsset {
+        id: id.clone(),
+        workspace_id: db::LOCAL_WS.to_string(),
+        storage_key: name.clone(),
+        filename: name.clone(),
+        mime_type,
+        byte_size,
+        duration_sec: if is_image { None } else { probe.duration },
+        width: probe.width,
+        height: probe.height,
+        aspect_ratio: aspect(probe.width, probe.height),
+        thumbnail_key: thumb_key,
+        title: None,
+        description: None,
+        tags: vec![],
+        campaign_id: None,
+        notes: None,
+        status: "ready".into(),
+        checksum: None,
+        source: Some(MEDIA_SOURCE_SHIPMEMORY.to_string()),
+        created_at: db::now(),
+    };
+    let conn = lock(&state)?;
+    db::insert_media(&conn, &asset).map_err(|e| e.to_string())?;
+    db::audit(
+        &conn,
+        "user",
+        "media.import_ref",
+        Some("media"),
+        Some(&id),
+        serde_json::json!({ "filename": asset.filename, "bytes": byte_size, "source": MEDIA_SOURCE_SHIPMEMORY }),
     )
     .map_err(|e| e.to_string())?;
     Ok(asset)
@@ -922,14 +1100,14 @@ pub async fn media_upload_resumable(
         return Err("refused: supabase_url must be https".into());
     }
     // Resolve the file + metadata up front (DB lock is dropped before the upload).
-    let (local_key, filename, mime_type) = {
+    let (local_key, filename, mime_type, path) = {
         let conn = lock(&state)?;
         let m = db::get_media(&conn, &media_id)
             .map_err(|e| e.to_string())?
             .ok_or("media not found")?;
-        (m.storage_key, m.filename, m.mime_type)
+        let path = resolve_media_path(&app, &m)?;
+        (m.storage_key, m.filename, m.mime_type, path)
     };
-    let path = app_media_dir(&app)?.join(&local_key);
     let object_key = format!("{workspace_id}/{local_key}");
     eprintln!(
         "[upload] start media_id={media_id} key={local_key} path={} exists={} token_len={}",
@@ -1095,7 +1273,7 @@ pub fn media_read_base64(
         .map_err(|e| e.to_string())?
         .ok_or("media not found")?;
     drop(conn);
-    let path = app_media_dir(&app)?.join(&m.storage_key);
+    let path = resolve_media_path(&app, &m)?;
     let bytes = std::fs::read(&path).map_err(|e| format!("read failed: {e}"))?;
     Ok(serde_json::json!({
         "filename": m.filename,

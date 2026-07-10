@@ -221,6 +221,7 @@ fn agent_handoff_and_ingest_roundtrip() {
         notes: None,
         status: "ready".into(),
         checksum: None,
+        source: None,
         created_at: db::now(),
     };
     db::insert_media(&conn, &asset).unwrap();

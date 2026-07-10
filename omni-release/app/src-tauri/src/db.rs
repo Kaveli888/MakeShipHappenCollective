@@ -3,7 +3,7 @@
 //! functions here — no raw SQL crosses into the frontend.
 
 use crate::models::*;
-use rusqlite::{params, Connection, Row};
+use rusqlite::{params, Connection, OptionalExtension, Row};
 use serde_json::Value;
 
 /// The single local workspace id (multi-tenancy arrives with the server).
@@ -53,7 +53,8 @@ pub fn init(path: &std::path::Path) -> rusqlite::Result<Connection> {
             byte_size INTEGER NOT NULL, duration_sec REAL, width INTEGER, height INTEGER,
             aspect_ratio TEXT, thumbnail_key TEXT, title TEXT, description TEXT,
             tags TEXT, campaign_id TEXT, notes TEXT,
-            status TEXT NOT NULL DEFAULT 'ready', checksum TEXT, created_at TEXT NOT NULL
+            status TEXT NOT NULL DEFAULT 'ready', checksum TEXT, source TEXT,
+            created_at TEXT NOT NULL
         );
 
         CREATE TABLE IF NOT EXISTS posts (
@@ -112,6 +113,10 @@ pub fn init(path: &std::path::Path) -> rusqlite::Result<Connection> {
         CREATE INDEX IF NOT EXISTS idx_attempts_target ON publish_attempts(post_platform_target_id);
         "#,
     )?;
+    // Additive migration for DBs created before media source-referencing:
+    // NULL = copied into the app media dir, 'shipmemory' = referenced from the
+    // Ship Memory hub. Errors only when the column already exists — ignore.
+    let _ = conn.execute("ALTER TABLE media_assets ADD COLUMN source TEXT", []);
     conn.execute(
         "INSERT OR IGNORE INTO workspaces (id, name, plan, created_at) VALUES (?1, ?2, ?3, ?4)",
         params![LOCAL_WS, "My Workspace", "local", now()],
@@ -166,6 +171,7 @@ fn map_media(r: &Row) -> rusqlite::Result<MediaAsset> {
         notes: r.get("notes")?,
         status: r.get("status")?,
         checksum: r.get("checksum")?,
+        source: r.get("source")?,
         created_at: r.get("created_at")?,
     })
 }
@@ -288,8 +294,8 @@ pub fn insert_media(conn: &Connection, m: &MediaAsset) -> rusqlite::Result<()> {
         "INSERT INTO media_assets
          (id, workspace_id, storage_key, filename, mime_type, byte_size, duration_sec,
           width, height, aspect_ratio, thumbnail_key, title, description, tags,
-          campaign_id, notes, status, checksum, created_at)
-         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19)",
+          campaign_id, notes, status, checksum, source, created_at)
+         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20)",
         params![
             m.id,
             m.workspace_id,
@@ -309,10 +315,27 @@ pub fn insert_media(conn: &Connection, m: &MediaAsset) -> rusqlite::Result<()> {
             m.notes,
             m.status,
             m.checksum,
+            m.source,
             m.created_at
         ],
     )?;
     Ok(())
+}
+
+/// Existing referenced asset for a given source + storage_key, if any —
+/// lets re-importing the same Ship Memory file return the existing row
+/// instead of creating a duplicate.
+pub fn find_media_by_source_key(
+    conn: &Connection,
+    source: &str,
+    storage_key: &str,
+) -> rusqlite::Result<Option<MediaAsset>> {
+    conn.query_row(
+        "SELECT * FROM media_assets WHERE source = ?1 AND storage_key = ?2 AND status != 'archived' LIMIT 1",
+        params![source, storage_key],
+        map_media,
+    )
+    .optional()
 }
 
 pub fn list_media(conn: &Connection, include_archived: bool) -> rusqlite::Result<Vec<MediaAsset>> {

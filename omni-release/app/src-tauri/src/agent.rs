@@ -868,12 +868,28 @@ pub fn handoff(
     }
 
     // Copy each media file (and any thumbnail) into the outbox, build the manifest.
+    // Referenced assets (source = shipmemory) are staged from the Ship Memory hub
+    // instead of the app media dir — the only copy that ever exists is this
+    // transient outbox stage.
     let mut media_json: Vec<Value> = Vec::new();
     for m in &media_items {
-        let src = media_root.join(&m.storage_key);
+        let referenced = m.source.as_deref() == Some(crate::commands::MEDIA_SOURCE_SHIPMEMORY);
+        let src = if referenced {
+            crate::commands::shipmemory_attachments_dir()?.join(&m.storage_key)
+        } else {
+            media_root.join(&m.storage_key)
+        };
         let dest = media_out.join(&m.storage_key);
         if src.exists() {
             std::fs::copy(&src, &dest).map_err(|e| format!("copy media {}: {e}", src.display()))?;
+        } else if referenced {
+            // A hub file deleted/renamed out from under a scheduled post must
+            // not silently publish without its media.
+            return Err(format!(
+                "ship memory attachment missing: {} (expected at {})",
+                m.storage_key,
+                src.display()
+            ));
         }
         let thumb_rel = match &m.thumbnail_key {
             Some(tk) => {

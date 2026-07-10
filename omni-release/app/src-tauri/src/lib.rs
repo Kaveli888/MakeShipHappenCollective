@@ -212,6 +212,8 @@ pub fn run() {
             commands::media_thumb,
             commands::media_update,
             commands::media_set_status,
+            commands::shipmemory_media_list,
+            commands::media_import_shipmemory,
             // campaigns
             commands::campaigns_list,
             commands::campaign_create,

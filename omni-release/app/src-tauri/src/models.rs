@@ -57,6 +57,10 @@ pub struct MediaAsset {
     pub notes: Option<String>,
     pub status: String, // draft | ready | archived
     pub checksum: Option<String>,
+    /// None = file copied into the app media dir (legacy default).
+    /// Some("shipmemory") = storage_key names a file in the Ship Memory hub's
+    /// attachments dir; the bytes are never duplicated into the app dir.
+    pub source: Option<String>,
     pub created_at: String,
 }
 
