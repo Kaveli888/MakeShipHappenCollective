@@ -273,9 +273,11 @@ Done in `app/src-tauri/src/`:
   target to `awaiting_agent`; `ingest_results()` reads `outbox/done/`, records a
   `publish_attempts` row, marks the target published/failed/needs_attention, and
   keeps `needs_attention` cards live for automatic resume.
-- **`scheduler.rs`**: the publish route now comes from `OMNI_PUBLISH_ROUTE`
-  (default `agent`). Each tick it ingests results, then hands off due jobs. Set
-  `OMNI_PUBLISH_ROUTE=mock` to fall back to the old in-process publisher.
+- **`scheduler.rs`**: the scheduler is locked off unless the exact app run sets
+  `OMNI_ENABLE_SCHEDULER=1`. After that explicit approval, the publish route
+  comes from `OMNI_PUBLISH_ROUTE` (default `agent`). Each tick ingests results,
+  then hands off due jobs. Set `OMNI_PUBLISH_ROUTE=mock` to use the in-process
+  mock publisher instead.
 - **`commands.rs` / `lib.rs`**: new `ingest_agent_results` command (a manual
   "sync now"); `engine_root()` is exposed to the crate.
 - **`spine_tests.rs`**: `agent_handoff_and_ingest_roundtrip` covers the full loop;

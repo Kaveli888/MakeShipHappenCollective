@@ -322,29 +322,17 @@ pub fn insert_media(conn: &Connection, m: &MediaAsset) -> rusqlite::Result<()> {
     Ok(())
 }
 
-/// How many posts still use this asset (as primary or in the ordered set).
+/// How many distinct posts still use this asset (as primary or in the ordered
+/// set). A post that references the asset in both places counts once.
 pub fn media_usage_count(conn: &Connection, media_id: &str) -> rusqlite::Result<i64> {
     conn.query_row(
-        "SELECT (SELECT COUNT(*) FROM posts WHERE media_asset_id = ?1)
-              + (SELECT COUNT(*) FROM post_media WHERE media_asset_id = ?1)",
+        "SELECT COUNT(*) FROM (
+             SELECT id AS post_id FROM posts WHERE media_asset_id = ?1
+             UNION
+             SELECT post_id FROM post_media WHERE media_asset_id = ?1
+         )",
         params![media_id],
         |r| r.get(0),
-    )
-}
-
-pub fn delete_media_row(conn: &Connection, media_id: &str) -> rusqlite::Result<usize> {
-    conn.execute("DELETE FROM media_assets WHERE id = ?1", params![media_id])
-}
-
-pub fn set_media_source_key(
-    conn: &Connection,
-    media_id: &str,
-    source: Option<&str>,
-    storage_key: &str,
-) -> rusqlite::Result<usize> {
-    conn.execute(
-        "UPDATE media_assets SET source = ?2, storage_key = ?3 WHERE id = ?1",
-        params![media_id, source, storage_key],
     )
 }
 

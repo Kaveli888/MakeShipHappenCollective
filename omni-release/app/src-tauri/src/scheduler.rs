@@ -13,6 +13,12 @@ const TICK_SECS: u64 = 5;
 const RETRY_BACKOFF_SECS: i64 = 30;
 
 pub fn start(app: tauri::AppHandle) {
+    // Opening the desktop app must never create publishing handoffs on its own.
+    // Jake has to opt in for the exact run by setting this environment variable.
+    if std::env::var("OMNI_ENABLE_SCHEDULER").as_deref() != Ok("1") {
+        eprintln!("[scheduler] disabled; set OMNI_ENABLE_SCHEDULER=1 for an approved run");
+        return;
+    }
     tauri::async_runtime::spawn(async move {
         let worker = format!("scheduler-{}", std::process::id());
         loop {

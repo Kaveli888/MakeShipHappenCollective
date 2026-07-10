@@ -348,40 +348,8 @@ pub fn media_import(
 /// touched (it belongs to Ship Memory, not us).
 #[tauri::command]
 pub fn media_delete(app: AppHandle, state: State<DbState>, id: String) -> Result<(), String> {
-    let conn = lock(&state)?;
-    let m = db::get_media(&conn, &id)
-        .map_err(|e| e.to_string())?
-        .ok_or("media not found")?;
-    let used = db::media_usage_count(&conn, &id).map_err(|e| e.to_string())?;
-    if used > 0 {
-        return Err(format!(
-            "in use by {used} release card(s) — remove it from those cards first"
-        ));
-    }
-    db::delete_media_row(&conn, &id).map_err(|e| e.to_string())?;
-    // Row is gone; file cleanup is best-effort (a stray file is harmless,
-    // a dangling row is not).
     let media_dir = app_media_dir(&app)?;
-    if m.source.as_deref() != Some(MEDIA_SOURCE_SHIPMEMORY) {
-        let _ = std::fs::remove_file(media_dir.join(&m.storage_key));
-    }
-    if let Some(tk) = &m.thumbnail_key {
-        let _ = std::fs::remove_file(media_dir.join(tk));
-    }
-    db::audit(
-        &conn,
-        "user",
-        "media.delete",
-        Some("media"),
-        Some(&id),
-        serde_json::json!({
-            "filename": m.filename,
-            "bytes": m.byte_size,
-            "source": m.source,
-        }),
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(())
+    crate::media_ops::delete_media(&state.0, &media_dir, &id)
 }
 
 /// Move a copied asset's bytes into the Ship Memory hub and convert the row
@@ -393,67 +361,9 @@ pub fn media_migrate_shipmemory(
     state: State<DbState>,
     id: String,
 ) -> Result<MediaAsset, String> {
-    let conn = lock(&state)?;
-    let m = db::get_media(&conn, &id)
-        .map_err(|e| e.to_string())?
-        .ok_or("media not found")?;
-    if m.source.as_deref() == Some(MEDIA_SOURCE_SHIPMEMORY) {
-        return Err("already referenced from Ship Memory".into());
-    }
-    let src = app_media_dir(&app)?.join(&m.storage_key);
-    if !src.is_file() {
-        return Err(format!("local file missing: {}", src.display()));
-    }
+    let media_dir = app_media_dir(&app)?;
     let att = shipmemory_attachments_dir()?;
-    std::fs::create_dir_all(&att).map_err(|e| e.to_string())?;
-
-    // Prefer the human filename; fall back to the storage key. De-conflict
-    // with -2/-3 suffixes, matching Ship Memory's own convention.
-    let preferred = if valid_attachment_name(&m.filename) {
-        m.filename.clone()
-    } else {
-        m.storage_key.clone()
-    };
-    let (stem, ext) = match preferred.rsplit_once('.') {
-        Some((s, e)) if !s.is_empty() => (s.to_string(), Some(e.to_string())),
-        _ => (preferred.clone(), None),
-    };
-    let mut candidate = preferred.clone();
-    let mut n = 1u32;
-    while att.join(&candidate).exists() {
-        n += 1;
-        candidate = match &ext {
-            Some(e) => format!("{stem}-{n}.{e}"),
-            None => format!("{stem}-{n}"),
-        };
-        if n > 999 {
-            return Err("could not find a free attachment name".into());
-        }
-    }
-    let dest = att.join(&candidate);
-    std::fs::copy(&src, &dest).map_err(|e| format!("copy to hub failed: {e}"))?;
-    let src_len = std::fs::metadata(&src).map(|md| md.len()).unwrap_or(0);
-    let dest_len = std::fs::metadata(&dest).map(|md| md.len()).unwrap_or(u64::MAX);
-    if src_len != dest_len {
-        let _ = std::fs::remove_file(&dest);
-        return Err("copy verification failed (size mismatch); nothing changed".into());
-    }
-    db::set_media_source_key(&conn, &id, Some(MEDIA_SOURCE_SHIPMEMORY), &candidate)
-        .map_err(|e| e.to_string())?;
-    // DB now points at the hub — the local duplicate is dead weight.
-    let _ = std::fs::remove_file(&src);
-    db::audit(
-        &conn,
-        "user",
-        "media.migrate_shipmemory",
-        Some("media"),
-        Some(&id),
-        serde_json::json!({ "from": m.storage_key, "to": candidate, "bytes": m.byte_size }),
-    )
-    .map_err(|e| e.to_string())?;
-    db::get_media(&conn, &id)
-        .map_err(|e| e.to_string())?
-        .ok_or("media vanished mid-migration".into())
+    crate::media_ops::migrate_media_to_shipmemory(&state.0, &media_dir, &att, &id)
 }
 
 /// Media files available in the Ship Memory hub's attachments dir that the
@@ -531,9 +441,8 @@ pub fn media_import_shipmemory(
     // Re-importing the same attachment is a no-op returning the existing row.
     {
         let conn = lock(&state)?;
-        if let Some(existing) =
-            db::find_media_by_source_key(&conn, MEDIA_SOURCE_SHIPMEMORY, &name)
-                .map_err(|e| e.to_string())?
+        if let Some(existing) = db::find_media_by_source_key(&conn, MEDIA_SOURCE_SHIPMEMORY, &name)
+            .map_err(|e| e.to_string())?
         {
             return Ok(existing);
         }
@@ -947,8 +856,7 @@ pub fn job_mark_published(
         } else {
             arch.join("due")
         };
-        std::fs::rename(&due_dir, &dest)
-            .map_err(|e| format!("archive handoff {job_id}: {e}"))?;
+        std::fs::rename(&due_dir, &dest).map_err(|e| format!("archive handoff {job_id}: {e}"))?;
         let note = serde_json::json!({ "manually_published_at": db::now(), "by": "user" });
         let _ = std::fs::write(
             arch.join("manual-published.json"),
@@ -1043,8 +951,7 @@ pub fn agent_handoff_delete(state: State<DbState>, job_id: String) -> Result<(),
         } else {
             arch.join("due")
         };
-        std::fs::rename(&due_dir, &dest)
-            .map_err(|e| format!("archive handoff {job_id}: {e}"))?;
+        std::fs::rename(&due_dir, &dest).map_err(|e| format!("archive handoff {job_id}: {e}"))?;
         let note = serde_json::json!({ "canceled_at": db::now(), "by": "user" });
         let _ = std::fs::write(
             arch.join("canceled.json"),
