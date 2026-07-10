@@ -67,7 +67,7 @@ test("worker publishes a due job to YouTube and stores the confirmed URL", async
     NOW,
   );
 
-  assert.deepEqual(summary, { claimed: 1, succeeded: 1, failed: 0 });
+  assert.deepEqual(summary, { claimed: 1, succeeded: 1, failed: 0, reaped: 0 });
   const t = store.targets.get("tgt1")!;
   assert.equal(t.status, "published");
   assert.equal(t.externalUrl, "https://youtu.be/YT_OK");
@@ -87,7 +87,7 @@ test("worker fails honestly when no account is connected (no fake success)", asy
     NOW,
   );
 
-  assert.deepEqual(summary, { claimed: 1, succeeded: 0, failed: 1 });
+  assert.deepEqual(summary, { claimed: 1, succeeded: 0, failed: 1, reaped: 0 });
   const t = store.targets.get("tgt1")!;
   assert.equal(t.status, "failed");
   assert.equal(t.externalUrl, null, "no URL may be stored on failure");
@@ -131,7 +131,7 @@ test("an expired token is refreshed just-in-time before publishing", async () =>
     NOW,
   );
 
-  assert.deepEqual(summary, { claimed: 1, succeeded: 1, failed: 0 });
+  assert.deepEqual(summary, { claimed: 1, succeeded: 1, failed: 0, reaped: 0 });
   assert.equal(store.targets.get("tgt1")!.externalUrl, "https://youtu.be/YT_FRESH");
   assert.equal(store.tokenUpdates.length, 1, "refreshed tokens were persisted");
   assert.ok(store.audits.some((a) => a.action === "token.refresh"));
@@ -153,9 +153,73 @@ test("a failing publish with attempts remaining is rescheduled (retry)", async (
     NOW,
   );
 
-  assert.deepEqual(summary, { claimed: 1, succeeded: 0, failed: 1 });
+  assert.deepEqual(summary, { claimed: 1, succeeded: 0, failed: 1, reaped: 0 });
   const job = store.jobs.get("job1")!;
   assert.equal(job.status, "pending", "should be back to pending for retry");
   assert.equal(job.attempts, 1);
   assert.equal(store.targets.get("tgt1")!.status, "scheduled", "not marked failed while retries remain");
+});
+
+test("a stale claim from a crashed worker is reaped, re-claimed and published", async () => {
+  const key = await vaultKey();
+  const store = new InMemoryStore();
+  const tokensEnc = await encryptTokens(key, { access_token: "live-token" });
+  seed(store, ctxWith({ id: "acct1", tokensEnc, scopes: [], status: "connected" }));
+  // simulate a worker that claimed the job 20 minutes ago and died
+  const job = store.jobs.get("job1")!;
+  job.status = "claimed";
+  job.lockedBy = "w-dead";
+  job.lockedAt = new Date(Date.now() - 20 * 60_000).toISOString();
+
+  const summary = await runDueJobs(
+    { store, vaultKey: key, fetchImpl: youtubeMock(), workerId: "w2" },
+    NOW,
+  );
+
+  assert.deepEqual(summary, { claimed: 1, succeeded: 1, failed: 0, reaped: 1 });
+  assert.equal(store.jobs.get("job1")!.status, "done");
+  assert.equal(store.targets.get("tgt1")!.status, "published");
+  assert.ok(store.audits.some((a) => a.action === "job.reaped"));
+});
+
+test("a fresh claim (live worker) is NOT reaped", async () => {
+  const key = await vaultKey();
+  const store = new InMemoryStore();
+  const tokensEnc = await encryptTokens(key, { access_token: "live-token" });
+  seed(store, ctxWith({ id: "acct1", tokensEnc, scopes: [], status: "connected" }));
+  // claimed 30s ago — well under the stale threshold; another worker is on it
+  const job = store.jobs.get("job1")!;
+  job.status = "claimed";
+  job.lockedBy = "w-alive";
+  job.lockedAt = new Date(Date.now() - 30_000).toISOString();
+
+  const summary = await runDueJobs(
+    { store, vaultKey: key, fetchImpl: youtubeMock(), workerId: "w2" },
+    NOW,
+  );
+
+  assert.deepEqual(summary, { claimed: 0, succeeded: 0, failed: 0, reaped: 0 });
+  assert.equal(store.jobs.get("job1")!.status, "claimed", "live lease untouched");
+  assert.equal(store.jobs.get("job1")!.lockedBy, "w-alive");
+});
+
+test("a stale claim with attempts exhausted is reaped straight to failed", async () => {
+  const key = await vaultKey();
+  const store = new InMemoryStore();
+  const tokensEnc = await encryptTokens(key, { access_token: "live-token" });
+  seed(store, ctxWith({ id: "acct1", tokensEnc, scopes: [], status: "connected" }), 1); // maxAttempts=1
+  const job = store.jobs.get("job1")!;
+  job.status = "claimed";
+  job.lockedBy = "w-dead";
+  job.lockedAt = new Date(Date.now() - 20 * 60_000).toISOString();
+
+  const summary = await runDueJobs(
+    { store, vaultKey: key, fetchImpl: youtubeMock(), workerId: "w2" },
+    NOW,
+  );
+
+  assert.deepEqual(summary, { claimed: 0, succeeded: 0, failed: 0, reaped: 1 });
+  assert.equal(store.jobs.get("job1")!.status, "failed");
+  assert.equal(store.targets.get("tgt1")!.status, "failed");
+  assert.match(store.targets.get("tgt1")!.failureReason!, /crashed mid-publish/);
 });

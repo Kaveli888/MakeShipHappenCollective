@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+**/node_modules.nosync/
 
 # macOS
 .DS_Store
@@ -24,6 +25,7 @@ lighthouse-reports/
 **/dist/
 **/src-tauri/target/
 **/target/
+**/target.nosync/
 **/*.tsbuildinfo
 **/.DS_Store
 

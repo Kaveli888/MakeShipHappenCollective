@@ -47,7 +47,7 @@ async function main() {
         { store, vaultKey, fetchImpl: fetch, workerId, getClientCreds: clientCreds },
         new Date().toISOString(),
       );
-      if (summary.claimed > 0) console.log(`[worker] ${JSON.stringify(summary)}`);
+      if (summary.claimed > 0 || summary.reaped > 0) console.log(`[worker] ${JSON.stringify(summary)}`);
     } catch (e) {
       console.error("[worker] tick error", e);
     }

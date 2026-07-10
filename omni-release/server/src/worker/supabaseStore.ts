@@ -218,6 +218,43 @@ export class SupabaseStore implements JobStore {
     return true;
   }
 
+  async reapStaleClaims(nowIso: string, maxAgeSecs: number): Promise<number> {
+    const cutoff = new Date(new Date(nowIso).getTime() - maxAgeSecs * 1000).toISOString();
+    const { data } = await this.db
+      .from("scheduled_jobs")
+      .select("id, post_platform_target_id, attempts, max_attempts")
+      .eq("status", "claimed")
+      .lt("locked_at", cutoff)
+      .limit(25);
+    let reaped = 0;
+    for (const j of data ?? []) {
+      const attempts = j.attempts + 1;
+      const exhausted = attempts >= j.max_attempts;
+      // CAS guarded by the same stale predicate: if the owning worker finished
+      // (or re-locked) between our select and this update, 0 rows match and we
+      // leave the job alone.
+      const { data: upd } = await this.db
+        .from("scheduled_jobs")
+        .update({
+          status: exhausted ? "failed" : "pending",
+          attempts,
+          locked_by: null,
+          locked_at: null,
+        })
+        .eq("id", j.id)
+        .eq("status", "claimed")
+        .lt("locked_at", cutoff)
+        .select("id");
+      if (!upd || upd.length !== 1) continue;
+      if (exhausted) {
+        await this.markFailed(j.post_platform_target_id, "worker crashed mid-publish; attempts exhausted");
+      }
+      await this.audit("job.reaped", j.post_platform_target_id, { jobId: j.id, exhausted });
+      reaped++;
+    }
+    return reaped;
+  }
+
   async updateAccountTokens(accountId: string, tokensEnc: string, expiresAt: string | null): Promise<void> {
     await this.db
       .from("platform_accounts")

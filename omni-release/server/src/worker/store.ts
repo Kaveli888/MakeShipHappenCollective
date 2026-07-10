@@ -63,6 +63,12 @@ export interface JobStore {
   markJobDone(jobId: string): Promise<void>;
   /** Bump attempts; reschedule (return true) or exhaust → failed (return false). */
   failJob(jobId: string, retryDelaySecs: number): Promise<boolean>;
+  /**
+   * Release jobs stuck in 'claimed' longer than maxAgeSecs — a crashed worker's
+   * leases. Bumps attempts; back to pending, or failed when attempts exhaust.
+   * Returns how many jobs were reaped.
+   */
+  reapStaleClaims(nowIso: string, maxAgeSecs: number): Promise<number>;
   /** Persist refreshed (re-encrypted) tokens for a connected account. */
   updateAccountTokens(accountId: string, tokensEnc: string, expiresAt: string | null): Promise<void>;
   audit(action: string, targetId: string, metadata: unknown): Promise<void>;
@@ -74,6 +80,7 @@ interface MemJob extends JobRow {
   status: string;
   runAfter: string;
   lockedBy: string | null;
+  lockedAt?: string | null;
 }
 interface MemTarget {
   status: string;
@@ -111,6 +118,7 @@ export class InMemoryStore implements JobStore {
       if (j.status === "pending" && j.runAfter <= nowIso && j.attempts < j.maxAttempts) {
         j.status = "claimed";
         j.lockedBy = worker;
+        j.lockedAt = nowIso;
         out.push({ ...j });
       }
     }
@@ -163,6 +171,30 @@ export class InMemoryStore implements JobStore {
     j.status = "pending";
     j.runAfter = new Date(Date.now() + retryDelaySecs * 1000).toISOString();
     return true;
+  }
+  async reapStaleClaims(nowIso: string, maxAgeSecs: number): Promise<number> {
+    const cutoff = new Date(new Date(nowIso).getTime() - maxAgeSecs * 1000).toISOString();
+    let reaped = 0;
+    for (const j of this.jobs.values()) {
+      if (j.status !== "claimed" || !j.lockedAt || j.lockedAt >= cutoff) continue;
+      j.attempts += 1;
+      j.lockedBy = null;
+      j.lockedAt = null;
+      if (j.attempts >= j.maxAttempts) {
+        j.status = "failed";
+        const t = this.targets.get(j.targetId);
+        if (t) {
+          t.status = "failed";
+          t.failureReason = "worker crashed mid-publish; attempts exhausted";
+        }
+      } else {
+        j.status = "pending";
+        j.runAfter = nowIso;
+      }
+      this.audits.push({ action: "job.reaped", targetId: j.targetId, metadata: { jobId: j.id } });
+      reaped++;
+    }
+    return reaped;
   }
   async updateAccountTokens(accountId: string, tokensEnc: string, expiresAt: string | null): Promise<void> {
     for (const t of this.targets.values()) {

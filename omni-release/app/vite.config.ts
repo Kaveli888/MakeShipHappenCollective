@@ -8,7 +8,9 @@ export default defineConfig({
   server: {
     // 1430 — unique to Omni Release. The Ship ecosystem owns 1420 (ShipSpace)
     // and 1421 (ShipWatch); colliding there loads the wrong app into our window.
-    port: 1430,
+    // PORT env override lets a second instance (browser preview) coexist with
+    // the Tauri-owned one on 1430.
+    port: Number(process.env.PORT) || 1430,
     strictPort: true,
   },
 });

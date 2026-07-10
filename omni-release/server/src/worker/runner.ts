@@ -21,6 +21,12 @@ export interface RunnerConfig {
   fetchImpl: FetchImpl;
   workerId: string;
   retryBackoffSecs?: number;
+  /**
+   * Jobs stuck in 'claimed' longer than this are a crashed worker's leases and
+   * get released back to pending (default 600s — generously above the longest
+   * real publish, so a slow-but-alive worker isn't double-posted).
+   */
+  staleClaimSecs?: number;
   /** Per-platform OAuth client creds (from env) for token refresh. */
   getClientCreds?: (platform: string) => ClientCreds | null;
 }
@@ -29,11 +35,16 @@ export interface TickSummary {
   claimed: number;
   succeeded: number;
   failed: number;
+  /** Stale leases from a crashed worker released this tick. */
+  reaped: number;
 }
 
 /** Process all currently-due jobs once. Returns a summary for logging/tests. */
 export async function runDueJobs(cfg: RunnerConfig, nowIso: string): Promise<TickSummary> {
   const backoff = cfg.retryBackoffSecs ?? 60;
+  // First release any leases orphaned by a crashed worker, so a job stuck in
+  // 'claimed' can't be stranded forever (claimDueJobs only sees 'pending').
+  const reaped = await cfg.store.reapStaleClaims(nowIso, cfg.staleClaimSecs ?? 600);
   const jobs = await cfg.store.claimDueJobs(nowIso, cfg.workerId);
   let succeeded = 0;
   let failed = 0;
@@ -74,7 +85,7 @@ export async function runDueJobs(cfg: RunnerConfig, nowIso: string): Promise<Tic
       failed++;
     }
   }
-  return { claimed: jobs.length, succeeded, failed };
+  return { claimed: jobs.length, succeeded, failed, reaped };
 }
 
 interface OneResult {
