@@ -4,10 +4,15 @@
  * This is the whole product in one class: the 12-method surface that
  * bridgememory proved out, reimplemented as code we own, with ZERO coupling to
  * any host app. No MCP, no HTTP, no ShipSpace/BridgeSpace runtime — those are
- * all thin adapters that call into this. Bind it to a hub root and go.
+ * all thin adapters that call into this. Bind it to a hub root + a VaultFs
+ * and go.
+ *
+ * Every method is async and all I/O flows through the injected {@link VaultFs}
+ * (node, Tauri, or anything else) — see fs.ts for why.
  */
 
 import {
+  ATTACHMENTS_DIRNAME,
   type ConnectionSuggestion,
   type CreateMemoryInput,
   type HubStatus,
@@ -15,13 +20,15 @@ import {
   type MemoryMeta,
   type SearchHit,
 } from "./types.js";
+import type { VaultFs } from "./fs.js";
 import {
   scoreOverlap,
   substringMatch,
   termSet,
 } from "./search.js";
 import { extractLinks } from "./links.js";
-import { normalizeKey } from "./slug.js";
+import { normalizeKey, slugify } from "./slug.js";
+import { joinPath, normalizePath } from "./path.js";
 import {
   findHub,
   initHub,
@@ -50,50 +57,56 @@ export class MemoryNotFoundError extends Error {
 export class ShipMemory {
   /** Absolute path to the `.shipmemory/` hub directory. */
   readonly root: string;
+  private readonly fs: VaultFs;
 
-  constructor(hubRoot: string) {
+  constructor(hubRoot: string, fs: VaultFs) {
     this.root = hubRoot;
+    this.fs = fs;
   }
 
   /**
-   * Discover a hub by walking up from `cwd`. Throws if none exists — callers
-   * that want "create if missing" should call {@link ShipMemory.create}.
+   * Discover a hub by walking up from `cwd` (absolute). Throws if none exists —
+   * callers that want "create if missing" should call {@link ShipMemory.create}.
    */
-  static open(cwd: string = process.cwd()): ShipMemory {
-    const root = findHub(cwd);
+  static async open(cwd: string, fs: VaultFs): Promise<ShipMemory> {
+    const root = await findHub(fs, cwd);
     if (!root) throw new HubNotFoundError(cwd);
-    return new ShipMemory(root);
+    return new ShipMemory(root, fs);
   }
 
   /** Create (or attach to) a hub under `dir`. */
-  static create(dir: string): ShipMemory {
-    return new ShipMemory(initHub(dir));
+  static async create(dir: string, fs: VaultFs): Promise<ShipMemory> {
+    return new ShipMemory(await initHub(fs, dir), fs);
   }
 
   // ── 1. hub_status ────────────────────────────────────────────────────────
-  static status(cwd: string = process.cwd()): HubStatus {
-    const root = findHub(cwd);
+  static async status(cwd: string, fs: VaultFs): Promise<HubStatus> {
+    const root = await findHub(fs, cwd);
     if (!root) return { hub: null, searchedFrom: cwd, count: 0 };
-    return { hub: root, searchedFrom: cwd, count: loadAll(root).length };
+    return {
+      hub: root,
+      searchedFrom: cwd,
+      count: (await loadAll(fs, root)).length,
+    };
   }
 
   // ── 2. list_memories ─────────────────────────────────────────────────────
-  list(): MemoryMeta[] {
-    return loadAll(this.root)
+  async list(): Promise<MemoryMeta[]> {
+    return (await loadAll(this.fs, this.root))
       .map(strip)
       .sort((a, b) => b.modified - a.modified);
   }
 
   // ── 3. read_memory ───────────────────────────────────────────────────────
-  read(identifier: string): Memory {
+  async read(identifier: string): Promise<Memory> {
     return this.resolve(identifier);
   }
 
   // ── 4. search_memories ───────────────────────────────────────────────────
-  search(query: string, limit = 20): SearchHit[] {
+  async search(query: string, limit = 20): Promise<SearchHit[]> {
     const q = termSet(query);
     const hits: SearchHit[] = [];
-    for (const m of loadAll(this.root)) {
+    for (const m of await loadAll(this.fs, this.root)) {
       const doc = termSet(`${m.title} ${m.body}`);
       const { score, sharedTerms } = scoreOverlap(q, doc);
       const matched =
@@ -110,57 +123,68 @@ export class ShipMemory {
   }
 
   // ── 5. find_backlinks ────────────────────────────────────────────────────
-  backlinks(target: string): MemoryMeta[] {
+  async backlinks(target: string): Promise<MemoryMeta[]> {
     const key = normalizeKey(target);
     const out: MemoryMeta[] = [];
-    for (const m of loadAll(this.root)) {
+    for (const m of await loadAll(this.fs, this.root)) {
       if (m.links.some((l) => normalizeKey(l) === key)) out.push(strip(m));
     }
     return out;
   }
 
   // ── 6. create_memory ─────────────────────────────────────────────────────
-  create(input: CreateMemoryInput): Memory {
-    const slug = uniqueSlug(this.root, input.title);
+  async create(input: CreateMemoryInput): Promise<Memory> {
+    const slug = await uniqueSlug(this.fs, this.root, input.title);
     const frontmatter = { title: input.title, ...(input.frontmatter ?? {}) };
     const body = ensureH1(input.body, input.title);
-    const path = writeMemory(this.root, slug, frontmatter, body);
-    return loadMemory(path);
+    const path = await writeMemory(this.fs, this.root, slug, frontmatter, body);
+    return loadMemory(this.fs, path);
   }
 
   // ── 7. append_to_memory ──────────────────────────────────────────────────
-  append(identifier: string, text: string): Memory {
-    const m = this.resolve(identifier);
+  async append(identifier: string, text: string): Promise<Memory> {
+    const m = await this.resolve(identifier);
     const sep = m.body.endsWith("\n") ? "\n" : "\n\n";
     const body = m.body + sep + text.trim() + "\n";
-    writeMemory(this.root, m.slug, m.frontmatter, body);
-    return loadMemory(m.path);
+    await writeMemory(this.fs, this.root, m.slug, m.frontmatter, body);
+    return loadMemory(this.fs, m.path);
   }
 
   // ── 8. update_memory ─────────────────────────────────────────────────────
-  update(identifier: string, body: string): Memory {
-    const m = this.resolve(identifier);
-    writeMemory(this.root, m.slug, m.frontmatter, ensureH1(body, m.title));
-    return loadMemory(m.path);
+  async update(identifier: string, body: string): Promise<Memory> {
+    const m = await this.resolve(identifier);
+    await writeMemory(
+      this.fs,
+      this.root,
+      m.slug,
+      m.frontmatter,
+      ensureH1(body, m.title),
+    );
+    return loadMemory(this.fs, m.path);
   }
 
   // ── 9. delete_memory ─────────────────────────────────────────────────────
-  delete(identifier: string): { deleted: string; backlinks: MemoryMeta[] } {
-    const m = this.resolve(identifier);
-    const backlinks = this.backlinks(m.slug);
-    removeMemory(m.path);
+  async delete(
+    identifier: string,
+  ): Promise<{ deleted: string; backlinks: MemoryMeta[] }> {
+    const m = await this.resolve(identifier);
+    const backlinks = await this.backlinks(m.slug);
+    await removeMemory(this.fs, m.path);
     return { deleted: m.slug, backlinks };
   }
 
   // ── 10. suggest_connections ──────────────────────────────────────────────
-  suggestConnections(identifier: string, limit = 10): ConnectionSuggestion[] {
-    const self = this.resolve(identifier);
+  async suggestConnections(
+    identifier: string,
+    limit = 10,
+  ): Promise<ConnectionSuggestion[]> {
+    const self = await this.resolve(identifier);
     const selfKey = normalizeKey(self.slug);
     const selfTerms = termSet(`${self.title} ${self.body}`);
     const already = new Set(self.links.map(normalizeKey));
 
     const out: ConnectionSuggestion[] = [];
-    for (const m of loadAll(this.root)) {
+    for (const m of await loadAll(this.fs, this.root)) {
       if (normalizeKey(m.slug) === selfKey) continue;
       if (already.has(normalizeKey(m.slug))) continue;
       const { score, sharedTerms } = scoreOverlap(
@@ -173,8 +197,8 @@ export class ShipMemory {
   }
 
   // ── 11. list_orphans ─────────────────────────────────────────────────────
-  orphans(): MemoryMeta[] {
-    const all = loadAll(this.root);
+  async orphans(): Promise<MemoryMeta[]> {
+    const all = await loadAll(this.fs, this.root);
     const incoming = new Set<string>();
     for (const m of all) {
       for (const l of m.links) incoming.add(normalizeKey(l));
@@ -187,6 +211,74 @@ export class ShipMemory {
   // ── 12. init_hub ─────────────────────────────────────────────────────────
   // (static `create` above is the programmatic form; exposed as a tool too.)
 
+  // ── frontmatter patch ────────────────────────────────────────────────────
+  //
+  // Merge keys into a note's frontmatter without touching the body. NOT part
+  // of the 12-tool MCP surface — it's the host/UI API (pinning, tags,
+  // properties panels). A key set to `undefined` is removed.
+
+  async setFrontmatter(
+    identifier: string,
+    patch: Record<string, unknown>,
+  ): Promise<Memory> {
+    const m = await this.resolve(identifier);
+    const fm: Record<string, unknown> = { ...m.frontmatter };
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === undefined) delete fm[k];
+      else fm[k] = v;
+    }
+    await writeMemory(this.fs, this.root, m.slug, fm, m.body);
+    return loadMemory(this.fs, m.path);
+  }
+
+  // ── attachments ──────────────────────────────────────────────────────────
+  //
+  // Binary sidecar files (images, audio, anything) live in
+  // `<hub>/attachments/`. The note scanner only reads top-level `*.md`, so
+  // this directory is invisible to list/search. Notes reference attachments
+  // with ordinary markdown links: `![photo](attachments/photo.png)`.
+
+  /**
+   * Store bytes under `attachments/`, de-conflicting the name. Returns the
+   * hub-relative path to embed in a note body.
+   */
+  async saveAttachment(
+    name: string,
+    data: Uint8Array,
+  ): Promise<{ name: string; relPath: string }> {
+    const dir = joinPath(this.root, ATTACHMENTS_DIRNAME);
+    await this.fs.mkdir(dir);
+    const dot = name.lastIndexOf(".");
+    const ext = dot > 0 ? name.slice(dot).toLowerCase() : "";
+    const stem = slugify(dot > 0 ? name.slice(0, dot) : name) || "attachment";
+    let file = `${stem}${ext}`;
+    let n = 2;
+    while (await this.fs.exists(joinPath(dir, file))) {
+      file = `${stem}-${n++}${ext}`;
+    }
+    await this.fs.writeFileBinary(joinPath(dir, file), data);
+    return { name: file, relPath: `${ATTACHMENTS_DIRNAME}/${file}` };
+  }
+
+  /** Read an attachment by its hub-relative path (as embedded in notes). */
+  async readAttachment(relPath: string): Promise<Uint8Array> {
+    const full = normalizePath(joinPath(this.root, relPath));
+    // Confine to the attachments dir — a note body is untrusted input.
+    if (!full.startsWith(joinPath(this.root, ATTACHMENTS_DIRNAME) + "/")) {
+      throw new Error(`Not an attachment path: ${relPath}`);
+    }
+    return this.fs.readFileBinary(full);
+  }
+
+  /** Delete an attachment by its hub-relative path. */
+  async deleteAttachment(relPath: string): Promise<void> {
+    const full = normalizePath(joinPath(this.root, relPath));
+    if (!full.startsWith(joinPath(this.root, ATTACHMENTS_DIRNAME) + "/")) {
+      throw new Error(`Not an attachment path: ${relPath}`);
+    }
+    await this.fs.remove(full);
+  }
+
   // ── connector ingest ─────────────────────────────────────────────────────
   //
   // The seam every connector funnels through. NOT part of the 12-tool MCP
@@ -195,9 +287,9 @@ export class ShipMemory {
   // a vault import converges instead of multiplying.
 
   /** Find a note previously imported from a connector. */
-  findBySource(source: string, sourceId: string): Memory | null {
+  async findBySource(source: string, sourceId: string): Promise<Memory | null> {
     const want = String(sourceId);
-    for (const m of loadAll(this.root)) {
+    for (const m of await loadAll(this.fs, this.root)) {
       if (
         m.frontmatter.source === source &&
         m.frontmatter.sourceId != null &&
@@ -214,12 +306,12 @@ export class ShipMemory {
    * source + sourceId) are updated in place; new ones are created with a unique
    * slug. `source`/`sourceId` are stamped into frontmatter for the next sync.
    */
-  ingestMany(
+  async ingestMany(
     source: string,
     notes: Array<CreateMemoryInput & { sourceId: string }>,
-  ): { created: number; updated: number } {
+  ): Promise<{ created: number; updated: number }> {
     const prior = new Map<string, Memory>();
-    for (const m of loadAll(this.root)) {
+    for (const m of await loadAll(this.fs, this.root)) {
       if (m.frontmatter.source === source && m.frontmatter.sourceId != null) {
         prior.set(String(m.frontmatter.sourceId), m);
       }
@@ -237,20 +329,29 @@ export class ShipMemory {
           source,
           sourceId: n.sourceId,
         };
-        writeMemory(this.root, existing.slug, fm, ensureH1(n.body, n.title));
+        await writeMemory(
+          this.fs,
+          this.root,
+          existing.slug,
+          fm,
+          ensureH1(n.body, n.title),
+        );
         updated++;
       } else {
-        const slug = uniqueSlug(this.root, n.title);
+        const slug = await uniqueSlug(this.fs, this.root, n.title);
         const fm = {
           title: n.title,
           ...(n.frontmatter ?? {}),
           source,
           sourceId: n.sourceId,
         };
-        writeMemory(this.root, slug, fm, ensureH1(n.body, n.title));
+        await writeMemory(this.fs, this.root, slug, fm, ensureH1(n.body, n.title));
         // Keep the map current so two incoming notes with the same sourceId
         // collapse onto one file within a single batch.
-        prior.set(String(n.sourceId), loadMemory(pathForSlug(this.root, slug)));
+        prior.set(
+          String(n.sourceId),
+          await loadMemory(this.fs, pathForSlug(this.root, slug)),
+        );
         created++;
       }
     }
@@ -258,10 +359,10 @@ export class ShipMemory {
   }
 
   /** Resolve an identifier (slug, title, path, or wikilink target) to a note. */
-  private resolve(identifier: string): Memory {
+  private async resolve(identifier: string): Promise<Memory> {
     // Exact slug path first — cheapest.
     const direct = pathForSlug(this.root, identifier.replace(/\.md$/i, ""));
-    const all = loadAll(this.root);
+    const all = await loadAll(this.fs, this.root);
     const key = normalizeKey(identifier);
     const hit =
       all.find((m) => m.path === direct) ??
@@ -273,8 +374,18 @@ export class ShipMemory {
 }
 
 function strip(m: Memory): MemoryMeta {
-  const { body: _body, ...meta } = m;
-  return meta;
+  const { body, ...meta } = m;
+  return { ...meta, snippet: snippetOf(body) };
+}
+
+/** Plain-text preview: drop the H1 line and markdown noise, collapse space. */
+function snippetOf(body: string): string {
+  return body
+    .replace(/^#\s+.*$/m, "")
+    .replace(/[#*_>`]|\[\[|\]\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
 }
 
 /** Guarantee the body opens with an H1 matching the title. */

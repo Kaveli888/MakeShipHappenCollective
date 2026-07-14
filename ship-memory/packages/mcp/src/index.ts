@@ -18,12 +18,14 @@ import {
   ListToolsRequestSchema,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
+import { resolve } from "node:path";
 import { ShipMemory } from "@ship-memory/core";
+import { nodeFs } from "@ship-memory/core/node";
 
 function hubCwd(args: Record<string, unknown> | undefined): string {
   const cwd = args?.cwd;
-  if (typeof cwd === "string" && cwd) return cwd;
-  return process.env.SHIP_MEMORY_HUB || process.cwd();
+  if (typeof cwd === "string" && cwd) return resolve(cwd);
+  return resolve(process.env.SHIP_MEMORY_HUB || process.cwd());
 }
 
 const CWD_PROP = {
@@ -213,7 +215,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const args = (req.params.arguments ?? {}) as Record<string, unknown>;
 
   try {
-    const result = dispatch(name, args);
+    const result = await dispatch(name, args);
     return {
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
@@ -226,7 +228,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   }
 });
 
-function dispatch(name: string, args: Record<string, unknown>): unknown {
+async function dispatch(name: string, args: Record<string, unknown>): Promise<unknown> {
   // Defense in depth: even if a client somehow calls a hidden write tool, the
   // server refuses it in read-only mode. This, not --allowedTools, is the gate.
   if (READONLY && !READ_TOOLS.has(name)) {
@@ -236,13 +238,13 @@ function dispatch(name: string, args: Record<string, unknown>): unknown {
   }
 
   // init_hub and hub_status don't require an existing hub.
-  if (name === "hub_status") return ShipMemory.status(hubCwd(args));
+  if (name === "hub_status") return ShipMemory.status(hubCwd(args), nodeFs);
   if (name === "init_hub") {
-    const mem = ShipMemory.create(String(args.dir));
+    const mem = await ShipMemory.create(String(args.dir), nodeFs);
     return { hub: mem.root, created: true };
   }
 
-  const mem = ShipMemory.open(hubCwd(args));
+  const mem = await ShipMemory.open(hubCwd(args), nodeFs);
   switch (name) {
     case "list_memories":
       return mem.list();

@@ -7,8 +7,13 @@
  */
 
 export { ShipMemory, HubNotFoundError, MemoryNotFoundError } from "./engine.js";
+// The FS seam. Node hosts import the ready-made implementation from
+// `@ship-memory/core/node`; browser/Tauri hosts implement VaultFs themselves.
+export type { VaultFs, FileStat } from "./fs.js";
+export { joinPath, dirnamePath, normalizePath } from "./path.js";
 export {
   HUB_DIRNAME,
+  ATTACHMENTS_DIRNAME,
   type Memory,
   type MemoryMeta,
   type Hub,
