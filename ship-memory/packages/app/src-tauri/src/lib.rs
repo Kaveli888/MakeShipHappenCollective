@@ -1,0 +1,370 @@
+// ShipMemory is deliberately an empty shell: ALL memory logic lives in
+// @ship-memory/core (TS) running in the webview, doing file I/O through
+// tauri-plugin-fs. The Rust side only grants scoped fs access — keeping the
+// core engine the single owner of the vault, same as the MCP server.
+//
+// The one exception is SD-card backup: the fs plugin is scoped to
+// ~/ShipMemory, so the webview can't reach /Volumes. The two commands below
+// run on the Rust side (which is NOT bound by that scope) to mirror the vault
+// onto a removable volume. One-way and additive — they copy new/changed files
+// and never delete anything on the card.
+
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::time::UNIX_EPOCH;
+
+use serde::Serialize;
+use tauri::{AppHandle, Emitter, Manager};
+
+fn is_shipmemory_shell_webview(label: &str) -> bool {
+    label == "main" || label.starts_with("viewer-")
+}
+
+fn should_allow_shell_navigation(label: &str, scheme: &str) -> bool {
+    !(is_shipmemory_shell_webview(label) && scheme.eq_ignore_ascii_case("file"))
+}
+
+#[derive(Serialize, Clone)]
+struct VolumeInfo {
+    name: String,
+    path: String,
+}
+
+/// List mounted removable volumes under /Volumes, excluding the boot volume
+/// (which shows up as a symlink to `/`) and macOS bookkeeping entries.
+#[tauri::command]
+fn list_removable_volumes() -> Vec<VolumeInfo> {
+    let mut out = Vec::new();
+    let Ok(entries) = fs::read_dir("/Volumes") else {
+        return out;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name().to_string_lossy().to_string();
+        // Skip dotfiles and macOS bookkeeping entries. The latter (e.g.
+        // `com.apple.TimeMachine.localsnapshots`) are real, non-symlink dirs
+        // under /Volumes that would otherwise pass the checks below and show
+        // up as bogus "cards" — and never let the empty-state message appear.
+        if name.starts_with('.') || name.starts_with("com.apple.") {
+            continue;
+        }
+        let path = entry.path();
+        // The boot volume ("Macintosh HD") is a symlink to /. Real external
+        // volumes are actual directories — keep only those.
+        match fs::symlink_metadata(&path) {
+            Ok(m) if m.file_type().is_symlink() => continue,
+            Ok(m) if m.is_dir() => {}
+            _ => continue,
+        }
+        out.push(VolumeInfo {
+            name,
+            path: path.to_string_lossy().to_string(),
+        });
+    }
+    out
+}
+
+#[derive(Serialize, Clone)]
+struct SyncReport {
+    copied: usize,
+    skipped: usize,
+    bytes: u64,
+    errors: Vec<String>,
+    dest: String,
+}
+
+#[derive(Serialize, Clone)]
+struct SyncProgress {
+    done: usize,
+    total: usize,
+    current: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DroppedAttachment {
+    name: String,
+    rel_path: String,
+}
+
+fn attachment_stem(name: &str) -> String {
+    let mut stem = String::new();
+    let mut pending_dash = false;
+    for c in name.trim().chars() {
+        if c == '\'' || c == '"' {
+            continue;
+        }
+        if c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-') {
+            if pending_dash && !stem.is_empty() && !stem.ends_with('-') {
+                stem.push('-');
+            }
+            pending_dash = false;
+            stem.push(c.to_ascii_lowercase());
+        } else {
+            pending_dash = true;
+        }
+    }
+    let clean = stem.trim_matches(['-', '.']).to_string();
+    if clean.is_empty() {
+        "attachment".into()
+    } else {
+        clean
+    }
+}
+
+/// Copy files explicitly dropped by the user into the one allowed attachment
+/// directory. The destination is locked to ~/ShipMemory/.shipmemory so this
+/// command cannot be used as a general-purpose filesystem writer.
+#[tauri::command]
+async fn import_dropped_attachments(
+    app: AppHandle,
+    hub_root: String,
+    paths: Vec<String>,
+) -> Result<Vec<DroppedAttachment>, String> {
+    let expected = app
+        .path()
+        .home_dir()
+        .map_err(|e| format!("Can't locate the home folder: {e}"))?
+        .join("ShipMemory")
+        .join(".shipmemory")
+        .canonicalize()
+        .map_err(|e| format!("Can't open the ShipMemory hub: {e}"))?;
+    let requested = PathBuf::from(hub_root)
+        .canonicalize()
+        .map_err(|e| format!("Can't open the attachment destination: {e}"))?;
+    if requested != expected {
+        return Err("Refusing to import outside the ShipMemory hub".into());
+    }
+
+    tauri::async_runtime::spawn_blocking(move || {
+        let attachment_dir = expected.join("attachments");
+        fs::create_dir_all(&attachment_dir)
+            .map_err(|e| format!("Can't create the attachment folder: {e}"))?;
+        let mut imported = Vec::new();
+
+        for raw_path in paths {
+            let source = PathBuf::from(&raw_path);
+            if !source.is_file() {
+                return Err(format!("Dropped item is not a file: {}", source.display()));
+            }
+            let original = source
+                .file_name()
+                .and_then(|name| name.to_str())
+                .ok_or_else(|| format!("Invalid filename: {}", source.display()))?;
+            let ext = source
+                .extension()
+                .and_then(|value| value.to_str())
+                .filter(|value| value.chars().all(|c| c.is_ascii_alphanumeric()))
+                .map(|value| format!(".{}", value.to_ascii_lowercase()))
+                .unwrap_or_default();
+            let raw_stem = original
+                .strip_suffix(&ext)
+                .or_else(|| source.file_stem().and_then(|value| value.to_str()))
+                .unwrap_or("attachment");
+            let stem = attachment_stem(raw_stem);
+            let mut filename = format!("{stem}{ext}");
+            let mut suffix = 2;
+            while attachment_dir.join(&filename).exists() {
+                filename = format!("{stem}-{suffix}{ext}");
+                suffix += 1;
+            }
+            fs::copy(&source, attachment_dir.join(&filename))
+                .map_err(|e| format!("Can't attach {}: {e}", source.display()))?;
+            imported.push(DroppedAttachment {
+                rel_path: format!("attachments/{filename}"),
+                name: filename,
+            });
+        }
+        Ok(imported)
+    })
+    .await
+    .map_err(|e| format!("Attachment import task failed: {e}"))?
+}
+
+fn collect_files(dir: &Path, out: &mut Vec<PathBuf>) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let p = entry.path();
+        match entry.file_type() {
+            Ok(ft) if ft.is_dir() => collect_files(&p, out),
+            Ok(ft) if ft.is_file() => out.push(p),
+            _ => {}
+        }
+    }
+}
+
+/// Copy if the target is missing, a different size, or older than the source.
+/// A missing/unreadable timestamp errs toward copying — safe for a backup.
+fn needs_copy(src: &Path, dst: &Path) -> bool {
+    let (Ok(sm), Ok(dm)) = (fs::metadata(src), fs::metadata(dst)) else {
+        return true;
+    };
+    if sm.len() != dm.len() {
+        return true;
+    }
+    let st = sm.modified().ok().and_then(|t| t.duration_since(UNIX_EPOCH).ok());
+    let dt = dm.modified().ok().and_then(|t| t.duration_since(UNIX_EPOCH).ok());
+    match (st, dt) {
+        (Some(s), Some(d)) => s > d,
+        _ => true,
+    }
+}
+
+/// Shared copy engine for both directions. Walks `src`, mirroring files into
+/// `dest`, emitting `sd-sync://progress` as it goes. Never deletes anything.
+///
+/// `overwrite` decides what happens when a file exists on both sides:
+///   - `true`  (export → card): copy when newer/different (`needs_copy`).
+///   - `false` (import → vault): copy ONLY files the vault is missing, so an
+///     existing note is never clobbered by a stale card copy. FAT32's coarse
+///     2s mtime means "newer" is unreliable across the card, which is exactly
+///     why import fills-gaps-only rather than trusting timestamps.
+fn mirror_dir(
+    app: &AppHandle,
+    src: &Path,
+    dest: &Path,
+    overwrite: bool,
+) -> Result<SyncReport, String> {
+    fs::create_dir_all(dest)
+        .map_err(|e| format!("Can't create destination {}: {e}", dest.display()))?;
+
+    let mut files = Vec::new();
+    collect_files(src, &mut files);
+    let total = files.len();
+
+    let mut report = SyncReport {
+        copied: 0,
+        skipped: 0,
+        bytes: 0,
+        errors: Vec::new(),
+        dest: dest.to_string_lossy().to_string(),
+    };
+
+    for (i, f) in files.iter().enumerate() {
+        let rel = f.strip_prefix(src).unwrap_or(f);
+        let target = dest.join(rel);
+        let _ = app.emit(
+            "sd-sync://progress",
+            SyncProgress {
+                done: i,
+                total,
+                current: rel.to_string_lossy().to_string(),
+            },
+        );
+
+        let should_copy = if overwrite {
+            needs_copy(f, &target)
+        } else {
+            !target.exists()
+        };
+        if !should_copy {
+            report.skipped += 1;
+            continue;
+        }
+        if let Some(parent) = target.parent() {
+            if let Err(e) = fs::create_dir_all(parent) {
+                report.errors.push(format!("{}: {e}", rel.to_string_lossy()));
+                continue;
+            }
+        }
+        match fs::copy(f, &target) {
+            Ok(n) => {
+                report.copied += 1;
+                report.bytes += n;
+            }
+            Err(e) => report.errors.push(format!("{}: {e}", rel.to_string_lossy())),
+        }
+    }
+
+    let _ = app.emit(
+        "sd-sync://progress",
+        SyncProgress {
+            done: total,
+            total,
+            current: String::new(),
+        },
+    );
+    Ok(report)
+}
+
+/// Back up: mirror the vault hub (`src`) into `dest` on the card. One-way,
+/// additive — copies new/changed files, never deletes.
+#[tauri::command]
+async fn sync_vault_to_dir(
+    app: AppHandle,
+    src: String,
+    dest: String,
+) -> Result<SyncReport, String> {
+    let src = PathBuf::from(src);
+    let dest = PathBuf::from(dest);
+
+    tauri::async_runtime::spawn_blocking(move || {
+        if !src.is_dir() {
+            return Err(format!("Vault folder not found: {}", src.display()));
+        }
+        mirror_dir(&app, &src, &dest, true)
+    })
+    .await
+    .map_err(|e| format!("sync task failed: {e}"))?
+}
+
+/// Restore: pull a card's `ShipMemory/` backup (`src`) into the vault
+/// (`dest`). Additive and non-destructive — imports only notes the vault
+/// doesn't already have, so nothing local is ever overwritten or deleted.
+#[tauri::command]
+async fn import_dir_to_vault(
+    app: AppHandle,
+    src: String,
+    dest: String,
+) -> Result<SyncReport, String> {
+    let src = PathBuf::from(src);
+    let dest = PathBuf::from(dest);
+
+    tauri::async_runtime::spawn_blocking(move || {
+        if !src.is_dir() {
+            return Err(format!("No ShipMemory backup found on this card: {}", src.display()));
+        }
+        mirror_dir(&app, &src, &dest, false)
+    })
+    .await
+    .map_err(|e| format!("import task failed: {e}"))?
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(
+            tauri::plugin::Builder::<tauri::Wry, ()>::new("shipmemory-navigation-guard")
+                .on_navigation(|webview, url| {
+                    let label = webview.label();
+                    if should_allow_shell_navigation(label, url.scheme()) {
+                        return true;
+                    }
+
+                    eprintln!(
+                        "[shipmemory] blocked file navigation label={} url={}",
+                        label, url
+                    );
+                    false
+                })
+                .build(),
+        )
+        .setup(|app| {
+            #[cfg(target_os = "macos")]
+            if std::env::var_os("MSH_DEV_DOCK_LAUNCHER").is_some() {
+                app.handle()
+                    .set_activation_policy(tauri::ActivationPolicy::Accessory)?;
+            }
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![
+            list_removable_volumes,
+            sync_vault_to_dir,
+            import_dir_to_vault,
+            import_dropped_attachments
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running ShipMemory");
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@ship-memory/app",
+  "version": "0.1.0",
+  "description": "ShipMemory.app — the notepad buddy. A thin Tauri shell around @ship-memory/ui, pointed at the shared ~/ShipMemory hub.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "vite": "vite",
+    "dev": "tauri dev",
+    "build:web": "vite build",
+    "build": "tauri build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@ship-memory/core": "*",
+    "@ship-memory/ui": "*",
+    "@tauri-apps/api": "^2.5.0",
+    "@tauri-apps/plugin-fs": "^2.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.7.2",
+    "vite": "^6.3.2"
+  }
+}

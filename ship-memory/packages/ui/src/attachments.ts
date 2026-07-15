@@ -17,7 +17,8 @@ const EXT_KIND: Record<string, AttachmentKind> = {
   png: "image", jpg: "image", jpeg: "image", gif: "image", webp: "image",
   heic: "image", svg: "image", bmp: "image",
   mp3: "audio", m4a: "audio", wav: "audio", ogg: "audio", opus: "audio",
-  aac: "audio", flac: "audio", weba: "audio",
+  aac: "audio", flac: "audio", weba: "audio", aif: "audio", aiff: "audio",
+  caf: "audio",
   mp4: "video", mov: "video", webm: "video", mkv: "video", m4v: "video",
 };
 
@@ -26,6 +27,7 @@ const EXT_MIME: Record<string, string> = {
   webp: "image/webp", heic: "image/heic", svg: "image/svg+xml", bmp: "image/bmp",
   mp3: "audio/mpeg", m4a: "audio/mp4", wav: "audio/wav", ogg: "audio/ogg",
   opus: "audio/ogg", aac: "audio/aac", flac: "audio/flac", weba: "audio/webm",
+  aif: "audio/aiff", aiff: "audio/aiff", caf: "audio/x-caf",
   mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm", m4v: "video/mp4",
 };
 
@@ -46,6 +48,20 @@ export function attachmentMime(name: string): string {
 
 /** Host hook: hub-relative path → raw bytes. */
 export type AttachmentLoader = (relPath: string) => Promise<Uint8Array>;
+
+/** An attachment already copied into the hub by the host application. */
+export interface SavedAttachment {
+  name: string;
+  relPath: string;
+}
+
+/**
+ * Native desktop drops arrive as filesystem paths instead of browser Files.
+ * The host imports those paths into the hub and returns link-ready metadata.
+ */
+export type AttachmentPathImporter = (
+  paths: string[],
+) => Promise<SavedAttachment[]>;
 
 /** A click on a media preview asking for the big view. */
 export interface AttachmentOpenRequest {

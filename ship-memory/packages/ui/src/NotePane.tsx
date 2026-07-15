@@ -7,6 +7,8 @@ import {
   attachmentKind,
   attachmentPreviews,
   type AttachmentOpener,
+  type AttachmentPathImporter,
+  type SavedAttachment,
 } from "./attachments";
 import { insertAtCursor } from "./commands";
 import { formatFullDate } from "./dates";
@@ -42,6 +44,10 @@ export interface NotePaneProps {
    * Return true if handled; false/absent falls back to the in-page lightbox.
    */
   onOpenAttachment?: AttachmentOpener;
+  /** Host bridge for native desktop drops, which arrive as filesystem paths. */
+  onImportDroppedAttachments?: AttachmentPathImporter;
+  /** Only the focused, visible pane accepts the host's native drop event. */
+  acceptNativeDrops?: boolean;
   /**
    * Only this slug's editor grabs focus when it loads (new note, daily
    * note). List navigation keeps focus in the list — Apple Notes style —
@@ -77,12 +83,15 @@ export function NotePane({
   onSaved,
   saveSignal = 0,
   onOpenAttachment,
+  onImportDroppedAttachments,
+  acceptNativeDrops = false,
   autoFocusSlug = null,
 }: NotePaneProps) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [titleDraft, setTitleDraft] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
 
   const dirtyRef = useRef(false);
   const editorTextRef = useRef(""); // live editor content
@@ -225,22 +234,62 @@ export function NotePane({
 
   // Save files into <hub>/attachments/ and link them at the cursor. Media
   // gets the `!` image-link form so the preview widget renders it inline.
+  const insertAttachments = useCallback((items: SavedAttachment[]) => {
+    const view = viewRef.current;
+    if (!view || !loadedRef.current || !items.length) return;
+    const links = items.map(({ name, relPath }) => {
+      const bang = attachmentKind(relPath) === "file" ? "" : "!";
+      return `${bang}[${name}](${relPath})`;
+    });
+    insertAtCursor(view, links.join("\n") + "\n");
+  }, []);
+
   const attachFiles = useCallback(
     async (files: File[]) => {
-      const view = viewRef.current;
-      if (!view || !loadedRef.current || !files.length) return;
-      const parts: string[] = [];
-      for (const f of files) {
-        const bytes = new Uint8Array(await f.arrayBuffer());
-        const { name, relPath } = await engine.saveAttachment(f.name, bytes);
-        const bang = attachmentKind(relPath) === "file" ? "" : "!";
-        parts.push(`${bang}[${name}](${relPath})`);
+      if (!viewRef.current || !loadedRef.current || !files.length) return;
+      setAttachmentError(null);
+      try {
+        const saved: SavedAttachment[] = [];
+        for (const f of files) {
+          const bytes = new Uint8Array(await f.arrayBuffer());
+          saved.push(await engine.saveAttachment(f.name, bytes));
+        }
+        insertAttachments(saved);
+      } catch (error) {
+        setAttachmentError(
+          error instanceof Error ? error.message : "Couldn’t attach that file",
+        );
       }
-      insertAtCursor(view, parts.join("\n") + "\n");
     },
-    [engine],
+    [engine, insertAttachments],
   );
   attachRef.current = (files) => void attachFiles(files);
+
+  // Finder drops are intercepted by Tauri before WebKit can create browser
+  // File objects. The desktop host emits their paths; only the focused pane
+  // imports and links them into its active note.
+  useEffect(() => {
+    if (!acceptNativeDrops || !onImportDroppedAttachments) return;
+    const onNativeDrop = (event: Event) => {
+      const paths = (event as CustomEvent<{ paths?: unknown }>).detail?.paths;
+      if (!Array.isArray(paths)) return;
+      const safePaths = paths.filter(
+        (path): path is string => typeof path === "string",
+      );
+      if (!safePaths.length || !loadedRef.current || !viewRef.current) return;
+      setAttachmentError(null);
+      void onImportDroppedAttachments(safePaths)
+        .then(insertAttachments)
+        .catch((error: unknown) => {
+          setAttachmentError(
+            error instanceof Error ? error.message : "Couldn’t attach that file",
+          );
+        });
+    };
+    window.addEventListener("ship-memory:native-file-drop", onNativeDrop);
+    return () =>
+      window.removeEventListener("ship-memory:native-file-drop", onNativeDrop);
+  }, [acceptNativeDrops, insertAttachments, onImportDroppedAttachments]);
 
   const pickFiles = useCallback((accept: string) => {
     const el = fileInputRef.current;
@@ -405,7 +454,7 @@ export function NotePane({
           ))}
         </div>
         <div className="smui-pane-aux">
-          {saveState === "saving" ? "Saving…" : ""}
+          {attachmentError ?? (saveState === "saving" ? "Saving…" : "")}
         </div>
       </div>
       <EditorToolbar

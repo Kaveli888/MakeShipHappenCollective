@@ -11,7 +11,10 @@ import type { MemoryMeta, ShipMemory } from "@ship-memory/core";
 import { FolderSidebar, folderOf } from "./FolderSidebar";
 import { NotesList, listOrder, type SortMode } from "./NotesList";
 import { NotePane } from "./NotePane";
-import type { AttachmentOpener } from "./attachments";
+import type {
+  AttachmentOpener,
+  AttachmentPathImporter,
+} from "./attachments";
 import { GraphView } from "./GraphView";
 import {
   IconCalendar,
@@ -39,6 +42,8 @@ export interface NotepadProps {
    * Return true if handled; false/absent falls back to the in-page lightbox.
    */
   onOpenAttachment?: AttachmentOpener;
+  /** Host bridge for Finder/native file drops. */
+  onImportDroppedAttachments?: AttachmentPathImporter;
   /** Optional host app mark shown in the static window chrome. */
   appLogoSrc?: string;
 }
@@ -158,6 +163,7 @@ export function Notepad({
   engine,
   vaultVersion = 0,
   onOpenAttachment,
+  onImportDroppedAttachments,
   appLogoSrc,
 }: NotepadProps) {
   const [metas, setMetas] = useState<MemoryMeta[]>([]);
@@ -851,8 +857,7 @@ export function Notepad({
   return (
     <div
       className="smui-root"
-      // With the window's native dragDropEnabled off, an unhandled file drop
-      // would navigate the webview to the file — swallow strays here. Note
+      // Swallow any browser-level file drop that misses a note pane. Note
       // drags (x-shipmemory-note) bypass this and keep their own handlers.
       onDragOver={(e) => {
         if (Array.from(e.dataTransfer.types).includes("Files")) e.preventDefault();
@@ -1014,6 +1019,8 @@ export function Notepad({
                         onSaved={() => void refreshList()}
                         saveSignal={saveSignal}
                         onOpenAttachment={onOpenAttachment}
+                        onImportDroppedAttachments={onImportDroppedAttachments}
+                        acceptNativeDrops={active && g.id === focusedGroupId}
                         autoFocusSlug={autoFocusSlug}
                       />
                     </PaneErrorBoundary>

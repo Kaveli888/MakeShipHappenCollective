@@ -19,5 +19,7 @@ export {
   type AttachmentLoader,
   type AttachmentOpener,
   type AttachmentOpenRequest,
+  type AttachmentPathImporter,
+  type SavedAttachment,
 } from "./attachments";
 export * from "./commands";
