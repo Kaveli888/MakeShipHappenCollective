@@ -1,0 +1,50 @@
+{
+  "name": "omni-release",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Autonomous AI-news to social-content release pipeline. Research -> write -> fact-check -> quality gate -> proof images -> queue/publish, organized into content lanes.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bin": {
+    "omni": "./dist/cli/index.js"
+  },
+  "main": "./dist/core/index.js",
+  "types": "./dist/core/index.d.ts",
+  "exports": {
+    ".": "./dist/core/index.js",
+    "./core": "./dist/core/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "audit": "npm audit --audit-level=high",
+    "dev": "tsx src/cli/index.ts help",
+    "cli": "tsx src/cli/index.ts",
+    "omni": "tsx src/cli/index.ts",
+    "run:morning": "tsx src/cli/index.ts run-lane --lane ai-daily-shift",
+    "run:afternoon": "tsx src/cli/index.ts run-lane --lane model-watch",
+    "run:evening": "tsx src/cli/index.ts run-lane --lane evening-battle-card",
+    "run:lane": "tsx src/cli/index.ts run-lane",
+    "run:all": "tsx src/cli/index.ts run-all",
+    "dry-run": "tsx src/cli/index.ts dry-run",
+    "research": "tsx src/cli/index.ts research",
+    "queue": "tsx src/cli/index.ts queue",
+    "queue:list": "tsx src/cli/index.ts queue",
+    "log:latest": "tsx src/cli/index.ts log:latest",
+    "lanes": "tsx src/cli/index.ts lanes",
+    "health": "tsx src/cli/index.ts health",
+    "start": "node dist/cli/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0",
+    "vitest": "^4.1.9"
+  }
+}
