@@ -1,0 +1,32 @@
+{
+  "name": "shipshot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "vite": "vite",
+    "build": "tauri build",
+    "build:web": "tsc && vite build",
+    "install:mac": "sh ./scripts/install-macos.sh",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@crabnebula/tauri-plugin-drag": "^2.1.0",
+    "@ship-memory/core": "file:../ship-memory/packages/core",
+    "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-fs": "^2.4.0",
+    "@tauri-apps/plugin-global-shortcut": "^2.3.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.7.2",
+    "vite": "^6.3.2"
+  }
+}
