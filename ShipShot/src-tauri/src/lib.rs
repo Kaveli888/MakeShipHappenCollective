@@ -8,13 +8,27 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::sync::Mutex;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Mutex,
+};
 use std::thread;
 use std::time::Duration;
 use tauri::{
-    menu::MenuBuilder, tray::TrayIconBuilder, AppHandle, Emitter, Manager, Monitor,
+    menu::MenuBuilder, tray::TrayIconBuilder, AppHandle, Emitter, LogicalSize, Manager, Monitor,
     PhysicalPosition, PhysicalSize, Position, Size, WindowEvent,
 };
+use tauri_plugin_global_shortcut::{Code, Modifiers, ShortcutState};
+
+#[cfg(not(target_os = "macos"))]
+use tauri::LogicalPosition;
+
+#[cfg(target_os = "macos")]
+use objc2::MainThreadMarker;
+#[cfg(target_os = "macos")]
+use objc2_app_kit::{NSPopUpMenuWindowLevel, NSScreen, NSWindow, NSWindowCollectionBehavior};
+#[cfg(target_os = "macos")]
+use objc2_foundation::{NSPoint, NSRect, NSSize};
 
 const TRAY_ICON: tauri::image::Image<'_> = tauri::include_image!("./icons/tray-icon.png");
 
@@ -23,6 +37,105 @@ const TRAY_ICON: tauri::image::Image<'_> = tauri::include_image!("./icons/tray-i
 extern "C" {
     fn CGPreflightScreenCaptureAccess() -> bool;
     fn CGRequestScreenCaptureAccess() -> bool;
+}
+
+#[cfg(target_os = "macos")]
+fn configure_quick_access_window(window: &tauri::WebviewWindow) -> Result<(), String> {
+    window
+        .set_always_on_top(true)
+        .map_err(|error| error.to_string())?;
+    window
+        .set_visible_on_all_workspaces(true)
+        .map_err(|error| error.to_string())?;
+
+    let native_window = window.clone();
+    window
+        .run_on_main_thread(move || {
+            let Ok(pointer) = native_window.ns_window() else {
+                return;
+            };
+            let window = unsafe { &*(pointer as *const NSWindow) };
+            let mut behavior = window.collectionBehavior();
+            behavior.remove(
+                NSWindowCollectionBehavior::MoveToActiveSpace
+                    | NSWindowCollectionBehavior::FullScreenPrimary
+                    | NSWindowCollectionBehavior::FullScreenNone,
+            );
+            behavior.insert(
+                NSWindowCollectionBehavior::CanJoinAllSpaces
+                    | NSWindowCollectionBehavior::CanJoinAllApplications
+                    | NSWindowCollectionBehavior::FullScreenAuxiliary
+                    | NSWindowCollectionBehavior::Stationary
+                    | NSWindowCollectionBehavior::IgnoresCycle,
+            );
+            window.setCollectionBehavior(behavior);
+            window.setLevel(NSPopUpMenuWindowLevel);
+            window.setHidesOnDeactivate(false);
+            window.setIgnoresMouseEvents(false);
+        })
+        .map_err(|error| error.to_string())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn configure_quick_access_window(window: &tauri::WebviewWindow) -> Result<(), String> {
+    window
+        .set_always_on_top(true)
+        .map_err(|error| error.to_string())?;
+    window
+        .set_visible_on_all_workspaces(true)
+        .map_err(|error| error.to_string())
+}
+
+#[cfg(target_os = "macos")]
+fn raise_quick_access_window(window: &tauri::WebviewWindow) -> Result<(), String> {
+    let native_window = window.clone();
+    window
+        .run_on_main_thread(move || {
+            let Ok(pointer) = native_window.ns_window() else {
+                return;
+            };
+            let window = unsafe { &*(pointer as *const NSWindow) };
+            window.setLevel(NSPopUpMenuWindowLevel);
+            window.setHidesOnDeactivate(false);
+            window.orderFrontRegardless();
+        })
+        .map_err(|error| error.to_string())
+}
+
+#[cfg(target_os = "macos")]
+fn set_quick_access_frame(
+    window: &tauri::WebviewWindow,
+    left: f64,
+    top: f64,
+    width: f64,
+    height: f64,
+) -> Result<(), String> {
+    let native_window = window.clone();
+    window
+        .run_on_main_thread(move || {
+            let Some(main_thread) = MainThreadMarker::new() else {
+                return;
+            };
+            let Some(main_screen) = NSScreen::mainScreen(main_thread) else {
+                return;
+            };
+            let Ok(pointer) = native_window.ns_window() else {
+                return;
+            };
+            let window = unsafe { &*(pointer as *const NSWindow) };
+            let main_height = main_screen.frame().size.height;
+            let frame = NSRect::new(
+                NSPoint::new(left, main_height - top - height),
+                NSSize::new(width, height),
+            );
+            window.setFrame_display(frame, true);
+        })
+        .map_err(|error| error.to_string())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn raise_quick_access_window(_window: &tauri::WebviewWindow) -> Result<(), String> {
+    Ok(())
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -58,9 +171,29 @@ struct PendingCapture {
 struct CaptureState {
     captures: Mutex<Vec<Capture>>,
     pending: Mutex<Vec<PendingCapture>>,
+    capture_in_progress: AtomicBool,
     quick_access_expanded: Mutex<bool>,
     quick_access_pinned: Mutex<bool>,
     quick_access_user_positioned: Mutex<bool>,
+    quick_access_monitor: Mutex<Option<MonitorBounds>>,
+    quick_access_candidate: Mutex<Option<(MonitorBounds, u8)>>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct MonitorBounds {
+    x: i32,
+    y: i32,
+    width: u32,
+    height: u32,
+}
+
+fn monitor_bounds(monitor: &Monitor) -> MonitorBounds {
+    MonitorBounds {
+        x: monitor.position().x,
+        y: monitor.position().y,
+        width: monitor.size().width,
+        height: monitor.size().height,
+    }
 }
 
 #[derive(Serialize)]
@@ -274,18 +407,43 @@ fn cursor_monitor(app: &AppHandle) -> Result<Monitor, String> {
         .ok_or_else(|| "No display is available".to_string())
 }
 
-fn same_monitor(left: &Monitor, right: &Monitor) -> bool {
-    left.position() == right.position() && left.size() == right.size()
+fn quick_access_size(count: usize, scale: f64) -> PhysicalSize<u32> {
+    let logical = quick_access_logical_size(count);
+    PhysicalSize::new(
+        (logical.width * scale).round() as u32,
+        (logical.height * scale).round() as u32,
+    )
 }
 
-fn quick_access_size(count: usize, scale: f64) -> PhysicalSize<u32> {
-    let visible_cards = count.clamp(1, 4) as f64;
+fn quick_access_logical_size(count: usize) -> LogicalSize<f64> {
+    let visible_cards = count.clamp(1, 2) as f64;
     let width = 200.0;
     let height = 20.0 + visible_cards * 125.0 + visible_cards * 8.0;
-    PhysicalSize::new(
-        (width * scale).round() as u32,
-        (height * scale).round() as u32,
-    )
+    LogicalSize::new(width, height)
+}
+
+fn repair_quick_access_route(app: &AppHandle) -> Result<bool, String> {
+    let window = app
+        .get_webview_window("quick-access")
+        .ok_or_else(|| "Quick Access window is unavailable".to_string())?;
+    let current = window.url().map_err(|error| error.to_string())?;
+    let is_quick_access = current.scheme() != "file"
+        && current
+            .query_pairs()
+            .any(|(key, value)| key == "window" && value == "quick-access");
+    if is_quick_access {
+        return Ok(false);
+    }
+
+    let main = app
+        .get_webview_window("main")
+        .ok_or_else(|| "Main ShipShot window is unavailable".to_string())?;
+    let mut target = main.url().map_err(|error| error.to_string())?;
+    target.set_query(Some("window=quick-access"));
+    target.set_fragment(None);
+    window.navigate(target).map_err(|error| error.to_string())?;
+    write_capture_log(app, "quick-access-repaired", current.as_str());
+    Ok(true)
 }
 
 fn position_quick_access_on_monitor(
@@ -297,19 +455,47 @@ fn position_quick_access_on_monitor(
         .get_webview_window("quick-access")
         .ok_or_else(|| "Quick Access window is unavailable".to_string())?;
     let scale = monitor.scale_factor();
-    let monitor_position = monitor.position();
-    let monitor_size = monitor.size();
-    let window_size = quick_access_size(count, scale);
-    window
-        .set_size(Size::Physical(window_size))
-        .map_err(|error| error.to_string())?;
-    let left = monitor_position.x + (22.0 * scale) as i32;
-    let bottom_inset = (44.0 * scale) as i32;
-    let top =
-        monitor_position.y + monitor_size.height as i32 - window_size.height as i32 - bottom_inset;
-    window
-        .set_position(Position::Physical(PhysicalPosition::new(left, top)))
-        .map_err(|error| error.to_string())
+    let monitor_position = monitor.position().to_logical::<f64>(scale);
+    let monitor_size = monitor.size().to_logical::<f64>(scale);
+    let window_size = quick_access_logical_size(count);
+    let left = monitor_position.x + 22.0;
+    let top = monitor_position.y + monitor_size.height - window_size.height - 44.0;
+    #[cfg(target_os = "macos")]
+    set_quick_access_frame(&window, left, top, window_size.width, window_size.height)?;
+    #[cfg(not(target_os = "macos"))]
+    {
+        window
+            .set_size(Size::Logical(window_size))
+            .map_err(|error| error.to_string())?;
+        window
+            .set_position(Position::Logical(LogicalPosition::new(left, top)))
+            .map_err(|error| error.to_string())?;
+    }
+    if let Some(state) = app.try_state::<CaptureState>() {
+        *state
+            .quick_access_monitor
+            .lock()
+            .map_err(|error| error.to_string())? = Some(monitor_bounds(monitor));
+        *state
+            .quick_access_candidate
+            .lock()
+            .map_err(|error| error.to_string())? = None;
+    }
+    write_capture_log(
+        app,
+        "quick-access-position",
+        &format!(
+            "monitor_x={} monitor_y={} scale={} logical_x={} logical_y={} logical_width={} logical_height={}",
+            monitor.position().x,
+            monitor.position().y,
+            scale,
+            left,
+            top,
+            window_size.width,
+            window_size.height
+        ),
+    );
+    Ok(())
 }
 
 fn position_quick_access(app: &AppHandle, count: usize) -> Result<(), String> {
@@ -324,16 +510,49 @@ fn sync_quick_access_to_cursor(app: &AppHandle, count: usize) -> Result<bool, St
     if !window.is_visible().map_err(|error| error.to_string())? {
         return Ok(false);
     }
-    let target = cursor_monitor(app)?;
-    let current = window
-        .current_monitor()
-        .map_err(|error| error.to_string())?;
-    if current
-        .as_ref()
-        .is_some_and(|monitor| same_monitor(monitor, &target))
+    let state = app
+        .try_state::<CaptureState>()
+        .ok_or_else(|| "ShipShot is still starting".to_string())?;
+    if *state
+        .quick_access_user_positioned
+        .lock()
+        .map_err(|error| error.to_string())?
     {
         return Ok(false);
     }
+    let target = cursor_monitor(app)?;
+    let target_bounds = monitor_bounds(&target);
+    if *state
+        .quick_access_monitor
+        .lock()
+        .map_err(|error| error.to_string())?
+        == Some(target_bounds)
+    {
+        *state
+            .quick_access_candidate
+            .lock()
+            .map_err(|error| error.to_string())? = None;
+        return Ok(false);
+    }
+
+    // macOS can alternate which display owns a cursor resting on the shared edge.
+    // Require the new display to remain stable for several samples before moving.
+    let should_move = {
+        let mut candidate = state
+            .quick_access_candidate
+            .lock()
+            .map_err(|error| error.to_string())?;
+        let next_count = match *candidate {
+            Some((bounds, samples)) if bounds == target_bounds => samples.saturating_add(1),
+            _ => 1,
+        };
+        *candidate = Some((target_bounds, next_count));
+        next_count >= 3
+    };
+    if !should_move {
+        return Ok(false);
+    }
+
     position_quick_access_on_monitor(app, &target, count)?;
     write_capture_log(
         app,
@@ -381,6 +600,8 @@ fn show_quick_access(app: &AppHandle, expanded: bool) -> Result<(), String> {
     let window = app
         .get_webview_window("quick-access")
         .ok_or_else(|| "Quick Access window is unavailable".to_string())?;
+    configure_quick_access_window(&window)?;
+    repair_quick_access_route(app)?;
     let (count, user_positioned) = app
         .try_state::<CaptureState>()
         .map(|state| {
@@ -423,6 +644,44 @@ fn show_quick_access(app: &AppHandle, expanded: bool) -> Result<(), String> {
         position_quick_access(app, count)?;
     }
     window.show().map_err(|error| error.to_string())?;
+    raise_quick_access_window(&window)?;
+    let position = window.outer_position().map_err(|error| error.to_string())?;
+    let size = window.outer_size().map_err(|error| error.to_string())?;
+    write_capture_log(
+        app,
+        "quick-access-show",
+        &format!(
+            "visible={} x={} y={} width={} height={}",
+            window.is_visible().unwrap_or(false),
+            position.x,
+            position.y,
+            size.width,
+            size.height
+        ),
+    );
+    let verify_app = app.clone();
+    let verify_window = window.clone();
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(350));
+        let Ok(position) = verify_window.outer_position() else {
+            return;
+        };
+        let Ok(size) = verify_window.outer_size() else {
+            return;
+        };
+        write_capture_log(
+            &verify_app,
+            "quick-access-placement",
+            &format!(
+                "visible={} x={} y={} width={} height={}",
+                verify_window.is_visible().unwrap_or(false),
+                position.x,
+                position.y,
+                size.width,
+                size.height
+            ),
+        );
+    });
     Ok(())
 }
 
@@ -565,12 +824,7 @@ fn get_pending_captures(
         .clone())
 }
 
-#[tauri::command]
-async fn capture_screen(
-    app: AppHandle,
-    mode: String,
-    state: tauri::State<'_, CaptureState>,
-) -> Result<PendingCapture, String> {
+async fn capture_screen_inner(app: AppHandle, mode: String) -> Result<PendingCapture, String> {
     write_capture_log(&app, "capture-start", &format!("mode={mode}"));
     if !matches!(
         mode.as_str(),
@@ -645,6 +899,7 @@ async fn capture_screen(
         height,
         file_size: metadata.len(),
     };
+    let state = app.state::<CaptureState>();
     let stack = {
         let mut captures = state.pending.lock().map_err(|error| error.to_string())?;
         captures.push(pending.clone());
@@ -670,6 +925,113 @@ async fn capture_screen(
         ),
     );
     Ok(pending)
+}
+
+async fn capture_with_window_policy(
+    app: AppHandle,
+    mode: String,
+) -> Result<PendingCapture, String> {
+    let state = app
+        .try_state::<CaptureState>()
+        .ok_or_else(|| "ShipShot is still starting".to_string())?;
+    if state.capture_in_progress.swap(true, Ordering::AcqRel) {
+        return Err("A ShipShot capture is already in progress".into());
+    }
+    drop(state);
+
+    let main_window = app.get_webview_window("main");
+    let was_visible = main_window
+        .as_ref()
+        .and_then(|window| window.is_visible().ok())
+        .unwrap_or(false);
+    let was_minimized = main_window
+        .as_ref()
+        .and_then(|window| window.is_minimized().ok())
+        .unwrap_or(false);
+    let restore_on_failure = was_visible && !was_minimized;
+
+    if restore_on_failure {
+        if let Some(window) = &main_window {
+            let _ = window.hide();
+        }
+        let _ = tauri::async_runtime::spawn_blocking(|| {
+            thread::sleep(Duration::from_millis(220));
+        })
+        .await;
+    }
+
+    let result = capture_screen_inner(app.clone(), mode).await;
+
+    if let Some(state) = app.try_state::<CaptureState>() {
+        state.capture_in_progress.store(false, Ordering::Release);
+    }
+
+    if result.is_err() && restore_on_failure {
+        if let Some(window) = &main_window {
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+    } else if was_minimized {
+        if let Some(window) = &main_window {
+            let _ = window.minimize();
+        }
+    }
+
+    result
+}
+
+#[tauri::command]
+async fn capture_screen(app: AppHandle, mode: String) -> Result<PendingCapture, String> {
+    capture_with_window_policy(app, mode).await
+}
+
+pub(crate) fn trigger_background_capture(app: &AppHandle, mode: &str) {
+    trigger_background_capture_from(app, mode, "native-mouse");
+}
+
+fn trigger_background_capture_from(app: &AppHandle, mode: &str, source: &str) {
+    let cursor = app.cursor_position().ok();
+    let monitor = cursor_monitor(app).ok();
+    let main_window = app.get_webview_window("main");
+    let main_visible = main_window
+        .as_ref()
+        .and_then(|window| window.is_visible().ok())
+        .unwrap_or(false);
+    let main_minimized = main_window
+        .as_ref()
+        .and_then(|window| window.is_minimized().ok())
+        .unwrap_or(false);
+    write_capture_log(
+        app,
+        "capture-trigger",
+        &format!(
+            "source={source} mode={mode} cursor={} monitor={} main_visible={main_visible} main_minimized={main_minimized}",
+            cursor
+                .map(|position| format!("{},{}", position.x, position.y))
+                .unwrap_or_else(|| "unknown".into()),
+            monitor
+                .map(|display| format!(
+                    "{},{},{},{}",
+                    display.position().x,
+                    display.position().y,
+                    display.size().width,
+                    display.size().height
+                ))
+                .unwrap_or_else(|| "unknown".into())
+        ),
+    );
+    let app = app.clone();
+    let mode = mode.to_string();
+    tauri::async_runtime::spawn(async move {
+        if let Err(error) = capture_with_window_policy(app.clone(), mode.clone()).await {
+            let lowered = error.to_lowercase();
+            let is_expected = lowered.contains("cancel") || lowered.contains("already in progress");
+            if !is_expected {
+                write_capture_log(&app, "background-capture-error", &error);
+                let _ = app.emit_to("main", "capture-error", error);
+            }
+        }
+    });
 }
 
 #[tauri::command]
@@ -977,6 +1339,10 @@ fn set_quick_access_user_positioned(
         .quick_access_user_positioned
         .lock()
         .map_err(|error| error.to_string())? = positioned;
+    *state
+        .quick_access_candidate
+        .lock()
+        .map_err(|error| error.to_string())? = None;
     Ok(())
 }
 
@@ -1118,9 +1484,35 @@ fn delete_capture(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let background_launch = std::env::args().any(|argument| argument == "--background");
+    let shortcut_plugin = tauri_plugin_global_shortcut::Builder::new()
+        .with_shortcuts(["Alt+Shift+1", "Alt+Shift+2", "Alt+Shift+3", "Alt+Shift+4"])
+        .expect("ShipShot global shortcuts must be valid")
+        .with_handler(|app, shortcut, event| {
+            if !matches!(event.state, ShortcutState::Pressed) {
+                return;
+            }
+            let modifiers = Modifiers::ALT | Modifiers::SHIFT;
+            let mode = if shortcut.matches(modifiers, Code::Digit1) {
+                Some("area")
+            } else if shortcut.matches(modifiers, Code::Digit2) {
+                Some("window")
+            } else if shortcut.matches(modifiers, Code::Digit3) {
+                Some("fullscreen")
+            } else if shortcut.matches(modifiers, Code::Digit4) {
+                Some("recording")
+            } else {
+                None
+            };
+            if let Some(mode) = mode {
+                trigger_background_capture_from(app, mode, "global-shortcut");
+            }
+        })
+        .build();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(shortcut_plugin)
         .plugin(tauri_plugin_drag::init())
         .on_window_event(|window, event| {
             if window.label() == "main" {
@@ -1130,7 +1522,7 @@ pub fn run() {
                 }
             }
         })
-        .setup(|app| {
+        .setup(move |app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
@@ -1153,20 +1545,16 @@ pub fn run() {
                 .menu(&tray_menu)
                 .tooltip("ShipShot")
                 .show_menu_on_left_click(true)
-                .icon_as_template(true)
+                .icon_as_template(false)
                 .icon(TRAY_ICON)
                 .on_menu_event(|app, event| match event.id().as_ref() {
-                    "capture_area" => {
-                        let _ = app.emit_to("main", "tray-capture", "area");
-                    }
-                    "capture_window" => {
-                        let _ = app.emit_to("main", "tray-capture", "window");
-                    }
+                    "capture_area" => trigger_background_capture_from(app, "area", "menu-bar"),
+                    "capture_window" => trigger_background_capture_from(app, "window", "menu-bar"),
                     "capture_fullscreen" => {
-                        let _ = app.emit_to("main", "tray-capture", "fullscreen");
+                        trigger_background_capture_from(app, "fullscreen", "menu-bar")
                     }
                     "record_screen" => {
-                        let _ = app.emit_to("main", "tray-capture", "recording");
+                        trigger_background_capture_from(app, "recording", "menu-bar")
                     }
                     "open_shipshot" => show_main_window(app, Some("capture")),
                     "open_library" => show_main_window(app, Some("library")),
@@ -1182,10 +1570,16 @@ pub fn run() {
             app.manage(CaptureState {
                 captures: Mutex::new(load_history(app.handle())),
                 pending: Mutex::new(load_pending_history(app.handle())),
+                capture_in_progress: AtomicBool::new(false),
                 quick_access_expanded: Mutex::new(false),
                 quick_access_pinned: Mutex::new(false),
                 quick_access_user_positioned: Mutex::new(false),
+                quick_access_monitor: Mutex::new(None),
+                quick_access_candidate: Mutex::new(None),
             });
+            if let Some(window) = app.get_webview_window("quick-access") {
+                configure_quick_access_window(&window)?;
+            }
             let _ = cleanup_expired_captures(app.handle());
             mouse_capture::init(app.handle().clone());
             let tracker_app = app.handle().clone();
@@ -1231,6 +1625,22 @@ pub fn run() {
                 let _ = cleanup_expired_captures(&cleanup_app);
             });
             let _ = refresh_quick_access(app.handle());
+            if background_launch {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.hide();
+                }
+            } else {
+                show_main_window(app.handle(), None);
+            }
+            write_capture_log(
+                app.handle(),
+                "startup",
+                if background_launch {
+                    "mode=background"
+                } else {
+                    "mode=interactive"
+                },
+            );
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -1268,6 +1678,19 @@ pub fn run() {
             mouse_capture::mouse_capture_request_permission,
             mouse_capture::mouse_capture_open_permission_settings,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running ShipShot");
+        .build(tauri::generate_context!())
+        .expect("error while building ShipShot")
+        .run(|app, event| {
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
+                has_visible_windows,
+                ..
+            } = event
+            {
+                if !has_visible_windows {
+                    show_main_window(app, None);
+                    write_capture_log(app, "reopen", "showing main window");
+                }
+            }
+        });
 }

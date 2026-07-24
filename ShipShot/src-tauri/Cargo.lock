@@ -2826,13 +2826,16 @@ dependencies = [
 
 [[package]]
 name = "shipshot"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "base64 0.22.1",
  "chrono",
  "core-foundation 0.10.1",
  "core-graphics 0.24.0",
  "macos-accessibility-client",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
  "serde",
  "serde_json",
  "tauri",

@@ -100,7 +100,7 @@ pub fn init(app: AppHandle) {
             for message in rx {
                 match message {
                     Message::Trigger(action) => {
-                        let _ = worker_app.emit_to("main", "tray-capture", action);
+                        crate::trigger_background_capture(&worker_app, &action);
                     }
                     Message::Bound(payload) => {
                         let _ = save_config(&worker_app, &worker_state.config.lock().unwrap());

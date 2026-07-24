@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import {
   Aperture,
   AppWindow,
@@ -34,7 +32,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { formatBytes, formatRelativeTime, isTauri, sleep } from "./lib/platform";
+import { formatBytes, formatRelativeTime, isTauri } from "./lib/platform";
 import { rememberCapture } from "./lib/shipMemory";
 import { AnnotationEditor } from "./AnnotationEditor";
 import { QuickAccess } from "./QuickAccess";
@@ -150,13 +148,8 @@ function MainApp() {
     }
 
     setCapturing(mode);
-    const appWindow = getCurrentWindow();
-    let completed = false;
     try {
-      await appWindow.hide();
-      await sleep(220);
       await invoke<PendingCapture>("capture_screen", { mode });
-      completed = true;
     } catch (error) {
       const message = String(error);
       if (!message.toLowerCase().includes("cancel")) {
@@ -175,47 +168,19 @@ function MainApp() {
         });
       }
     } finally {
-      if (!completed) {
-        await appWindow.show();
-        await appWindow.setFocus();
-      }
       setCapturing(null);
     }
   }, [capturing]);
 
   useEffect(() => {
     if (!isTauri()) return;
-    const unlistenCapture = listen<CaptureMode>("tray-capture", ({ payload }) => {
-      void runCapture(payload);
-    });
     const unlistenNavigate = listen<View>("tray-navigate", ({ payload }) => {
       setView(payload);
     });
     return () => {
-      void unlistenCapture.then((unlisten) => unlisten());
       void unlistenNavigate.then((unlisten) => unlisten());
     };
-  }, [runCapture]);
-
-  useEffect(() => {
-    if (!isTauri()) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        await unregisterAll();
-        for (const binding of bindings) {
-          if (cancelled) return;
-          await register(binding.shortcut, () => void runCapture(binding.mode));
-        }
-      } catch (error) {
-        setToast({ tone: "error", message: `Shortcuts unavailable: ${String(error)}` });
-      }
-    })();
-    return () => {
-      cancelled = true;
-      void unregisterAll();
-    };
-  }, [runCapture]);
+  }, []);
 
   const removeCapture = useCallback(async (capture: Capture) => {
     if (!isTauri()) return;

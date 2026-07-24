@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { startDrag } from "@crabnebula/tauri-plugin-drag";
-import { Check, Film, GripHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Check, Film, GripHorizontal, Pencil, X } from "lucide-react";
 import { rememberCapture } from "./lib/shipMemory";
 import type { Capture, PendingCapture } from "./types";
 
@@ -24,7 +24,17 @@ export function QuickAccess() {
 
   useEffect(() => {
     document.documentElement.classList.add("quick-surface");
-    return () => document.documentElement.classList.remove("quick-surface");
+    const preventFileNavigation = (event: DragEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    window.addEventListener("dragover", preventFileNavigation, true);
+    window.addEventListener("drop", preventFileNavigation, true);
+    return () => {
+      document.documentElement.classList.remove("quick-surface");
+      window.removeEventListener("dragover", preventFileNavigation, true);
+      window.removeEventListener("drop", preventFileNavigation, true);
+    };
   }, []);
 
   const loadPreviews = useCallback(async (captures: PendingCapture[]) => {
@@ -154,8 +164,10 @@ export function QuickAccess() {
     }
   };
 
-  const dragOut = (capture: PendingCapture): React.DragEventHandler<HTMLDivElement> => (event) => {
+  const dragOut = (capture: PendingCapture): React.PointerEventHandler<HTMLDivElement> => (event) => {
+    if (event.button !== 0) return;
     event.preventDefault();
+    event.stopPropagation();
     if (demo) {
       removeLocal(capture.id);
       return;
@@ -189,7 +201,7 @@ export function QuickAccess() {
         }}
         title="Drag to move the ShipShot stack"
       >
-        <GripHorizontal size={13} /> Move stack
+        <GripHorizontal size={13} /> {pending.length} {pending.length === 1 ? "capture" : "captures"} · Move
       </div>
       {pending.map((capture, index) => {
         const isActive = activeId === capture.id;
@@ -202,15 +214,13 @@ export function QuickAccess() {
           >
             <div
               className="quick-preview"
-              draggable
-              onDragStart={dragOut(capture)}
-              onClick={() => void edit(capture)}
+              onPointerDown={dragOut(capture)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") void edit(capture);
               }}
               role="button"
               tabIndex={0}
-              title="Drag the screenshot, or click to edit"
+              title="Press and drag the screenshot"
             >
               {previews[capture.id] ? <img src={previews[capture.id]} alt="" /> : <Film size={28} />}
               <div className="quick-preview-shade" />
@@ -218,9 +228,19 @@ export function QuickAccess() {
               <span className="quick-drag-hint"><GripHorizontal size={13} /> Drag anywhere</span>
             </div>
 
+            <button
+              type="button"
+              className="quick-delete-x"
+              onClick={() => void discard(capture)}
+              title="Delete this temporary capture"
+              aria-label="Delete this temporary capture"
+            >
+              <X size={14} />
+            </button>
+
             <div className="quick-center-actions">
-              <button onClick={() => void edit(capture)}><Pencil size={13} /> Edit</button>
-              <button className="save" onClick={async () => {
+              <button type="button" onClick={() => void edit(capture)}><Pencil size={13} /> Edit</button>
+              <button type="button" className="save" onClick={async () => {
                 if (demo) {
                   removeLocal(capture.id);
                   return;
@@ -232,7 +252,6 @@ export function QuickAccess() {
                   setNotice({ id: capture.id, tone: "error", message: String(error) });
                 }
               }}><Check size={13} /> Save As</button>
-              <button className="delete" onClick={() => void discard(capture)}><Trash2 size={13} /> Delete</button>
             </div>
 
             {notice?.id === capture.id && <div className={`quick-notice ${notice.tone}`}>{notice.message}</div>}

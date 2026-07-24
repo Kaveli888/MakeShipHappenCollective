@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "ShipShot",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "identifier": "com.makeshiphappen.shipshot",
   "build": {
     "beforeDevCommand": "npm run vite",
@@ -20,6 +20,7 @@
         "height": 790,
         "minWidth": 900,
         "minHeight": 650,
+        "visible": false,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
         "decorations": true
@@ -37,6 +38,8 @@
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
+        "focus": false,
+        "visibleOnAllWorkspaces": true,
         "skipTaskbar": true,
         "shadow": false,
         "visible": false,
