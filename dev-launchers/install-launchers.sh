@@ -54,7 +54,10 @@ build_launcher() {
 
 build_launcher 'Omni Release' 'tech.makeshiphappen.omnirelease.dev' 'omni-release' 'omni-release/app/src-tauri/icons/icon.icns'
 build_launcher 'ShipTalk Dev' 'com.makeshiphappen.shiptalk.dev' 'shiptalk' 'ShipTalk/src-tauri/icons/icon.icns'
-build_launcher 'ShipSpace Dev' 'com.shipspace.ade.dev' 'shipspace' 'ShipSpace/src-tauri/icons/icon.icns'
+# The Dock host must not share ShipSpace's runtime bundle id. If both use
+# com.shipspace.ade.dev, LaunchServices can route a Dock click to the already
+# quit temporary signed runtime instead of launching this persistent host.
+build_launcher 'ShipSpace Dev' 'tech.makeshiphappen.devlauncher.shipspace' 'shipspace' 'ShipSpace/src-tauri/icons/icon.icns'
 build_launcher 'ShipMemory Dev' 'com.shipmemory.dev' 'shipmemory' 'ship-memory/packages/app/src-tauri/icons/icon.icns'
 build_launcher 'ShipMind Dev' 'com.makeshiphappen.shipmind.dev' 'shipmind' 'shipmind/src-tauri/icons/icon.icns'
 build_launcher 'ShipWatch Dev' 'com.shipwatch.app' 'shipwatch' 'ShipWatch/src-tauri/icons/icon.icns'

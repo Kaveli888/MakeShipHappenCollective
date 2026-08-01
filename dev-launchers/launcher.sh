@@ -22,6 +22,24 @@ log_launcher() {
   print -r -- "[$(/bin/date -u '+%Y-%m-%dT%H:%M:%SZ')] pid=$$ $*" >> "$LOG_FILE"
 }
 
+# pgrep -f alone is unsafe here: build and codesign commands include the app
+# executable path in their arguments and can briefly impersonate a running
+# app. Verify the kernel accounting name as well, so only the real executable
+# (for ShipSpace, `shipspace`) counts.
+find_running_app_pids() {
+  [[ -n "${RUNNING_PATTERN:-}" ]] || return 0
+  local expected_name="${RUNNING_PATTERN:t}"
+  local candidate_pid candidate_name
+  while IFS= read -r candidate_pid; do
+    [[ -n "$candidate_pid" ]] || continue
+    candidate_name="$(/bin/ps -p "$candidate_pid" -o ucomm= 2>/dev/null)"
+    candidate_name="${candidate_name//[[:space:]]/}"
+    if [[ "$candidate_name" == "$expected_name" ]]; then
+      print -r -- "$candidate_pid"
+    fi
+  done < <(/usr/bin/pgrep -f "$RUNNING_PATTERN" 2>/dev/null || true)
+}
+
 if [[ "${1:-}" == "--run-session" ]]; then
   export MSH_DEV_DOCK_LAUNCHER=1
   export NVM_DIR="$HOME/.nvm"
@@ -34,8 +52,18 @@ if [[ "${1:-}" == "--run-session" ]]; then
   # Remove our own launchd label once the dev command ends, otherwise
   # launchctl-submit jobs are silently respawned by launchd after any
   # abnormal exit (observed: unattended ShipMind rebuilds/relaunches).
-  print -r -- "[$(/bin/date -u '+%Y-%m-%dT%H:%M:%SZ')] $DISPLAY_NAME dev command exited (status $session_status); removing job ${JOB_LABEL:-}"
-  [[ -n "${JOB_LABEL:-}" ]] && /bin/launchctl remove "$JOB_LABEL" >/dev/null 2>&1
+  if [[ -n "${JOB_LABEL:-}" ]]; then
+    active_job_pid="$(
+      /bin/launchctl print "gui/$(/usr/bin/id -u)/$JOB_LABEL" 2>/dev/null \
+        | /usr/bin/awk '/^[[:space:]]*pid = / { print $3; exit }'
+    )"
+    if [[ -z "$active_job_pid" || "$active_job_pid" == "$$" ]]; then
+      print -r -- "[$(/bin/date -u '+%Y-%m-%dT%H:%M:%SZ')] $DISPLAY_NAME dev command exited (status $session_status); removing owned job $JOB_LABEL"
+      /bin/launchctl remove "$JOB_LABEL" >/dev/null 2>&1
+    else
+      print -r -- "[$(/bin/date -u '+%Y-%m-%dT%H:%M:%SZ')] $DISPLAY_NAME dev command exited (status $session_status); job $JOB_LABEL now belongs to pid $active_job_pid, leaving it running"
+    fi
+  fi
   exit $session_status
 fi
 
@@ -44,8 +72,10 @@ log_launcher "invoked"
 app_running=0
 server_healthy=0
 
-if [[ "${MSH_LAUNCHER_DRY_RUN:-0}" != "1" && -n "${RUNNING_PATTERN:-}" ]] && /usr/bin/pgrep -q -f "$RUNNING_PATTERN"; then
-  app_running=1
+running_pid=""
+if [[ "${MSH_LAUNCHER_DRY_RUN:-0}" != "1" ]]; then
+  running_pid="$(find_running_app_pids | /usr/bin/head -1)"
+  [[ -n "$running_pid" ]] && app_running=1
 fi
 
 if [[ "${MSH_LAUNCHER_DRY_RUN:-0}" != "1" && -n "${DEV_SERVER_URL:-}" ]] && /usr/bin/curl -fsS --connect-timeout 1 --max-time 2 "$DEV_SERVER_URL" >/dev/null 2>&1; then
@@ -56,7 +86,8 @@ if (( ! app_running && server_healthy )) && [[ -n "${RUNNING_PATTERN:-}" ]]; the
   # The native window may still be starting. Give it a moment before treating
   # the listener as a leftover session from an app that was quit separately.
   for _ in {1..20}; do
-    if /usr/bin/pgrep -q -f "$RUNNING_PATTERN"; then
+    running_pid="$(find_running_app_pids | /usr/bin/head -1)"
+    if [[ -n "$running_pid" ]]; then
       app_running=1
       break
     fi
@@ -65,7 +96,6 @@ if (( ! app_running && server_healthy )) && [[ -n "${RUNNING_PATTERN:-}" ]]; the
 fi
 
 if (( app_running )) && [[ -z "${DEV_SERVER_URL:-}" || "$server_healthy" == "1" ]]; then
-  running_pid="$(/usr/bin/pgrep -f "$RUNNING_PATTERN" | /usr/bin/head -1)"
   log_launcher "existing app detected; activating pid $running_pid (bundle $APP_BUNDLE_ID)"
   if [[ -n "${APP_BUNDLE_ID:-}" ]]; then
     /usr/bin/osascript - "$APP_BUNDLE_ID" "${APP_PROCESS_NAME:-}" "$running_pid" >/dev/null 2>&1 <<'APPLESCRIPT' || true
@@ -90,12 +120,17 @@ fi
 
 if (( app_running )) && [[ -n "${DEV_SERVER_URL:-}" && "$server_healthy" == "0" ]]; then
   log_launcher "stale app detected; dev server is unavailable at $DEV_SERVER_URL"
-  /usr/bin/pkill -TERM -f "$RUNNING_PATTERN" >/dev/null 2>&1 || true
+  stale_pids="$(find_running_app_pids)"
+  while IFS= read -r stale_pid; do
+    [[ -n "$stale_pid" ]] && /bin/kill -TERM "$stale_pid" >/dev/null 2>&1 || true
+  done <<< "$stale_pids"
   for _ in {1..20}; do
-    /usr/bin/pgrep -q -f "$RUNNING_PATTERN" || break
+    [[ -n "$(find_running_app_pids)" ]] || break
     /bin/sleep 0.1
   done
-  /usr/bin/pkill -KILL -f "$RUNNING_PATTERN" >/dev/null 2>&1 || true
+  while IFS= read -r stale_pid; do
+    [[ -n "$stale_pid" ]] && /bin/kill -KILL "$stale_pid" >/dev/null 2>&1 || true
+  done < <(find_running_app_pids)
 fi
 
 if (( ! app_running && server_healthy )); then
@@ -161,8 +196,19 @@ if [[ -z "${JOB_LABEL:-}" ]]; then
   exit 1
 fi
 
-# A fixed per-product launchd job owns the whole dev process tree. This keeps
-# the session invisible while still giving it a reliable cleanup path.
+# A fixed per-product launchd job owns the whole dev process tree. If a build
+# or dependency repair is already running, a second Dock click must leave that
+# session alone.
+existing_job_pid="$(
+  /bin/launchctl print "gui/$(/usr/bin/id -u)/$JOB_LABEL" 2>/dev/null \
+    | /usr/bin/awk '/^[[:space:]]*pid = / { print $3; exit }'
+)"
+if [[ -n "$existing_job_pid" ]]; then
+  log_launcher "launch already in progress (job pid $existing_job_pid); leaving existing session running"
+  exit 0
+fi
+
+# Clear only an inactive/stale registration before submitting a fresh owner.
 /bin/launchctl remove "$JOB_LABEL" >/dev/null 2>&1 || true
 
 log_launcher "submitting invisible launchd job $JOB_LABEL"

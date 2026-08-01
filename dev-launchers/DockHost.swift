@@ -148,6 +148,7 @@ private final class DockHostDelegate: NSObject, NSApplicationDelegate {
 
     private func findRuntimePID() -> pid_t? {
         guard let pattern = config?.runningPattern else { return nil }
+        let expectedExecutable = URL(fileURLWithPath: pattern).lastPathComponent
 
         let task = Process()
         let pipe = Pipe()
@@ -169,11 +170,37 @@ private final class DockHostDelegate: NSObject, NSApplicationDelegate {
         }
 
         for line in output.split(whereSeparator: \.isNewline) {
-            if let pid = pid_t(line.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            if let pid = pid_t(line.trimmingCharacters(in: .whitespacesAndNewlines)),
+               processExecutableName(pid: pid) == expectedExecutable {
                 return pid
             }
         }
         return nil
+    }
+
+    /// `pgrep -f` also finds build/signing/polling commands whose arguments
+    /// merely contain the runtime path. Verify the kernel command name so a
+    /// Dock click can never attach to a transient helper and immediately exit.
+    private func processExecutableName(pid: pid_t) -> String? {
+        let task = Process()
+        let pipe = Pipe()
+        task.executableURL = URL(fileURLWithPath: "/bin/ps")
+        task.arguments = ["-p", String(pid), "-o", "ucomm="]
+        task.standardOutput = pipe
+        task.standardError = FileHandle.nullDevice
+
+        do {
+            try task.run()
+            task.waitUntilExit()
+        } catch {
+            return nil
+        }
+
+        guard task.terminationStatus == 0,
+              let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) else {
+            return nil
+        }
+        return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func activateRuntime() {

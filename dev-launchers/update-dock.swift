@@ -18,7 +18,7 @@ struct Launcher {
 let launchers = [
     Launcher(label: "Omni Release", appName: "Omni Release.app", bundleIdentifier: "tech.makeshiphappen.omnirelease.dev", guid: 3_900_000_001),
     Launcher(label: "ShipTalk Dev", appName: "ShipTalk Dev.app", bundleIdentifier: "com.makeshiphappen.shiptalk.dev", guid: 3_900_000_002),
-    Launcher(label: "ShipSpace Dev", appName: "ShipSpace Dev.app", bundleIdentifier: "com.shipspace.ade.dev", guid: 3_900_000_003),
+    Launcher(label: "ShipSpace Dev", appName: "ShipSpace Dev.app", bundleIdentifier: "tech.makeshiphappen.devlauncher.shipspace", guid: 3_900_000_003),
     Launcher(label: "ShipMemory Dev", appName: "ShipMemory Dev.app", bundleIdentifier: "com.shipmemory.dev", guid: 3_900_000_004),
     Launcher(label: "ShipMind Dev", appName: "ShipMind Dev.app", bundleIdentifier: "com.makeshiphappen.shipmind.dev", guid: 3_900_000_005),
     Launcher(label: "ShipWatch Dev", appName: "ShipWatch Dev.app", bundleIdentifier: "com.shipwatch.app", guid: 3_900_000_006),
