@@ -139,6 +139,31 @@ function preview(text: string, max = 160): string {
     return oneLine.length <= max ? oneLine : oneLine.slice(0, max) + "…";
 }
 
+// ── Security filtering ──
+// Mirror the shipspace-mcp pattern: allowlist + sensitive-key regex.
+
+const ALLOWED_KEYS = new Set<string>([
+    "shiptalk-history",
+    "shiptalk-onboarded",
+    "selected-model",
+    "selected-theme",
+    "audio-input-device",
+    "enhancement-mode",
+    "enhancement-custom-prompt",
+    "polish-enabled",
+    "cloud-features-enabled",
+    "shortcut-ptt",
+    "shortcut-toggle",
+    "type-to-app",
+    "widget-appearance",
+]);
+
+const SENSITIVE_KEY_RE = /key|secret|token|password/i;
+
+function isSensitiveKey(key: string): boolean {
+    return key === "shiptalk-api-keys" || SENSITIVE_KEY_RE.test(key);
+}
+
 // ── Server ──
 const server = new Server(
     { name: "shiptalk", version: "0.1.0" },
@@ -381,12 +406,14 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             const rows = db
                 .prepare("SELECT key FROM ItemTable ORDER BY key ASC")
                 .all() as Array<{ key: string }>;
-            return jsonResult(rows.map((r) => r.key));
+            return jsonResult(rows.map((r) => r.key).filter((k) => !isSensitiveKey(k)));
         }
 
         case "get_state_raw": {
             const key = asStr(args.key);
             if (!key) return textResult("error: key is required");
+            if (isSensitiveKey(key) || !ALLOWED_KEYS.has(key))
+                return textResult(`error: access denied for key ${key}`);
             const v = readKey(key);
             if (v === null) return textResult(`error: no value for key ${key}`);
             return jsonResult({ key, value: v });
