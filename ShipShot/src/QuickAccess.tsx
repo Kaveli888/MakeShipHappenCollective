@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -16,7 +16,6 @@ type Notice = {
 export function QuickAccess() {
   const params = new URLSearchParams(window.location.search);
   const demo = params.get("demo") === "true";
-  const stackRef = useRef<HTMLElement>(null);
   const [pending, setPending] = useState<PendingCapture[]>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -24,6 +23,7 @@ export function QuickAccess() {
 
   useEffect(() => {
     document.documentElement.classList.add("quick-surface");
+    if (demo) document.documentElement.classList.add("quick-demo");
     const preventFileNavigation = (event: DragEvent) => {
       event.preventDefault();
       event.stopPropagation();
@@ -32,10 +32,11 @@ export function QuickAccess() {
     window.addEventListener("drop", preventFileNavigation, true);
     return () => {
       document.documentElement.classList.remove("quick-surface");
+      document.documentElement.classList.remove("quick-demo");
       window.removeEventListener("dragover", preventFileNavigation, true);
       window.removeEventListener("drop", preventFileNavigation, true);
     };
-  }, []);
+  }, [demo]);
 
   const loadPreviews = useCallback(async (captures: PendingCapture[]) => {
     const imageCaptures = captures.filter((capture) => capture.mediaType === "image");
@@ -72,6 +73,7 @@ export function QuickAccess() {
         makeMock("shipshot-demo-1", "ShipShot_One.png"),
         makeMock("shipshot-demo-2", "ShipShot_Two.png"),
         makeMock("shipshot-demo-3", "ShipShot_Three.png"),
+        makeMock("shipshot-demo-4", "ShipShot_Four.png"),
       ];
       setPending(captures);
       const preview = params.get("preview") || "/src-tauri/icons/128x128@2x.png";
@@ -91,11 +93,6 @@ export function QuickAccess() {
       void unlistenCollapse.then((stop) => stop());
     };
   }, [applyStack, demo]);
-
-  useEffect(() => {
-    const element = stackRef.current;
-    if (element) element.scrollTop = element.scrollHeight;
-  }, [pending.length]);
 
   useEffect(() => {
     if (!notice) return;
@@ -189,7 +186,7 @@ export function QuickAccess() {
   if (!pending.length) return <div className="quick-access-empty" />;
 
   return (
-    <main ref={stackRef} className="quick-access-root" onMouseLeave={closeActions}>
+    <main className="quick-access-root" onMouseLeave={closeActions}>
       <div
         className="quick-stack-handle"
         data-tauri-drag-region
@@ -222,10 +219,10 @@ export function QuickAccess() {
               tabIndex={0}
               title="Press and drag the screenshot"
             >
-              {previews[capture.id] ? <img src={previews[capture.id]} alt="" /> : <Film size={28} />}
+              {previews[capture.id] ? <img src={previews[capture.id]} alt="" /> : <Film size={25} />}
               <div className="quick-preview-shade" />
               <span className="quick-stack-count">{index + 1}/{pending.length}</span>
-              <span className="quick-drag-hint"><GripHorizontal size={13} /> Drag anywhere</span>
+              <span className="quick-drag-hint"><GripHorizontal size={12} /> Drag anywhere</span>
             </div>
 
             <button
@@ -235,11 +232,11 @@ export function QuickAccess() {
               title="Delete this temporary capture"
               aria-label="Delete this temporary capture"
             >
-              <X size={14} />
+              <X size={13} />
             </button>
 
             <div className="quick-center-actions">
-              <button type="button" onClick={() => void edit(capture)}><Pencil size={13} /> Edit</button>
+              <button type="button" onClick={() => void edit(capture)}><Pencil size={12} /> Edit</button>
               <button type="button" className="save" onClick={async () => {
                 if (demo) {
                   removeLocal(capture.id);
@@ -251,7 +248,7 @@ export function QuickAccess() {
                 } catch (error) {
                   setNotice({ id: capture.id, tone: "error", message: String(error) });
                 }
-              }}><Check size={13} /> Save As</button>
+              }}><Check size={12} /> Save As</button>
             </div>
 
             {notice?.id === capture.id && <div className={`quick-notice ${notice.tone}`}>{notice.message}</div>}

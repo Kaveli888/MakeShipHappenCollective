@@ -1,6 +1,6 @@
 [package]
 name = "shipshot"
-version = "0.1.4"
+version = "0.1.7"
 description = "ShipShot — capture anything, remember everything"
 authors = ["MakeShipHappen"]
 edition = "2021"

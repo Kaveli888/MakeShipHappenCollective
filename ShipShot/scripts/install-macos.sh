@@ -6,9 +6,29 @@ source_app="$project_dir/src-tauri/target/release/bundle/macos/ShipShot.app"
 installed_app="/Applications/ShipShot.app"
 launch_agent="$HOME/Library/LaunchAgents/com.makeshiphappen.shipshot.plist"
 service_target="gui/$(id -u)/com.makeshiphappen.shipshot"
+staging_dir=$(/usr/bin/mktemp -d /private/tmp/shipshot-install.XXXXXX)
+staged_app="$staging_dir/ShipShot.app"
+previous_app="$staging_dir/Previous-ShipShot.app"
+
+cleanup_staging() {
+  if [ -d "$staging_dir" ]; then
+    /bin/rm -rf "$staging_dir"
+  fi
+}
+trap cleanup_staging EXIT HUP INT TERM
 
 if [ ! -d "$source_app" ]; then
   echo "ShipShot.app is missing. Run npm run build first." >&2
+  exit 1
+fi
+
+source_binary="$source_app/Contents/MacOS/shipshot"
+if ! /usr/bin/strings "$source_binary" | /usr/bin/grep -Fq "tauri://localhost"; then
+  echo "Refusing to install a non-production ShipShot binary. Run npm run build." >&2
+  exit 1
+fi
+if ! /usr/bin/strings "$source_binary" | /usr/bin/grep -Fq "/assets/index-"; then
+  echo "Refusing to install ShipShot without its embedded frontend. Run npm run build." >&2
   exit 1
 fi
 
@@ -25,16 +45,36 @@ while /usr/bin/pgrep -x shipshot >/dev/null 2>&1 && [ "$attempt" -lt 20 ]; do
 done
 
 # Documents may be managed by a macOS file provider, which can attach Finder
-# metadata that invalidates a bundle signature. Install a clean copy outside
-# that directory and sign it with Jake's stable Developer ID so Screen Recording
-# permission survives subsequent ShipShot builds.
-/usr/bin/ditto --noextattr --norsrc "$source_app" "$installed_app"
-/usr/bin/xattr -cr "$installed_app"
+# metadata that invalidates a bundle signature. Build and sign a completely
+# fresh staging copy, then atomically replace the installed bundle. Never merge
+# a new release into the previous .app because stale sealed resources can make
+# the signature fail after launch.
+/usr/bin/ditto --noextattr --norsrc "$source_app" "$staged_app"
+/usr/bin/xattr -cr "$staged_app"
 /usr/bin/codesign \
   --force \
-  --deep \
   --sign "Developer ID Application: Jacob Felton (7G7K3X24Q5)" \
-  --identifier com.makeshiphappen.shipshot \
+  --options runtime \
+  --timestamp \
+  "$staged_app"
+/usr/bin/codesign --verify --deep --strict --verbose=2 "$staged_app"
+
+if [ -d "$installed_app" ]; then
+  /bin/mv "$installed_app" "$previous_app"
+fi
+if ! /bin/mv "$staged_app" "$installed_app"; then
+  if [ -d "$previous_app" ]; then
+    /bin/mv "$previous_app" "$installed_app"
+  fi
+  echo "Unable to replace the installed ShipShot app." >&2
+  exit 1
+fi
+# Sign once more at the final bundle path. macOS validates the relocated bundle
+# immediately, but the hardened-runtime signature must originate at its stable
+# /Applications path to remain valid after the first launch on this machine.
+/usr/bin/codesign \
+  --force \
+  --sign "Developer ID Application: Jacob Felton (7G7K3X24Q5)" \
   --options runtime \
   --timestamp \
   "$installed_app"

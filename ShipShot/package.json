@@ -1,14 +1,15 @@
 {
   "name": "shipshot",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.7",
   "type": "module",
   "scripts": {
     "dev": "tauri dev",
     "vite": "vite",
     "build": "tauri build",
     "build:web": "tsc && vite build",
-    "install:mac": "sh ./scripts/install-macos.sh",
+    "install:mac": "npm run build && sh ./scripts/install-macos.sh",
+    "install:mac:built": "sh ./scripts/install-macos.sh",
     "tauri": "tauri"
   },
   "dependencies": {

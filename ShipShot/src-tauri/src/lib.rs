@@ -31,6 +31,7 @@ use objc2_app_kit::{NSPopUpMenuWindowLevel, NSScreen, NSWindow, NSWindowCollecti
 use objc2_foundation::{NSPoint, NSRect, NSSize};
 
 const TRAY_ICON: tauri::image::Image<'_> = tauri::include_image!("./icons/tray-icon.png");
+const MAX_PENDING_CAPTURES: usize = 10;
 
 #[cfg(target_os = "macos")]
 #[link(name = "CoreGraphics", kind = "framework")]
@@ -416,7 +417,7 @@ fn quick_access_size(count: usize, scale: f64) -> PhysicalSize<u32> {
 }
 
 fn quick_access_logical_size(count: usize) -> LogicalSize<f64> {
-    let visible_cards = count.clamp(1, 2) as f64;
+    let visible_cards = count.clamp(1, MAX_PENDING_CAPTURES) as f64;
     let width = 200.0;
     let height = 20.0 + visible_cards * 125.0 + visible_cards * 8.0;
     LogicalSize::new(width, height)
@@ -740,10 +741,16 @@ fn cleanup_expired_captures(app: &AppHandle) -> Result<(), String> {
         captures.clone()
     };
 
-    emit_pending_stack(app, &pending_stack)?;
-    app.emit_to("main", "captures-pruned", library)
-        .map_err(|error| error.to_string())?;
-    refresh_quick_access(app)
+    if let Err(error) = emit_pending_stack(app, &pending_stack) {
+        write_capture_log(app, "pending-stack-delivery-error", &error);
+    }
+    if let Err(error) = app.emit_to("main", "captures-pruned", library) {
+        write_capture_log(app, "library-delivery-error", &error.to_string());
+    }
+    if let Err(error) = refresh_quick_access(app) {
+        write_capture_log(app, "quick-access-refresh-error", &error);
+    }
+    Ok(())
 }
 
 #[cfg(target_os = "macos")]
@@ -832,6 +839,18 @@ async fn capture_screen_inner(app: AppHandle, mode: String) -> Result<PendingCap
     ) {
         return Err(format!("Unsupported capture mode: {mode}"));
     }
+    let pending_count = app
+        .try_state::<CaptureState>()
+        .ok_or_else(|| "ShipShot is still starting".to_string())?
+        .pending
+        .lock()
+        .map_err(|error| error.to_string())?
+        .len();
+    if pending_count >= MAX_PENDING_CAPTURES {
+        return Err(format!(
+            "ShipShot can hold up to {MAX_PENDING_CAPTURES} temporary captures. Save or delete one before taking another screenshot."
+        ));
+    }
     if let Err(error) = ensure_screen_capture_access() {
         write_capture_log(&app, "capture-permission-denied", &error);
         return Err(error);
@@ -914,8 +933,12 @@ async fn capture_screen_inner(app: AppHandle, mode: String) -> Result<PendingCap
         .quick_access_pinned
         .lock()
         .map_err(|error| error.to_string())? = false;
-    emit_pending_stack(&app, &stack)?;
-    show_quick_access(&app, false)?;
+    if let Err(error) = emit_pending_stack(&app, &stack) {
+        write_capture_log(&app, "pending-stack-delivery-error", &error);
+    }
+    if let Err(error) = show_quick_access(&app, false) {
+        write_capture_log(&app, "quick-access-show-error", &error);
+    }
     write_capture_log(
         &app,
         "capture-ready",
