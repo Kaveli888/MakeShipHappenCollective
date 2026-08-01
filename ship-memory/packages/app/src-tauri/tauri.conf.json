@@ -1,7 +1,7 @@
 {
   "productName": "ShipMemory",
   "version": "0.1.0",
-  "identifier": "com.shipmemory.dev",
+  "identifier": "com.makeshiphappen.shipmemory",
   "build": {
     "beforeDevCommand": "npm run vite",
     "devUrl": "http://localhost:1440",
