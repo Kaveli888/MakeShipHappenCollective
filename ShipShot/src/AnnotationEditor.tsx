@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { startDrag } from "@crabnebula/tauri-plugin-drag";
+import { dragIconFromCanvas, placeholderDragIcon } from "./lib/dragIcon";
 import {
   ArrowDownRight,
   Check,
@@ -60,8 +61,14 @@ export function AnnotationEditor() {
 
   const loadCapture = useCallback(async (capture: PendingCapture) => {
     setPending(capture);
+    // The editor window is reused, so re-arm the red rectangle for every capture instead of
+    // inheriting whatever tool the previous edit finished on.
+    setTool("rectangle");
+    setColor("#ff3b3b");
+    setStatus("Temporary • not saved to library");
     const data = await invoke<string>("read_pending_image", { id: capture.id });
     setSource(data);
+    window.focus();
   }, []);
 
   useEffect(() => {
@@ -303,8 +310,9 @@ export function AnnotationEditor() {
         setStatus("Dropped + saved to ShipShot");
         return;
       }
+      const icon = dragIconFromCanvas(canvasRef.current) ?? placeholderDragIcon() ?? updated.path;
       await startDrag(
-        { item: [updated.path], icon: updated.path, mode: "copy" },
+        { item: [updated.path], icon, mode: "copy" },
         ({ result }) => {
           if (result === "Dropped") {
             void finalizeCapture(updated, true).catch((error) => setStatus(`Dropped, but ShipShot save failed: ${String(error)}`));

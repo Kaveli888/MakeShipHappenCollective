@@ -32,6 +32,8 @@ use objc2_foundation::{NSPoint, NSRect, NSSize};
 
 const TRAY_ICON: tauri::image::Image<'_> = tauri::include_image!("./icons/tray-icon.png");
 const MAX_PENDING_CAPTURES: usize = 10;
+/// Cursor-tracker samples (180ms apart) a new display must win before the stack follows.
+const MONITOR_SETTLE_SAMPLES: u8 = 5;
 
 #[cfg(target_os = "macos")]
 #[link(name = "CoreGraphics", kind = "framework")]
@@ -176,6 +178,9 @@ struct CaptureState {
     quick_access_expanded: Mutex<bool>,
     quick_access_pinned: Mutex<bool>,
     quick_access_user_positioned: Mutex<bool>,
+    /// Set while the webview is running a drag-out, so the cursor tracker can't
+    /// move the stack out from under the pointer mid-gesture.
+    quick_access_busy: AtomicBool,
     quick_access_monitor: Mutex<Option<MonitorBounds>>,
     quick_access_candidate: Mutex<Option<(MonitorBounds, u8)>>,
 }
@@ -419,7 +424,7 @@ fn quick_access_size(count: usize, scale: f64) -> PhysicalSize<u32> {
 fn quick_access_logical_size(count: usize) -> LogicalSize<f64> {
     let visible_cards = count.clamp(1, MAX_PENDING_CAPTURES) as f64;
     let width = 200.0;
-    let height = 20.0 + visible_cards * 125.0 + visible_cards * 8.0;
+    let height = visible_cards * 125.0 + (visible_cards - 1.0) * 8.0;
     LogicalSize::new(width, height)
 }
 
@@ -521,6 +526,20 @@ fn sync_quick_access_to_cursor(app: &AppHandle, count: usize) -> Result<bool, St
     {
         return Ok(false);
     }
+    // A drag-out is in flight — moving the window would cancel the gesture.
+    if state.quick_access_busy.load(Ordering::Acquire) {
+        return Ok(false);
+    }
+    // Never relocate the stack while the pointer is on it. macOS hands the cursor to
+    // whichever display owns the shared edge, so without this the window teleports to
+    // the other screen exactly as the user reaches in to grab a capture.
+    if cursor_is_inside_quick_access(app).unwrap_or(false) {
+        *state
+            .quick_access_candidate
+            .lock()
+            .map_err(|error| error.to_string())? = None;
+        return Ok(false);
+    }
     let target = cursor_monitor(app)?;
     let target_bounds = monitor_bounds(&target);
     if *state
@@ -548,7 +567,7 @@ fn sync_quick_access_to_cursor(app: &AppHandle, count: usize) -> Result<bool, St
             _ => 1,
         };
         *candidate = Some((target_bounds, next_count));
-        next_count >= 3
+        next_count >= MONITOR_SETTLE_SAMPLES
     };
     if !should_move {
         return Ok(false);
@@ -929,10 +948,9 @@ async fn capture_screen_inner(app: AppHandle, mode: String) -> Result<PendingCap
         .quick_access_expanded
         .lock()
         .map_err(|error| error.to_string())? = false;
-    *state
-        .quick_access_pinned
-        .lock()
-        .map_err(|error| error.to_string())? = false;
+    // The pin is deliberately NOT reset here: the webview keeps its own pinned state
+    // across captures, and clearing it here made the pin icon disagree with the backend.
+    state.quick_access_busy.store(false, Ordering::Release);
     if let Err(error) = emit_pending_stack(&app, &stack) {
         write_capture_log(&app, "pending-stack-delivery-error", &error);
     }
@@ -1311,6 +1329,15 @@ fn open_annotation(
     editor.center().map_err(|error| error.to_string())?;
     editor.show().map_err(|error| error.to_string())?;
     editor.set_focus().map_err(|error| error.to_string())?;
+    // set_focus is a no-op while the window still reports itself as hidden, which left the
+    // editor visible but not key — the first drawing press was eaten activating the window.
+    let focus_editor = editor.clone();
+    thread::spawn(move || {
+        for delay in [90, 240] {
+            thread::sleep(Duration::from_millis(delay));
+            let _ = focus_editor.set_focus();
+        }
+    });
     app.emit_to("annotation", "annotation-opened", pending)
         .map_err(|error| error.to_string())?;
     Ok(())
@@ -1321,11 +1348,13 @@ fn close_annotation(app: AppHandle, state: tauri::State<'_, CaptureState>) -> Re
     if let Some(editor) = app.get_webview_window("annotation") {
         editor.hide().map_err(|error| error.to_string())?;
     }
+    // The card controls are always on screen now, so there is no expanded state to restore —
+    // leaving it false keeps the cursor tracker from re-laying out the stack under the pointer.
     *state
         .quick_access_expanded
         .lock()
-        .map_err(|error| error.to_string())? = true;
-    show_quick_access(&app, true)
+        .map_err(|error| error.to_string())? = false;
+    show_quick_access(&app, false)
 }
 
 #[tauri::command]
@@ -1351,6 +1380,19 @@ fn set_quick_access_pinned(
         .lock()
         .map_err(|error| error.to_string())? = pinned;
     Ok(())
+}
+
+/// Held true for the length of a drag-out so the cursor tracker leaves the stack alone.
+#[tauri::command]
+fn set_quick_access_busy(busy: bool, state: tauri::State<'_, CaptureState>) {
+    state.quick_access_busy.store(busy, Ordering::Release);
+}
+
+/// True when the pointer is over the floating stack — used to reject a drop the user
+/// released on ShipShot's own window instead of on a real drop target.
+#[tauri::command]
+fn quick_access_contains_cursor(app: AppHandle) -> bool {
+    cursor_is_inside_quick_access(&app).unwrap_or(false)
 }
 
 #[tauri::command]
@@ -1597,6 +1639,7 @@ pub fn run() {
                 quick_access_expanded: Mutex::new(false),
                 quick_access_pinned: Mutex::new(false),
                 quick_access_user_positioned: Mutex::new(false),
+                quick_access_busy: AtomicBool::new(false),
                 quick_access_monitor: Mutex::new(None),
                 quick_access_candidate: Mutex::new(None),
             });
@@ -1630,6 +1673,10 @@ pub fn run() {
                     .lock()
                     .map(|value| *value)
                     .unwrap_or(false);
+                if state.quick_access_busy.load(Ordering::Acquire) {
+                    thread::sleep(Duration::from_millis(180));
+                    continue;
+                }
                 if expanded && !pinned && cursor_is_inside_quick_access(&tracker_app) == Ok(false) {
                     let _ = collapse_quick_access(&tracker_app, &state);
                     continue;
@@ -1685,6 +1732,8 @@ pub fn run() {
             set_quick_access_expanded,
             set_quick_access_pinned,
             set_quick_access_user_positioned,
+            set_quick_access_busy,
+            quick_access_contains_cursor,
             mark_remembered,
             reveal_capture,
             copy_capture,

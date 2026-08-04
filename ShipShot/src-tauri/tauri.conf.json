@@ -39,11 +39,12 @@
         "transparent": true,
         "alwaysOnTop": true,
         "focus": false,
+        "acceptFirstMouse": true,
         "visibleOnAllWorkspaces": true,
         "skipTaskbar": true,
         "shadow": false,
         "visible": false,
-        "dragDropEnabled": false
+        "dragDropEnabled": true
       },
       {
         "label": "annotation",
@@ -57,6 +58,7 @@
         "hiddenTitle": true,
         "decorations": true,
         "visible": false,
+        "acceptFirstMouse": true,
         "skipTaskbar": true
       }
     ],

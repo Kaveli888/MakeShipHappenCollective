@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import {
   Aperture,
   AppWindow,
@@ -21,6 +21,7 @@ import {
   Maximize2,
   MemoryStick,
   Monitor,
+  Move,
   MousePointer2,
   Plus,
   Search,
@@ -86,11 +87,22 @@ function MainApp() {
     return localStorage.getItem("shipshot:auto-remember") === "true";
   });
   const autoRememberRef = useRef(autoRemember);
+  // Off by default: the floating stack stays where it lands, so every pixel of a card is
+  // grab-and-drag-out surface. On, the strip along the card's top edge relocates the stack.
+  const [stackMovable, setStackMovable] = useState(
+    () => localStorage.getItem("shipshot:stack-movable") === "true",
+  );
 
   useEffect(() => {
     autoRememberRef.current = autoRemember;
     localStorage.setItem("shipshot:auto-remember", String(autoRemember));
   }, [autoRemember]);
+
+  useEffect(() => {
+    localStorage.setItem("shipshot:stack-movable", String(stackMovable));
+    // The quick-access window is a separate webview, so it can't see this state directly.
+    if (isTauri()) void emit("stack-movable-changed", stackMovable).catch(() => {});
+  }, [stackMovable]);
 
   useEffect(() => {
     if (!isTauri()) return;
@@ -237,7 +249,12 @@ function MainApp() {
           )}
           {view === "shortcuts" && <ShortcutView onCapture={runCapture} />}
           {view === "settings" && (
-            <SettingsView autoRemember={autoRemember} onToggle={() => setAutoRemember((value) => !value)} />
+            <SettingsView
+              autoRemember={autoRemember}
+              onToggle={() => setAutoRemember((value) => !value)}
+              stackMovable={stackMovable}
+              onToggleStackMovable={() => setStackMovable((value) => !value)}
+            />
           )}
         </div>
       </main>
@@ -508,7 +525,7 @@ function ShortcutView({ onCapture }: { onCapture: (mode: CaptureMode) => void })
   );
 }
 
-function SettingsView({ autoRemember, onToggle }: { autoRemember: boolean; onToggle: () => void }) {
+function SettingsView({ autoRemember, onToggle, stackMovable, onToggleStackMovable }: { autoRemember: boolean; onToggle: () => void; stackMovable: boolean; onToggleStackMovable: () => void }) {
   return (
     <div className="page settings-page compact-page">
       <div className="view-header"><div><span className="view-kicker">SHIPSHOT 0.1.0</span><h1>Settings</h1><p>Private by default. Built for the way you work.</p></div></div>
@@ -518,6 +535,7 @@ function SettingsView({ autoRemember, onToggle }: { autoRemember: boolean; onTog
         <div className="settings-row"><div className="settings-icon"><FolderOpen size={17} /></div><div><strong>Local capture folder</strong><span>~/Pictures/ShipShot</span></div><button onClick={() => isTauri() && void invoke("open_capture_folder")}>Open folder</button></div>
         <div className="settings-row"><div className="settings-icon"><Clock3 size={17} /></div><div><strong>24-hour workspace</strong><span>Unremembered captures automatically move to macOS Trash after 24 hours.</span></div><span className="healthy"><Check size={13} /> Active</span></div>
         <div className="settings-row"><div className="settings-icon"><Keyboard size={17} /></div><div><strong>Global shortcuts</strong><span>Available while ShipShot is running.</span></div><span className="healthy"><Check size={13} /> Active</span></div>
+        <div className="settings-row"><div className="settings-icon"><Move size={17} /></div><div><strong>Let me move the capture stack</strong><span>Off, the stack stays put and the whole card drags the capture out. On, the strip along a card's top edge repositions the stack instead.</span></div><button className={`mini-toggle ${stackMovable ? "on" : ""}`} onClick={onToggleStackMovable}><span /></button></div>
       </section>
       <section className="settings-card"><h3>Privacy</h3><div className="settings-row"><div className="settings-icon"><Database size={17} /></div><div><strong>Local-first storage</strong><span>Your captures and memories remain on this Mac. No cloud account required.</span></div><span className="healthy"><Check size={13} /> Local</span></div></section>
     </div>
