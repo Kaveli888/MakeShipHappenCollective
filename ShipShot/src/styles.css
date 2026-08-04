@@ -258,7 +258,11 @@ html.quick-surface.quick-demo #root { width: 200px; height: 552px; }
 .quick-stack-handle { position: absolute; z-index: 3; top: 0; left: 36px; right: 36px; height: 34px; background: transparent; cursor: grab; }
 .quick-stack-handle:active { cursor: grabbing; }
 .quick-stack-handle.is-movable, .quick-stack-handle.is-movable:active { cursor: move; }
-.quick-access-card { position: relative; flex: 0 0 125px; width: 100%; height: 125px; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,255,255,.22); background: rgba(34,35,38,.86); box-shadow: inset 0 1px rgba(255,255,255,.08), 0 7px 20px rgba(0,0,0,.22); backdrop-filter: blur(20px) saturate(1.25); transition: border-color .16s ease, box-shadow .16s ease; }
+.quick-access-card { position: relative; flex: 0 0 125px; width: 100%; height: 125px; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,255,255,.22); background: rgba(34,35,38,.86); box-shadow: inset 0 1px rgba(255,255,255,.08), 0 7px 20px rgba(0,0,0,.22); transition: border-color .16s ease, box-shadow .16s ease; }
+/* No backdrop-filter on these cards. The stack window is transparent and always-on-top, so
+   WindowServer cannot occlusion-cull it and re-blurs the live desktop behind every card on
+   every composite — and .quick-preview covers the card at 92% opacity, so none of it is
+   ever visible. Pure compositor cost for zero pixels. */
 .quick-access-card:hover, .quick-access-card:focus-within { border-color: rgba(255,255,255,.34); box-shadow: inset 0 1px rgba(255,255,255,.1), 0 9px 24px rgba(0,0,0,.3); }
 .quick-preview { position: absolute; inset: 0; overflow: hidden; display: grid; place-items: center; color: rgba(255,255,255,.55); background: rgba(18,19,22,.92); cursor: grab; }
 .quick-preview:active { cursor: grabbing; }
@@ -266,7 +270,9 @@ html.quick-surface.quick-demo #root { width: 200px; height: 552px; }
 .quick-preview img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
 /* Controls read on arrival, so the scrim is always on and only deepens under the cursor. */
 .quick-preview-shade { position: absolute; inset: 0; background: rgba(13,14,17,.42); pointer-events: none; transition: background .16s ease; }
-.quick-access-card:hover .quick-preview-shade, .quick-access-card:focus-within .quick-preview-shade { background: rgba(13,14,17,.58); backdrop-filter: blur(2px); }
+/* Hover shade is a flat fill: a blur here re-rasterised the card every time the cursor
+   swept across the stack, which is exactly what happens all through a drag-out. */
+.quick-access-card:hover .quick-preview-shade, .quick-access-card:focus-within .quick-preview-shade { background: rgba(13,14,17,.58); }
 .quick-center-actions { position: absolute; z-index: 4; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 .quick-center-actions button { width: 62px; height: 25px; border-radius: 13px; border: 1px solid rgba(255,255,255,.2); background: rgba(247,247,244,.96); color: #2c2d30; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.24); }
 .quick-center-actions button:hover { background: #fff; }

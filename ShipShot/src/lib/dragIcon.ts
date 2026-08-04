@@ -40,12 +40,12 @@ export function dragIconFromCanvas(canvas: HTMLCanvasElement | null): string | n
   return scaledDataUrl(canvas, canvas.width, canvas.height);
 }
 
-/** Thumbnail from a data URL preview. Resolves to null if the image can't be decoded. */
-export function dragIconFromDataUrl(source: string): Promise<string | null> {
-  return new Promise((resolve) => {
-    const image = new window.Image();
-    image.onload = () => resolve(scaledDataUrl(image, image.naturalWidth, image.naturalHeight));
-    image.onerror = () => resolve(null);
-    image.src = source;
-  });
+/**
+ * Thumbnail from an <img> the page has already decoded. Building the ghost from a fresh
+ * `new Image()` meant a second full-resolution PNG decode at the instant the gesture began —
+ * hundreds of milliseconds of stall between "moved 6px" and the drag session opening.
+ */
+export function dragIconFromImage(image: HTMLImageElement): string | null {
+  if (!image.naturalWidth) return null;
+  return scaledDataUrl(image, image.naturalWidth, image.naturalHeight);
 }

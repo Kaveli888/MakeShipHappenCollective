@@ -32,8 +32,14 @@ use objc2_foundation::{NSPoint, NSRect, NSSize};
 
 const TRAY_ICON: tauri::image::Image<'_> = tauri::include_image!("./icons/tray-icon.png");
 const MAX_PENDING_CAPTURES: usize = 10;
-/// Cursor-tracker samples (180ms apart) a new display must win before the stack follows.
-const MONITOR_SETTLE_SAMPLES: u8 = 5;
+/// Each tracker tick costs several blocking round trips to the main run loop, so it competes
+/// directly with the UI. 180ms was ~35-50 forced main-thread wakeups a second, continuously,
+/// for as long as any capture sat in the stack.
+const TRACKER_INTERVAL: Duration = Duration::from_millis(400);
+/// Nothing to follow (stack pinned or hand-placed) — back off further.
+const TRACKER_IDLE_INTERVAL: Duration = Duration::from_millis(900);
+/// Cursor-tracker samples a new display must win before the stack follows.
+const MONITOR_SETTLE_SAMPLES: u8 = 3;
 
 #[cfg(target_os = "macos")]
 #[link(name = "CoreGraphics", kind = "framework")]
@@ -340,7 +346,29 @@ fn move_file_to_trash(app: &AppHandle, source: &Path, filename: &str) -> Result<
     Ok(())
 }
 
+/// PNG dimensions live in the IHDR chunk, bytes 16..24 of the file. Reading them directly
+/// avoids cold-launching `sips` (which pulls in ImageIO + ColorSync, 150-400ms) on every
+/// single capture. Anything that isn't a PNG still falls through to `sips`.
+fn png_dimensions(path: &Path) -> Option<(u32, u32)> {
+    use std::io::Read;
+    let mut header = [0u8; 24];
+    let mut file = fs::File::open(path).ok()?;
+    file.read_exact(&mut header).ok()?;
+    if &header[0..8] != b"\x89PNG\r\n\x1a\n" || &header[12..16] != b"IHDR" {
+        return None;
+    }
+    let width = u32::from_be_bytes(header[16..20].try_into().ok()?);
+    let height = u32::from_be_bytes(header[20..24].try_into().ok()?);
+    if width == 0 || height == 0 {
+        return None;
+    }
+    Some((width, height))
+}
+
 fn image_dimensions(path: &Path) -> (u32, u32) {
+    if let Some(dimensions) = png_dimensions(path) {
+        return dimensions;
+    }
     let output = Command::new("/usr/bin/sips")
         .args(["-g", "pixelWidth", "-g", "pixelHeight"])
         .arg(path)
@@ -1075,7 +1103,7 @@ fn trigger_background_capture_from(app: &AppHandle, mode: &str, source: &str) {
     });
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 fn save_pending_capture(
     app: AppHandle,
     id: String,
@@ -1172,7 +1200,7 @@ fn discard_pending_capture(
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 fn copy_pending_capture(id: String, state: tauri::State<'_, CaptureState>) -> Result<(), String> {
     let pending = state
         .pending
@@ -1212,7 +1240,8 @@ fn export_pending_to_desktop(
     Ok(destination.to_string_lossy().to_string())
 }
 
-#[tauri::command]
+// Holds a modal osascript folder picker open — must never run on the main thread.
+#[tauri::command(async)]
 fn export_pending_with_picker(
     id: String,
     state: tauri::State<'_, CaptureState>,
@@ -1248,7 +1277,10 @@ end try"#;
     Ok(Some(destination.to_string_lossy().to_string()))
 }
 
-#[tauri::command]
+// `async` here does not make the body async — it tells Tauri to run this on the async runtime
+// instead of inline on the macOS main thread. Without it, reading and base64-encoding a
+// multi-megabyte PNG holds the UI thread for the whole encode.
+#[tauri::command(async)]
 fn read_pending_image(id: String, state: tauri::State<'_, CaptureState>) -> Result<String, String> {
     let pending = state
         .pending
@@ -1266,7 +1298,7 @@ fn read_pending_image(id: String, state: tauri::State<'_, CaptureState>) -> Resu
     Ok(format!("data:image/png;base64,{}", BASE64.encode(bytes)))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 fn save_annotated_pending(
     app: AppHandle,
     id: String,
@@ -1674,11 +1706,24 @@ pub fn run() {
                     .map(|value| *value)
                     .unwrap_or(false);
                 if state.quick_access_busy.load(Ordering::Acquire) {
-                    thread::sleep(Duration::from_millis(180));
+                    thread::sleep(TRACKER_INTERVAL);
                     continue;
                 }
                 if expanded && !pinned && cursor_is_inside_quick_access(&tracker_app) == Ok(false) {
                     let _ = collapse_quick_access(&tracker_app, &state);
+                    // Sleep before looping: `continue` on its own skipped the tick delay below.
+                    thread::sleep(TRACKER_INTERVAL);
+                    continue;
+                }
+                // Every call below is a blocking round trip to the main run loop. When the
+                // stack has been placed by hand there is nothing to follow, so don't make them.
+                let user_positioned = state
+                    .quick_access_user_positioned
+                    .lock()
+                    .map(|value| *value)
+                    .unwrap_or(false);
+                if pinned || user_positioned {
+                    thread::sleep(TRACKER_IDLE_INTERVAL);
                     continue;
                 }
                 let count = state
@@ -1687,7 +1732,7 @@ pub fn run() {
                     .map(|pending| pending.len())
                     .unwrap_or(1);
                 let _ = sync_quick_access_to_cursor(&tracker_app, count);
-                thread::sleep(Duration::from_millis(180));
+                thread::sleep(TRACKER_INTERVAL);
             });
             let cleanup_app = app.handle().clone();
             thread::spawn(move || loop {

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { startDrag } from "@crabnebula/tauri-plugin-drag";
 import { Copy, Download, Film, Pencil, Pin, PinOff, X } from "lucide-react";
-import { dragIconFromDataUrl, placeholderDragIcon } from "./lib/dragIcon";
+import { dragIconFromImage, placeholderDragIcon } from "./lib/dragIcon";
 import { rememberCapture } from "./lib/shipMemory";
 import type { Capture, PendingCapture } from "./types";
 
@@ -27,11 +27,12 @@ export function QuickAccess() {
   const params = new URLSearchParams(window.location.search);
   const demo = params.get("demo") === "true";
   const [pending, setPending] = useState<PendingCapture[]>([]);
-  const [previews, setPreviews] = useState<Record<string, string>>({});
   const [pinned, setPinned] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const pendingDrag = useRef<{ id: string; x: number; y: number } | null>(null);
   const busyTimer = useRef<number | null>(null);
+  // Drag ghosts are built once, off the already-decoded thumbnail, so starting a drag is free.
+  const dragIcons = useRef<Record<string, string>>({});
   const [stackMovable, setStackMovable] = useState(
     () => localStorage.getItem(STACK_MOVABLE_KEY) === "true",
   );
@@ -68,22 +69,20 @@ export function QuickAccess() {
     return () => { void unlisten.then((off) => off()); };
   }, [demo]);
 
-  const loadPreviews = useCallback(async (captures: PendingCapture[]) => {
-    const imageCaptures = captures.filter((capture) => capture.mediaType === "image");
-    const loaded = await Promise.all(imageCaptures.map(async (capture) => {
-      try {
-        return [capture.id, await invoke<string>("read_pending_image", { id: capture.id })] as const;
-      } catch {
-        return [capture.id, ""] as const;
-      }
-    }));
-    setPreviews(Object.fromEntries(loaded));
-  }, []);
+  // Previews stream off disk through the asset protocol (already scoped to $APPCACHE/pending).
+  // They used to come back from an IPC command as base64 data URLs: every stack update
+  // re-read and re-encoded every full-resolution PNG on the main thread, which is what froze
+  // the app for seconds after each capture.
+  const demoPreview = params.get("preview") || "/src-tauri/icons/128x128@2x.png";
+  const previewSrc = useCallback((capture: PendingCapture): string | null => {
+    if (demo) return demoPreview;
+    if (capture.mediaType !== "image" || !capture.path) return null;
+    return convertFileSrc(capture.path);
+  }, [demo, demoPreview]);
 
   const applyStack = useCallback((captures: PendingCapture[]) => {
     setPending(captures);
-    void loadPreviews(captures);
-  }, [loadPreviews]);
+  }, []);
 
   useEffect(() => {
     if (demo) {
@@ -105,8 +104,6 @@ export function QuickAccess() {
         makeMock("shipshot-demo-4", "ShipShot_Four.png"),
       ];
       setPending(captures);
-      const preview = params.get("preview") || "/src-tauri/icons/128x128@2x.png";
-      setPreviews(Object.fromEntries(captures.map((capture) => [capture.id, preview])));
       return;
     }
 
@@ -137,11 +134,7 @@ export function QuickAccess() {
 
   const removeLocal = (id: string) => {
     setPending((captures) => captures.filter((capture) => capture.id !== id));
-    setPreviews((items) => {
-      const next = { ...items };
-      delete next[id];
-      return next;
-    });
+    delete dragIcons.current[id];
   };
 
   const persistPending = async (captureToSave: PendingCapture, preserveSource = false) => {
@@ -189,7 +182,7 @@ export function QuickAccess() {
 
   const edit = async (capture: PendingCapture) => {
     if (demo) {
-      window.location.href = `/?window=annotation&demo=true&preview=${encodeURIComponent(previews[capture.id] || "")}`;
+      window.location.href = `/?window=annotation&demo=true&preview=${encodeURIComponent(previewSrc(capture) || "")}`;
       return;
     }
     try {
@@ -217,8 +210,8 @@ export function QuickAccess() {
       removeLocal(capture.id);
       return;
     }
-    const preview = previews[capture.id];
-    const icon = (preview ? await dragIconFromDataUrl(preview) : null) ?? placeholderDragIcon() ?? capture.path;
+    // Already built when the thumbnail decoded — nothing to compute at gesture time.
+    const icon = dragIcons.current[capture.id] ?? placeholderDragIcon() ?? capture.path;
 
     setBusy(true);
     busyTimer.current = window.setTimeout(releaseBusy, DRAG_BUSY_TIMEOUT_MS);
@@ -317,7 +310,20 @@ export function QuickAccess() {
             tabIndex={0}
             title="Press and drag the screenshot"
           >
-            {previews[capture.id] ? <img src={previews[capture.id]} alt="" /> : <Film size={25} />}
+            {previewSrc(capture)
+              ? (
+                <img
+                  src={previewSrc(capture) as string}
+                  alt=""
+                  decoding="async"
+                  draggable={false}
+                  onLoad={(event) => {
+                    const built = dragIconFromImage(event.currentTarget);
+                    if (built) dragIcons.current[capture.id] = built;
+                  }}
+                />
+              )
+              : <Film size={25} />}
             <div className="quick-preview-shade" />
           </div>
 
