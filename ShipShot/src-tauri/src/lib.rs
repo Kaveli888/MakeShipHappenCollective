@@ -15,8 +15,8 @@ use std::sync::{
 use std::thread;
 use std::time::Duration;
 use tauri::{
-    menu::MenuBuilder, tray::TrayIconBuilder, AppHandle, Emitter, LogicalSize, Manager, Monitor,
-    PhysicalPosition, PhysicalSize, Position, Size, WindowEvent,
+    ipc::Channel, menu::MenuBuilder, tray::TrayIconBuilder, AppHandle, Emitter, LogicalSize,
+    Manager, Monitor, PhysicalPosition, PhysicalSize, Position, Size, Window, WindowEvent,
 };
 use tauri_plugin_global_shortcut::{Code, Modifiers, ShortcutState};
 
@@ -175,6 +175,19 @@ struct PendingCapture {
     width: u32,
     height: u32,
     file_size: u64,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PendingDragResult {
+    result: String,
+    cursor_pos: PendingDragCursorPosition,
+}
+
+#[derive(Clone, Serialize)]
+struct PendingDragCursorPosition {
+    x: i32,
+    y: i32,
 }
 
 struct CaptureState {
@@ -911,14 +924,14 @@ async fn capture_screen_inner(app: AppHandle, mode: String) -> Result<PendingCap
     let command_path = output_path.clone();
     let command_mode = mode.clone();
 
-    let status = tauri::async_runtime::spawn_blocking(move || {
+    let output = tauri::async_runtime::spawn_blocking(move || {
         let mut command = Command::new("/usr/sbin/screencapture");
         match command_mode.as_str() {
             "area" => {
-                command.args(["-i", "-s", "-x"]);
+                command.args(["-i", "-Jselection", "-x"]);
             }
             "window" => {
-                command.args(["-i", "-w", "-x"]);
+                command.args(["-i", "-Jwindow", "-x"]);
             }
             "fullscreen" => {
                 command.args(["-x"]);
@@ -928,19 +941,42 @@ async fn capture_screen_inner(app: AppHandle, mode: String) -> Result<PendingCap
             }
             _ => unreachable!(),
         }
-        command.arg(&command_path).status()
+        command.arg(&command_path).output()
     })
     .await
     .map_err(|error| format!("Capture task failed: {error}"))?
     .map_err(|error| format!("Unable to start macOS screen capture: {error}"))?;
 
-    if !status.success() || !output_path.exists() {
+    // ScreenCaptureKit can finish writing just after the command exits on macOS 26.
+    if output.status.success() && !output_path.exists() {
+        for _ in 0..10 {
+            thread::sleep(Duration::from_millis(50));
+            if output_path.exists() {
+                break;
+            }
+        }
+    }
+
+    if !output.status.success() || !output_path.exists() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
         write_capture_log(
             &app,
             "capture-cancelled",
-            &format!("mode={mode} status={status}"),
+            &format!(
+                "mode={mode} status={} file_exists={} stderr={}",
+                output.status,
+                output_path.exists(),
+                if stderr.is_empty() { "none" } else { &stderr }
+            ),
         );
-        return Err("Capture cancelled".into());
+        if output.status.success() {
+            return Err("No screenshot was created. Drag across an area, then release the mouse.".into());
+        }
+        return Err(if stderr.is_empty() {
+            "Capture cancelled".into()
+        } else {
+            format!("Capture failed: {stderr}")
+        });
     }
 
     let metadata = fs::metadata(&output_path)
@@ -1006,7 +1042,6 @@ async fn capture_with_window_policy(
     if state.capture_in_progress.swap(true, Ordering::AcqRel) {
         return Err("A ShipShot capture is already in progress".into());
     }
-    drop(state);
 
     let main_window = app.get_webview_window("main");
     let was_visible = main_window
@@ -1023,11 +1058,16 @@ async fn capture_with_window_policy(
         if let Some(window) = &main_window {
             let _ = window.hide();
         }
-        let _ = tauri::async_runtime::spawn_blocking(|| {
-            thread::sleep(Duration::from_millis(220));
-        })
-        .await;
     }
+
+    // Let the shortcut keys or bound mouse button come fully up before macOS takes over the
+    // same input stream for its interactive selector. Launching immediately on Press can make
+    // screencapture exit successfully without a file, especially on macOS 26.
+    let settle_ms = if restore_on_failure { 240 } else { 180 };
+    let _ = tauri::async_runtime::spawn_blocking(move || {
+        thread::sleep(Duration::from_millis(settle_ms));
+    })
+    .await;
 
     let result = capture_screen_inner(app.clone(), mode).await;
 
@@ -1094,7 +1134,8 @@ fn trigger_background_capture_from(app: &AppHandle, mode: &str, source: &str) {
     tauri::async_runtime::spawn(async move {
         if let Err(error) = capture_with_window_policy(app.clone(), mode.clone()).await {
             let lowered = error.to_lowercase();
-            let is_expected = lowered.contains("cancel") || lowered.contains("already in progress");
+            let is_expected = lowered.contains("capture cancelled")
+                || lowered.contains("already in progress");
             if !is_expected {
                 write_capture_log(&app, "background-capture-error", &error);
                 let _ = app.emit_to("main", "capture-error", error);
@@ -1107,7 +1148,6 @@ fn trigger_background_capture_from(app: &AppHandle, mode: &str, source: &str) {
 fn save_pending_capture(
     app: AppHandle,
     id: String,
-    preserve_source: Option<bool>,
     state: tauri::State<'_, CaptureState>,
 ) -> Result<Capture, String> {
     let pending = state
@@ -1127,10 +1167,7 @@ fn save_pending_capture(
     fs::create_dir_all(&directory)
         .map_err(|error| format!("Can't create the ShipShot capture folder: {error}"))?;
     let destination = unique_destination(&directory, &pending.filename);
-    if preserve_source.unwrap_or(false) {
-        fs::copy(&source, &destination)
-            .map_err(|error| format!("Can't save the capture: {error}"))?;
-    } else if fs::rename(&source, &destination).is_err() {
+    if fs::rename(&source, &destination).is_err() {
         fs::copy(&source, &destination)
             .map_err(|error| format!("Can't save the capture: {error}"))?;
         fs::remove_file(&source)
@@ -1200,6 +1237,55 @@ fn discard_pending_capture(
     Ok(())
 }
 
+/// Consume a temporary capture after macOS confirms an external drop.
+///
+/// The card is removed from Quick Access immediately. The source file stays alive briefly
+/// because some receiving apps finish reading a file URL just after the drag session ends;
+/// it is then deleted from ShipShot's cache without ever entering the permanent library.
+#[tauri::command]
+fn complete_pending_drag(
+    app: AppHandle,
+    id: String,
+    state: tauri::State<'_, CaptureState>,
+) -> Result<(), String> {
+    let (dropped, stack) = {
+        let mut pending = state.pending.lock().map_err(|error| error.to_string())?;
+        let dropped = pending
+            .iter()
+            .find(|capture| capture.id == id)
+            .cloned()
+            .ok_or_else(|| "Temporary capture not found".to_string())?;
+        let path = PathBuf::from(&dropped.path);
+        if !safe_pending_path(&app, &path)? {
+            return Err("Refusing to delete a file outside ShipShot's temporary folder".into());
+        }
+        pending.retain(|capture| capture.id != id);
+        save_pending_history(&app, &pending)?;
+        (dropped, pending.clone())
+    };
+
+    emit_pending_stack(&app, &stack)?;
+    refresh_quick_access(&app)?;
+    app.emit_to("main", "capture-dropped", &id)
+        .map_err(|error| error.to_string())?;
+    write_capture_log(&app, "drag-consumed", &format!("id={id}"));
+
+    let cleanup_app = app.clone();
+    thread::spawn(move || {
+        thread::sleep(Duration::from_secs(30));
+        let path = PathBuf::from(&dropped.path);
+        if safe_pending_path(&cleanup_app, &path).unwrap_or(false) {
+            let _ = fs::remove_file(&path);
+            write_capture_log(
+                &cleanup_app,
+                "drag-source-cleanup",
+                &format!("id={} path={}", dropped.id, dropped.path),
+            );
+        }
+    });
+    Ok(())
+}
+
 #[tauri::command(async)]
 fn copy_pending_capture(id: String, state: tauri::State<'_, CaptureState>) -> Result<(), String> {
     let pending = state
@@ -1214,6 +1300,108 @@ fn copy_pending_capture(id: String, state: tauri::State<'_, CaptureState>) -> Re
         return Err("Only screenshots can be copied to the clipboard".into());
     }
     copy_image_to_clipboard(Path::new(&pending.path))
+}
+
+/// Start a macOS drag that carries both the screenshot bytes and its file URL.
+///
+/// NSURL-only drags are fine for Finder and file upload controls, but rich-text targets such
+/// as Notes and document editors commonly request `public.png` from the pasteboard. Supplying
+/// both representations on one item makes the same gesture work in either kind of target.
+#[tauri::command(async)]
+fn start_pending_image_drag(
+    app: AppHandle,
+    window: Window<tauri::Wry>,
+    id: String,
+    image: String,
+    on_event: Channel<PendingDragResult>,
+    state: tauri::State<'_, CaptureState>,
+) -> Result<(), String> {
+    let pending = state
+        .pending
+        .lock()
+        .map_err(|error| error.to_string())?
+        .iter()
+        .find(|pending| pending.id == id)
+        .cloned()
+        .ok_or_else(|| "Temporary capture not found".to_string())?;
+    if pending.media_type != "image" {
+        return Err("Only screenshots can use the rich image drag".into());
+    }
+
+    let path = PathBuf::from(&pending.path);
+    if !safe_pending_path(&app, &path)? || !path.is_file() {
+        return Err("Temporary capture file is missing".into());
+    }
+    let png = fs::read(&path)
+        .map_err(|error| format!("Can't read the temporary screenshot: {error}"))?;
+    let encoded_icon = image
+        .strip_prefix("data:image/png;base64,")
+        .ok_or_else(|| "Drag preview is not a PNG image".to_string())?;
+    let icon = BASE64
+        .decode(encoded_icon)
+        .map_err(|error| format!("Can't decode the drag preview: {error}"))?;
+    let file_url = tauri::Url::from_file_path(&path)
+        .map_err(|_| "Can't create a file URL for the screenshot".to_string())?
+        .to_string()
+        .into_bytes();
+
+    write_capture_log(
+        &app,
+        "drag-start",
+        &format!("id={} payload=public.png+public.file-url", pending.id),
+    );
+
+    let (started_tx, started_rx) = std::sync::mpsc::channel();
+    let callback_app = app.clone();
+    let callback_id = pending.id.clone();
+    app.run_on_main_thread(move || {
+        let result = drag::start_drag(
+            &window,
+            drag::DragItem::Data {
+                provider: Box::new(move |data_type| match data_type {
+                    "public.png" => Some(png.clone()),
+                    "public.file-url" => Some(file_url.clone()),
+                    _ => None,
+                }),
+                // Put image data first so rich-text destinations prefer an inline image;
+                // file-oriented destinations can still request the file URL.
+                types: vec!["public.png".into(), "public.file-url".into()],
+            },
+            drag::Image::Raw(icon),
+            move |result, cursor_pos| {
+                let result = match result {
+                    drag::DragResult::Dropped => "Dropped",
+                    drag::DragResult::Cancel => "Cancelled",
+                };
+                write_capture_log(
+                    &callback_app,
+                    "drag-finish",
+                    &format!(
+                        "id={} result={} cursor={},{}",
+                        callback_id, result, cursor_pos.x, cursor_pos.y
+                    ),
+                );
+                let _ = on_event.send(PendingDragResult {
+                    result: result.into(),
+                    cursor_pos: PendingDragCursorPosition {
+                        x: cursor_pos.x,
+                        y: cursor_pos.y,
+                    },
+                });
+            },
+            drag::Options {
+                mode: drag::DragMode::Copy,
+                ..Default::default()
+            },
+        )
+        .map_err(|error| error.to_string());
+        let _ = started_tx.send(result);
+    })
+    .map_err(|error| error.to_string())?;
+
+    started_rx
+        .recv()
+        .map_err(|error| format!("Native drag did not start: {error}"))?
 }
 
 #[tauri::command]
@@ -1767,7 +1955,9 @@ pub fn run() {
             capture_screen,
             save_pending_capture,
             discard_pending_capture,
+            complete_pending_drag,
             copy_pending_capture,
+            start_pending_image_drag,
             export_pending_to_desktop,
             export_pending_with_picker,
             read_pending_image,

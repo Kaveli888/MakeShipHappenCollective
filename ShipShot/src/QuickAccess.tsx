@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { startDrag } from "@crabnebula/tauri-plugin-drag";
 import { Copy, Download, Film, Pencil, Pin, PinOff, X } from "lucide-react";
+import { startCaptureDrag } from "./lib/captureDrag";
 import { dragIconFromImage, placeholderDragIcon } from "./lib/dragIcon";
 import { rememberCapture } from "./lib/shipMemory";
 import type { Capture, PendingCapture } from "./types";
@@ -137,10 +137,9 @@ export function QuickAccess() {
     delete dragIcons.current[id];
   };
 
-  const persistPending = async (captureToSave: PendingCapture, preserveSource = false) => {
+  const persistPending = async (captureToSave: PendingCapture) => {
     const capture = await invoke<Capture>("save_pending_capture", {
       id: captureToSave.id,
-      preserveSource,
     });
     removeLocal(captureToSave.id);
     if (localStorage.getItem("shipshot:auto-remember") !== "false") {
@@ -217,8 +216,9 @@ export function QuickAccess() {
     busyTimer.current = window.setTimeout(releaseBusy, DRAG_BUSY_TIMEOUT_MS);
 
     try {
-      await startDrag(
-        { item: [capture.path], icon, mode: "copy" },
+      await startCaptureDrag(
+        capture,
+        icon,
         ({ result }) => {
           void (async () => {
             // A release over the stack itself is not a drop — the drag ghost sits under
@@ -229,10 +229,13 @@ export function QuickAccess() {
               setNotice({ id: capture.id, tone: "neutral", message: "Drag cancelled" });
               return;
             }
+            // A completed external drop consumes the temporary card. The backend retains the
+            // source only for a short grace period so the receiving app can finish reading it.
             try {
-              await persistPending(capture, true);
+              await invoke("complete_pending_drag", { id: capture.id });
+              removeLocal(capture.id);
             } catch (error) {
-              setNotice({ id: capture.id, tone: "error", message: `Dropped, but save failed: ${String(error)}` });
+              setNotice({ id: capture.id, tone: "error", message: `Dropped, but cleanup failed: ${String(error)}` });
             }
           })();
         },

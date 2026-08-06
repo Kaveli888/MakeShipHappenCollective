@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { startDrag } from "@crabnebula/tauri-plugin-drag";
+import { startCaptureDrag } from "./lib/captureDrag";
 import { dragIconFromCanvas, placeholderDragIcon } from "./lib/dragIcon";
 import {
   ArrowDownRight,
@@ -255,10 +255,9 @@ export function AnnotationEditor() {
     return updated;
   };
 
-  const finalizeCapture = async (captureToSave: PendingCapture, preserveSource = false) => {
+  const finalizeCapture = async (captureToSave: PendingCapture) => {
     const capture = await invoke<Capture>("save_pending_capture", {
       id: captureToSave.id,
-      preserveSource,
     });
     if (localStorage.getItem("shipshot:auto-remember") !== "false") {
       try {
@@ -311,11 +310,19 @@ export function AnnotationEditor() {
         return;
       }
       const icon = dragIconFromCanvas(canvasRef.current) ?? placeholderDragIcon() ?? updated.path;
-      await startDrag(
-        { item: [updated.path], icon, mode: "copy" },
+      await startCaptureDrag(
+        updated,
+        icon,
         ({ result }) => {
           if (result === "Dropped") {
-            void finalizeCapture(updated, true).catch((error) => setStatus(`Dropped, but ShipShot save failed: ${String(error)}`));
+            void (async () => {
+              try {
+                await invoke("complete_pending_drag", { id: updated.id });
+                await invoke("close_annotation");
+              } catch (error) {
+                setStatus(`Dropped, but cleanup failed: ${String(error)}`);
+              }
+            })();
             return;
           }
           setStatus("Drag cancelled");
