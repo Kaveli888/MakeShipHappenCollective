@@ -41,3 +41,29 @@ Recovered 832 unique prompts from 5 WebKit snapshots.
 
 The raw UTF-16 values and normalized JSON snapshots are preserved alongside the deduplicated prompt files.
 The `recovered-only-library` folder contains only prompts that are not present in the current filesystem library.
+
+## Permanent import
+
+Completed 2026-08-20.
+
+- Imported: 375 recovered-only prompts
+- New filenames: 373
+- Same-title/different-content conflicts preserved with a recovery suffix: 2
+- Permanent library total after import: 832 prompts
+- Empty files: 0
+- Byte-for-byte import verification: 375/375 passed
+- Pre-import backup: `/Users/jake/MakeShipHappenCollective/Prompts.backup-before-old-prompt-import-2026-08-20`
+- Detailed import log: `import-result.json`
+
+## Second-sweep audit
+
+Completed 2026-08-21 after specific historical titles were still difficult to find.
+
+- Rechecked all 5 ShipSpace WebKit stores containing `shipspace-prompt-library`.
+- Extracted and compared 17 prompt-catalog exports across 6 Git revisions.
+- Checked the permanent filesystem library, recovery backup, and ShipSpace worktrees.
+- Found one real content variation: `Live Agent Status Roll-Up` changed from `Mission control` to `Ship Control` during the naming migration.
+- Preserved both versions as separate files; the permanent library now contains 833 non-empty prompt files.
+- Identified 29 historical title-only aliases whose content was already present. These were mostly filename punctuation changes (`A/B` vs `A B`, colons, quotes) plus the old `Swarm` names now branded as `Gang`.
+- ShipSpace search now normalizes punctuation and maps historical `Swarm` searches to `Gang`, so the old names resolve without adding another layer of repetitive duplicate records.
+- Full machine-readable evidence: `all-source-audit.json`.

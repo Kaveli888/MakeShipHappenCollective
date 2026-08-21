@@ -1,0 +1,954 @@
+{
+  "generatedAt": "2026-08-21T07:21:54.691Z",
+  "filesystem": {
+    "count": 833,
+    "uniqueExact": 833,
+    "uniqueContent": 740,
+    "projects": {
+      "ADE Desktop App": 5,
+      "Agents": 198,
+      "BS Multi-Agent Prompts": 61,
+      "Goal Prompts": 80,
+      "Prompt Library for Coding": 281,
+      "Skills": 202,
+      "Vibe Platform": 6
+    }
+  },
+  "localStorage": {
+    "snapshots": [
+      {
+        "path": "/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "version": 0,
+        "count": 606,
+        "projects": {
+          "ADE Desktop App": 5,
+          "Agents": 196,
+          "Prompt Library for Coding": 200,
+          "Skills": 199,
+          "Vibe Platform": 6
+        }
+      },
+      {
+        "path": "/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "version": 2,
+        "count": 823,
+        "projects": {
+          "ADE Desktop App": 5,
+          "Agents": 196,
+          "BS Multi-Agent Prompts": 57,
+          "Goal Prompts": 80,
+          "Prompt Library for Coding": 280,
+          "Skills": 199,
+          "Vibe Platform": 6
+        }
+      },
+      {
+        "path": "/Users/jake/Library/WebKit/com.shipspace.ade.dev/WebsiteData/Default/A0epzQjF2Ik7PdpkZxGhlSVIZGDVeFOKXOGkWql_SB4/A0epzQjF2Ik7PdpkZxGhlSVIZGDVeFOKXOGkWql_SB4/LocalStorage/localstorage.sqlite3",
+        "version": 2,
+        "count": 833,
+        "projects": {
+          "ADE Desktop App": 5,
+          "Agents": 198,
+          "BS Multi-Agent Prompts": 61,
+          "Goal Prompts": 80,
+          "Prompt Library for Coding": 281,
+          "Skills": 202,
+          "Vibe Platform": 6
+        }
+      },
+      {
+        "path": "/Users/jake/Library/WebKit/com.shipspace.sandbox/WebsiteData/Default/uouEgLA2wDVxgpugZcOow-7t-kAiwiEsRt_zwymWe2s/uouEgLA2wDVxgpugZcOow-7t-kAiwiEsRt_zwymWe2s/LocalStorage/localstorage.sqlite3",
+        "version": 2,
+        "count": 457,
+        "projects": {
+          "Agents": 98,
+          "Goal Prompts": 80,
+          "Prompt Library for Coding": 180,
+          "Skills": 99
+        }
+      },
+      {
+        "path": "/Users/jake/Library/WebKit/shipspace/WebsiteData/Default/RwG12duEcC4FMhIRNZDHYSv_vQqfU99ftA6n-D2XPTo/RwG12duEcC4FMhIRNZDHYSv_vQqfU99ftA6n-D2XPTo/LocalStorage/localstorage.sqlite3",
+        "version": 0,
+        "count": 308,
+        "projects": {
+          "ADE Desktop App": 5,
+          "Agents": 98,
+          "Prompt Library for Coding": 100,
+          "Skills": 99,
+          "Vibe Platform": 6
+        }
+      }
+    ],
+    "uniqueExact": 852
+  },
+  "git": {
+    "sourceExports": 17,
+    "commits": [
+      "619f6048121e7fe0f01f4a40dd2b29e67b1423fe",
+      "522599140db52aec341035989c7e8d21a615ee28",
+      "f80a05749d55d0e9a8c04f186b7bc5dde2316087",
+      "4755667be54acdd92335f840fe2f3f66b8fdc5bf",
+      "e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3",
+      "466efd2f45a60c7e634f76c9bf48f3c761ef36de"
+    ],
+    "errors": [],
+    "uniqueExact": 376
+  },
+  "comparison": {
+    "externalUniqueExact": 861,
+    "exactMissingCount": 29,
+    "genuinelyNewContentCount": 0,
+    "titleAliasCount": 29,
+    "unresolvedTitleAliasCount": 0,
+    "crossProjectMatchCount": 0,
+    "genuinelyNewContent": [],
+    "titleAliases": [
+      {
+        "project": "Agents",
+        "title": "CI/CD Pipeline Overhaul",
+        "content": "Redesign the CI/CD pipeline for faster deployments. Implement parallel test execution, caching, canary deployments, automated rollbacks, environment promotion, and deployment approval gates.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "ag-87",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "CI CD Pipeline Overhaul",
+            "source": "filesystem:Agents/CI CD Pipeline Overhaul.txt"
+          },
+          {
+            "project": "Agents",
+            "title": "CI-CD Pipeline Overhaul",
+            "source": "filesystem:Agents/CI-CD Pipeline Overhaul.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "A/B Testing Framework",
+        "content": "Build an A/B testing framework with experiment configuration, user bucketing, variant assignment, statistical significance calculation, and a dashboard for experiment results and metrics.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "ag-95",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "A B Testing Framework",
+            "source": "filesystem:Agents/A B Testing Framework.txt"
+          },
+          {
+            "project": "Agents",
+            "title": "A-B Testing Framework",
+            "source": "filesystem:Agents/A-B Testing Framework.txt"
+          }
+        ]
+      },
+      {
+        "project": "Skills",
+        "title": "Docker Containerization",
+        "content": "Containerize the application with Docker. Create optimized multi-stage Dockerfiles, docker-compose for local development, health checks, volume mounts, and production-ready configurations.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "sk-24",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Skills",
+            "title": "Docker Containerization--recovered-1c0dd47872",
+            "source": "filesystem:Skills/Docker Containerization--recovered-1c0dd47872.txt"
+          }
+        ]
+      },
+      {
+        "project": "Skills",
+        "title": "CI/CD Pipeline Setup",
+        "content": "Set up a CI/CD pipeline with automated testing, linting, type checking, build verification, staging deployment, and production release with rollback capability.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "sk-27",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Skills",
+            "title": "CI CD Pipeline Setup",
+            "source": "filesystem:Skills/CI CD Pipeline Setup.txt"
+          },
+          {
+            "project": "Skills",
+            "title": "CI-CD Pipeline Setup",
+            "source": "filesystem:Skills/CI-CD Pipeline Setup.txt"
+          }
+        ]
+      },
+      {
+        "project": "Skills",
+        "title": "SSL/TLS Certificate Management",
+        "content": "Automate SSL/TLS certificate management with Let's Encrypt or AWS ACM. Implement auto-renewal, certificate monitoring, HTTPS redirect, HSTS configuration, and certificate pinning for mobile apps.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "sk-30",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Skills",
+            "title": "SSL TLS Certificate Management",
+            "source": "filesystem:Skills/SSL TLS Certificate Management.txt"
+          },
+          {
+            "project": "Skills",
+            "title": "SSL-TLS Certificate Management",
+            "source": "filesystem:Skills/SSL-TLS Certificate Management.txt"
+          }
+        ]
+      },
+      {
+        "project": "Skills",
+        "title": "Email Service Integration",
+        "content": "Build an email service with template engine, MJML responsive templates, sending via SES/SendGrid, bounce/complaint handling, delivery tracking, and email analytics dashboard.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "sk-57",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Skills",
+            "title": "Email Service Integration--recovered-e6fbd7d0d2",
+            "source": "filesystem:Skills/Email Service Integration--recovered-e6fbd7d0d2.txt"
+          }
+        ]
+      },
+      {
+        "project": "Skills",
+        "title": "Pub/Sub System",
+        "content": "Implement a publish/subscribe system with topic management, message filtering, guaranteed delivery, ordering, deduplication, and monitoring of message throughput and consumer lag.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "sk-59",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Skills",
+            "title": "Pub Sub System",
+            "source": "filesystem:Skills/Pub Sub System.txt"
+          },
+          {
+            "project": "Skills",
+            "title": "Pub-Sub System",
+            "source": "filesystem:Skills/Pub-Sub System.txt"
+          }
+        ]
+      },
+      {
+        "project": "Prompt Library for Coding",
+        "title": "React SSR/SSG Setup",
+        "content": "Set up server-side rendering or static site generation with Next.js. Configure data fetching strategies, ISR, middleware, API routes, image optimization, and SEO metadata.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+        "id": "pc-11",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/Jln-WokAexUwaKPvAk6c6FQUk3PoW3Y-phgMXK7jg-o/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Prompt Library for Coding",
+            "title": "React SSR SSG Setup",
+            "source": "filesystem:Promp Library For Coding/_Recovered/React SSR SSG Setup.txt"
+          },
+          {
+            "project": "Prompt Library for Coding",
+            "title": "React SSR-SSG Setup",
+            "source": "filesystem:Promp Library For Coding/_Recovered/React SSR-SSG Setup.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "UI Polish / Styling Refinement",
+        "content": "ROLE: UI polish lead with {{AGENT_COUNT}} deep-dive agents.\n\nTARGET: {{COMPONENT_OR_SCREEN}} in {{PRODUCT}}\n\nOBJECTIVE: Audit current styling and propose improvements WITHOUT breaking functionality.\n\nREVIEW CHECKLIST:\n- Visual hierarchy and information density\n- Feedback states (hover, active, success, error, loading)\n- Animation timing and motion polish\n- Typography, spacing, and rhythm\n- Accessibility (contrast, focus states, keyboard nav)\n- Cross-platform consistency\n\nDELIVERABLE:\n- Annotated list of current issues with screenshots/snippets\n- 2-3 visual direction options with tradeoffs\n- Specific code-level recommendations\n- Priority order for implementation\n\nREFERENCE: Always consult the design system MD file before proposing changes.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bsp-8",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-multi-agent-v1.ts#BRIDGESPACE_MULTI_AGENT_V1_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-multi-agent-v1.ts#BRIDGESPACE_MULTI_AGENT_V1_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-multi-agent-v1.ts#BRIDGESPACE_MULTI_AGENT_V1_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "UI Polish - Styling Refinement",
+            "source": "filesystem:BS Multi-Agent Prompts/UI Polish - Styling Refinement.txt"
+          },
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "UI Polish Styling Refinement",
+            "source": "filesystem:BS Multi-Agent Prompts/UI Polish Styling Refinement.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "Live Agent Status Roll-Up",
+        "content": "ROLE: Mission control.\n\nTASK: Poll all active agents in the workspace and report:\n- Agent ID + assigned task\n- Current status (running / blocked / completed / errored)\n- % complete (estimate from output volume and milestones hit)\n- Any blockers requiring my input\n\nFORMAT: Compact table. No prose summaries unless I ask.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bsp-11",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade.dev/WebsiteData/Default/A0epzQjF2Ik7PdpkZxGhlSVIZGDVeFOKXOGkWql_SB4/A0epzQjF2Ik7PdpkZxGhlSVIZGDVeFOKXOGkWql_SB4/LocalStorage/localstorage.sqlite3",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-multi-agent-v1.ts#BRIDGESPACE_MULTI_AGENT_V1_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-multi-agent-v1.ts#BRIDGESPACE_MULTI_AGENT_V1_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:e2c3c77c10d6d23c565572e77cc660bc9d3f2cc3:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "Live Agent Status Roll-Up (Legacy Mission Control)",
+            "source": "filesystem:BS Multi-Agent Prompts/Live Agent Status Roll-Up (Legacy Mission Control).txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "01 — Bridge Memory marketing content: research + plan",
+        "content": "You are working on the BridgeMind website (Next.js) and BridgeSpace (Tauri). The new Bridge Memory feature has zero marketing presence and that is the bottleneck.\n\nLaunch 5 parallel subagents with these distinct roles:\n  Agent 1 (Feature Auditor): Read the BridgeSpace source for Bridge Memory. Document every capability, edge case, data flow, and user-facing surface.\n  Agent 2 (Site Auditor): Crawl the BridgeMind website. Identify every page where Bridge Memory should be referenced and every gap in current copy.\n  Agent 3 (Blog Architect): Draft a structured outline for a launch blog post on Bridge Memory — hook, problem, solution, how-it-works, demo callouts, CTA.\n  Agent 4 (Visual Strategist): Spec 3-5 infographics and 2 animations explaining Bridge Memory. Output: concept, what it teaches, recommended format (Lottie / Framer / static SVG).\n  Agent 5 (Page Designer): Spec the new Bridge Memory section for the BridgeSpace product page — hierarchy, components, copy slots, where the infographics/animations slot in.\n\nDo NOT write or edit code yet. Do NOT publish. Aggregate all findings into a single structured plan with:\n  - Phase order (research → blog → page section → visuals)\n  - File paths to touch\n  - Open questions for me before execution\n  - Estimated scope per phase\n\nDone = structured plan delivered + subagent outputs summarized + waiting for my approval.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-1",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "01 — Bridge Memory marketing content research + plan",
+            "source": "filesystem:BS Multi-Agent Prompts/01 — Bridge Memory marketing content research + plan.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "07 — Security audit: Vibe Academy API",
+        "content": "Working dir: vibe-academy-api\n\nLaunch 3 parallel deep-dive security agents:\n  Agent 1 (Auth & Sessions): Audit auth flows, session handling, JWT/cookie config, password handling, OAuth scopes.\n  Agent 2 (Input & Injection): Audit all user input paths — SQLi, NoSQLi, XSS, SSRF, path traversal, deserialization, command injection.\n  Agent 3 (Infra & Secrets): Audit env var handling, secrets in repo, CORS, rate limiting, dependency CVEs, exposed endpoints.\n\nOutput a single consolidated report:\n  - Severity (Critical / High / Medium / Low)\n  - File + line\n  - Description\n  - Recommended fix\n  - Effort estimate\n\nDo NOT fix anything yet. Audit only.\n\nDone = consolidated report delivered + sorted by severity.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-7",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "07 — Security audit Vibe Academy API",
+            "source": "filesystem:BS Multi-Agent Prompts/07 — Security audit Vibe Academy API.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "08 — SEO audit: Vibe Academy frontend",
+        "content": "Working dir: vibe-academy-ui (frontend)\n\nLaunch 3 subagents in parallel:\n  Agent 1 (Technical SEO): Sitemap, robots.txt, canonical tags, structured data, page speed, Core Web Vitals, mobile responsiveness.\n  Agent 2 (On-page SEO): Meta titles/descriptions, heading hierarchy, internal linking, alt text, schema.org markup.\n  Agent 3 (Content SEO): Keyword coverage gaps, content depth, target query opportunities given the product positioning.\n\nOutput a single ranked action list:\n  - Priority (1-5, 1 = highest impact)\n  - Effort (S/M/L)\n  - Specific file + change\n  - Expected impact\n\nDone = ranked action list delivered. Do not implement yet.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-8",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "08 — SEO audit Vibe Academy frontend",
+            "source": "filesystem:BS Multi-Agent Prompts/08 — SEO audit Vibe Academy frontend.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "10 — Bridge Memory navigation: back/forward + history",
+        "content": "Feature: add browser-style navigation to the Bridge Memory screen.\n\nRequirements:\n  - Back/forward buttons on the MD file viewer.\n  - Back/forward buttons on the graph page.\n  - Maintain a per-session history stack of visited files.\n  - Forward stack clears on new navigation (standard browser behavior).\n  - Keyboard shortcuts: Cmd+[ / Cmd+] (Mac), Alt+Left / Alt+Right (Win).\n  - Disabled state when stack is empty in that direction.\n  - Hover tooltip showing the file you'll navigate to.\n\nUI quality bar: match the polish of the existing BridgeSpace browser. Animate transitions. Use existing design tokens.\n\nDeliverables:\n  - Implementation\n  - Before/after screenshots\n  - One-paragraph note on state management approach (Zustand/Context/etc — match what's used elsewhere)\n\nDone = working back/forward on both screens + screenshots + state approach documented.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-10",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "10 — Bridge Memory navigation back forward + history",
+            "source": "filesystem:BS Multi-Agent Prompts/10 — Bridge Memory navigation back forward + history.txt"
+          },
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "10 — Bridge Memory navigation back-forward + history",
+            "source": "filesystem:BS Multi-Agent Prompts/10 — Bridge Memory navigation back-forward + history.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "11 — Evaluate viewer feature request: front matter for MD memories",
+        "content": "A viewer suggested adding YAML front matter to memory markdown files for housekeeping.\n\nDo an in-depth review:\n  1. Restate what they're proposing in 2-3 sentences.\n  2. List concrete benefits (search, filter, graph metadata, dataview-style queries, Obsidian compat).\n  3. List concrete costs (migration, schema lock-in, parser overhead, UX surface).\n  4. Propose a minimal viable schema (3-5 fields) and a maximal schema.\n  5. Recommend: ship / defer / decline + why.\n\nDone = structured review delivered. No code changes.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-11",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "11 — Evaluate viewer feature request front matter for MD memories",
+            "source": "filesystem:BS Multi-Agent Prompts/11 — Evaluate viewer feature request front matter for MD memories.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "16 — Fix clipped \"Y\" in Vibe Academy hero",
+        "content": "Bug: on the Vibe Academy landing hero, the headline \"Vibe Coding Is Here to Stay\" has the descender of the \"y\" cut off at the bottom.\n\nLikely causes (check in order):\n  - line-height too tight\n  - overflow: hidden on the container\n  - fixed height instead of min-height\n  - font baseline / line-clamp issue\n\nFix the actual cause, not by adding padding-bottom as a band-aid.\n\nDeliverables: fix + before/after screenshots + one-line note on what was wrong.\n\nDone = headline renders fully + screenshots + cause noted.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-16",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "16 — Fix clipped Y in Vibe Academy hero",
+            "source": "filesystem:BS Multi-Agent Prompts/16 — Fix clipped Y in Vibe Academy hero.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "19 — Parallel security audit: six agents on BridgeMind API",
+        "content": "Prompt all 6 open Claude Code agents simultaneously. Each should:\n  1. Use the Bridge Security Skill.\n  2. Audit the BridgeMind API.\n  3. Output findings in this exact format:\n     - Agent ID\n     - Severity (Critical/High/Medium/Low)\n     - File:line\n     - Issue\n     - Fix recommendation\n\nAssign distinct focus areas so they don't duplicate work:\n  Agent 1: Auth + sessions\n  Agent 2: Input validation + injection\n  Agent 3: Authorization + IDOR\n  Agent 4: Secrets + config + env\n  Agent 5: Dependencies + supply chain\n  Agent 6: Rate limiting + DoS + abuse\n\nAfter all 6 return, you (orchestrator) consolidate into a single deduped, severity-sorted report.\n\nDone = 6 agents reported + consolidated report delivered.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-19",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "19 — Parallel security audit six agents on BridgeMind API",
+            "source": "filesystem:BS Multi-Agent Prompts/19 — Parallel security audit six agents on BridgeMind API.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "20 — Mind-reading / zero-input feature research",
+        "content": "Research mode only. No code.\n\nLaunch 20 deep-dive subagents to explore: how could BridgeSpace anticipate user intent so the user neither types nor speaks commands?\n\nSplit into 4 working groups of 5:\n  Group A (Signals): What ambient signals can we read? File focus, cursor position, recent edits, git state, time of day, clipboard, terminal output, error states, screen region focus, tab activity. Rank by signal-to-noise.\n  Group B (Inference): Given those signals, what models / heuristics infer intent? Local LLM with sliding context window? Rule engine? Hybrid? Cost vs latency tradeoffs.\n  Group C (UX): How does the interface surface predictions without being annoying? Ghost suggestions, ambient panel, hotkey-to-confirm, auto-execute with undo? Study Cursor, Copilot, Raycast AI, Arc Max.\n  Group D (Risk): Privacy, false positives, user trust, escape hatches, \"agent did something I didn't want\" recovery.\n\nEach group outputs a structured brief. Orchestrator synthesizes into:\n  - Top 3 viable feature concepts (ranked)\n  - MVP spec for the #1 concept\n  - Open research questions\n  - Prior art references\n\nMake zero assumptions. Make no mistakes. If a group has insufficient information, say so explicitly rather than guessing.\n\nDone = 4 group briefs + synthesis + MVP spec for top concept.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-20",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "20 — Mind-reading - zero-input feature research",
+            "source": "filesystem:BS Multi-Agent Prompts/20 — Mind-reading - zero-input feature research.txt"
+          },
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "20 — Mind-reading zero-input feature research",
+            "source": "filesystem:BS Multi-Agent Prompts/20 — Mind-reading zero-input feature research.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "24 — Fix login error message: invalid password",
+        "content": "Bug: logging in with the wrong password returns a raw 401. User-reported. Need a clear, friendly message.\n\nLaunch 2 deep-dive agents in parallel:\n  Agent 1 (Backend): Trace the login endpoint. Identify where 401 is returned. Decide between (a) returning a structured error payload {code: \"invalid_credentials\", message: \"...\"} or (b) keeping 401 but adding a body. Choose the approach that matches existing patterns in the codebase.\n  Agent 2 (Frontend): Trace the login form's error handling. Map each possible backend response to a user-facing message. Make sure invalid password specifically shows \"Invalid password, please try again.\"\n\nHard rules:\n  - Do not leak whether the email exists (timing + message must not differ for \"no such user\" vs \"wrong password\" — return the same generic message). This is a security requirement, override the user's literal wording if needed.\n  - Do not break existing auth flows.\n  - Add a test for the new message path.\n\nDeliverables: implementation + test + screenshot of the new error state + note on the email-enumeration decision.\n\nDone = friendly message shown + tests pass + no enumeration leak + screenshot posted.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-24",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "24 — Fix login error message invalid password",
+            "source": "filesystem:BS Multi-Agent Prompts/24 — Fix login error message invalid password.txt"
+          }
+        ]
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "32 — Bridge Memory: Product Hunt launch prep",
+        "content": "We're launching Bridge Memory on Product Hunt tomorrow. Today's job is research + asset prep, not the listing itself yet.\n\nPhase 1 — Deep understanding:\n  Launch 4 subagents:\n    Agent 1: Read the Bridge Memory source in BridgeSpace Tauri. Document every capability, including non-obvious ones.\n    Agent 2: Use Bridge Memory yourself for 10 minutes. Take notes on the actual UX — what's delightful, what's confusing.\n    Agent 3: Compare Bridge Memory vs. competitors (Mem, Reflect, Obsidian, NotebookLM, Notion AI). Position it: what's the unfair advantage?\n    Agent 4: Identify the 3 strongest taglines + the 5 strongest single-sentence value props.\n\nPhase 2 — Asset spec:\n  Spec the infographic screenshots needed for the Product Hunt listing:\n    - Hero image (1270x760)\n    - 3-5 gallery images showing key features in action\n    - Each one: what it shows, what caption it pairs with\n  Don't produce them yet — just spec.\n\nPhase 3 — Listing draft:\n  Draft the Product Hunt listing:\n    - Tagline (60 char max)\n    - Description (260 char visible, full longer description)\n    - Topics/categories\n    - First-comment \"maker post\" (the long story version)\n\nHard rules:\n  - No \"AI-powered\" in the tagline. Everyone says that.\n  - Lead with the user benefit, not the tech.\n  - The maker post should sound like a person, not marketing.\n\nDone = 4 agent reports + asset spec + full listing draft + 3 tagline options to pick from.",
+        "source": "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+        "id": "bd173-32",
+        "sources": [
+          "localStorage:/Users/jake/Library/WebKit/com.shipspace.ade/WebsiteData/Default/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/uY6YcAK4RFb-IUx4GJ2F5g-Q8zxqkCLPyPtYWPSrTRo/LocalStorage/localstorage.sqlite3",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:619f6048121e7fe0f01f4a40dd2b29e67b1423fe:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:522599140db52aec341035989c7e8d21a615ee28:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-combined.ts#BRIDGESPACE_COMBINED_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:f80a05749d55d0e9a8c04f186b7bc5dde2316087:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts-bridgespace-day173.ts#BRIDGESPACE_DAY173_PROJECT",
+          "git:4755667be54acdd92335f840fe2f3f66b8fdc5bf:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "BS Multi-Agent Prompts",
+            "title": "32 — Bridge Memory Product Hunt launch prep",
+            "source": "filesystem:BS Multi-Agent Prompts/32 — Bridge Memory Product Hunt launch prep.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Security Audit Swarm",
+        "content": "Evaluate the codebase for security vulnerabilities including OWASP Top 10, dependency vulnerabilities, hardcoded secrets, SQL injection, XSS, and CSRF. Patch all identified issues and document findings.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-1",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Security Audit Gang",
+            "source": "filesystem:Agents/Security Audit Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "XSS Prevention Swarm",
+        "content": "Scan the entire frontend for Cross-Site Scripting vulnerabilities. Implement output encoding, Content Security Policy, sanitize user inputs, review dangerouslySetInnerHTML usage, and add XSS-specific test cases.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-11",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "XSS Prevention Gang",
+            "source": "filesystem:Agents/XSS Prevention Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Code Review Swarm",
+        "content": "Perform a comprehensive code review across the entire repository. Identify code smells, performance bottlenecks, unused code, and suggest refactoring opportunities. Ensure consistent coding standards.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-13",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Code Review Gang",
+            "source": "filesystem:Agents/Code Review Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Feature Build Swarm",
+        "content": "Implement the specified feature end-to-end including frontend components, backend API endpoints, database schema changes, tests, and documentation. Follow existing project conventions.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-23",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Feature Build Gang",
+            "source": "filesystem:Agents/Feature Build Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Bug Fix Swarm",
+        "content": "Investigate and fix all reported bugs. Reproduce each issue, identify root causes, implement fixes, add regression tests, and verify no side effects are introduced.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-35",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Bug Fix Gang",
+            "source": "filesystem:Agents/Bug Fix Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Testing Swarm",
+        "content": "Build a comprehensive test suite from scratch. Write unit tests, integration tests, E2E tests with Playwright/Cypress, load tests, and set up continuous testing in CI. Target 90%+ code coverage.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-45",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Testing Gang",
+            "source": "filesystem:Agents/Testing Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Documentation Swarm",
+        "content": "Generate comprehensive documentation for the entire project including README, API docs, architecture diagrams, setup guides, contribution guidelines, and inline code documentation.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-55",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Documentation Gang",
+            "source": "filesystem:Agents/Documentation Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Migration Swarm",
+        "content": "Plan and execute a technology migration (e.g. framework upgrade, database switch, cloud provider migration). Create a migration plan, implement changes incrementally, maintain backward compatibility, and validate each step.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-63",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Migration Gang",
+            "source": "filesystem:Agents/Migration Gang.txt"
+          }
+        ]
+      },
+      {
+        "project": "Agents",
+        "title": "Performance Swarm",
+        "content": "Profile the application for performance issues. Optimize database queries, reduce API response times, implement caching, lazy loading, and code splitting. Target sub-100ms response times and 90+ Lighthouse scores.",
+        "source": "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS",
+        "id": "ag-71",
+        "sources": [
+          "git:466efd2f45a60c7e634f76c9bf48f3c761ef36de:src/lib/data/prompts.ts#DEFAULT_PROJECTS"
+        ],
+        "filesystemMatches": [
+          {
+            "project": "Agents",
+            "title": "Performance Gang",
+            "source": "filesystem:Agents/Performance Gang.txt"
+          }
+        ]
+      }
+    ],
+    "unresolvedTitleAliases": [],
+    "crossProjectMatches": []
+  },
+  "currentDevDuplicateContentGroups": [
+    [
+      {
+        "project": "Agents",
+        "title": "A B Testing Framework",
+        "id": "fs-0-0"
+      },
+      {
+        "project": "Agents",
+        "title": "A-B Testing Framework",
+        "id": "fs-0-1"
+      }
+    ],
+    [
+      {
+        "project": "Agents",
+        "title": "CI CD Pipeline Overhaul",
+        "id": "fs-0-31"
+      },
+      {
+        "project": "Agents",
+        "title": "CI-CD Pipeline Overhaul",
+        "id": "fs-0-33"
+      }
+    ],
+    [
+      {
+        "project": "Agents",
+        "title": "Notification Expert Agent",
+        "id": "fs-0-136"
+      },
+      {
+        "project": "Agents",
+        "title": "Notification Expert Agent (70)",
+        "id": "fs-0-137"
+      }
+    ],
+    [
+      {
+        "project": "Agents",
+        "title": "Payment Systems Agent",
+        "id": "fs-0-142"
+      },
+      {
+        "project": "Agents",
+        "title": "Payment Systems Agent (69)",
+        "id": "fs-0-143"
+      }
+    ],
+    [
+      {
+        "project": "Agents",
+        "title": "React Component Expert",
+        "id": "fs-0-151"
+      },
+      {
+        "project": "Agents",
+        "title": "React Component Expert (68)",
+        "id": "fs-0-152"
+      }
+    ],
+    [
+      {
+        "project": "Skills",
+        "title": "CI CD Pipeline Setup",
+        "id": "fs-1-34"
+      },
+      {
+        "project": "Skills",
+        "title": "CI-CD Pipeline Setup",
+        "id": "fs-1-36"
+      }
+    ],
+    [
+      {
+        "project": "Skills",
+        "title": "Pub Sub System",
+        "id": "fs-1-140"
+      },
+      {
+        "project": "Skills",
+        "title": "Pub-Sub System",
+        "id": "fs-1-141"
+      }
+    ],
+    [
+      {
+        "project": "Skills",
+        "title": "SSL TLS Certificate Management",
+        "id": "fs-1-164"
+      },
+      {
+        "project": "Skills",
+        "title": "SSL-TLS Certificate Management",
+        "id": "fs-1-165"
+      }
+    ],
+    [
+      {
+        "project": "Prompt Library for Coding",
+        "title": "Debug Deployment Issue",
+        "id": "fs-3-160"
+      },
+      {
+        "project": "Prompt Library for Coding",
+        "title": "Debug Deployment Issue (1)",
+        "id": "fs-3-161"
+      }
+    ],
+    [
+      {
+        "project": "Prompt Library for Coding",
+        "title": "React SSR SSG Setup",
+        "id": "fs-3-236"
+      },
+      {
+        "project": "Prompt Library for Coding",
+        "title": "React SSR-SSG Setup",
+        "id": "fs-3-237"
+      }
+    ],
+    [
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "10 — Bridge Memory navigation back forward + history",
+        "id": "fs-5-18"
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "10 — Bridge Memory navigation back-forward + history",
+        "id": "fs-5-19"
+      }
+    ],
+    [
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "20 — Mind-reading - zero-input feature research",
+        "id": "fs-5-29"
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "20 — Mind-reading zero-input feature research",
+        "id": "fs-5-30"
+      }
+    ],
+    [
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "UI Polish - Styling Refinement",
+        "id": "fs-5-58"
+      },
+      {
+        "project": "BS Multi-Agent Prompts",
+        "title": "UI Polish Styling Refinement",
+        "id": "fs-5-59"
+      }
+    ]
+  ]
+}

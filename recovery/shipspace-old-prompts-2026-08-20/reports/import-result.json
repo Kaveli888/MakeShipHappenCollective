@@ -1,0 +1,3012 @@
+{
+  "mode": "apply",
+  "createdAt": "2026-08-21T06:56:09.649Z",
+  "promptRoot": "/Users/jake/MakeShipHappenCollective/Prompts",
+  "requested": 375,
+  "summary": {
+    "copy": 373,
+    "copy-renamed-conflict": 2
+  },
+  "actions": [
+    {
+      "project": "ADE Desktop App",
+      "title": "File Explorer Panel",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/ADE Desktop App/File Explorer Panel.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/ADE Desktop App/File Explorer Panel.txt",
+      "action": "copy",
+      "sha256": "c274db294e835bedeb2ff7015d1d5de27291251d346414b5d63878e13eb25d25"
+    },
+    {
+      "project": "ADE Desktop App",
+      "title": "Keyboard Shortcuts System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/ADE Desktop App/Keyboard Shortcuts System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/ADE Desktop App/Keyboard Shortcuts System.txt",
+      "action": "copy",
+      "sha256": "efabb00fa162e4cdb51abf9ce76ac9a1c69671f26c40b71bf7c28a3438543f29"
+    },
+    {
+      "project": "ADE Desktop App",
+      "title": "Plugin Architecture",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/ADE Desktop App/Plugin Architecture.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/ADE Desktop App/Plugin Architecture.txt",
+      "action": "copy",
+      "sha256": "6fd0a1faa126d714724ea0b5821e355d5d38e09b2120048365f67e812ef5cc99"
+    },
+    {
+      "project": "ADE Desktop App",
+      "title": "Terminal Layout",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/ADE Desktop App/Terminal Layout.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/ADE Desktop App/Terminal Layout.txt",
+      "action": "copy",
+      "sha256": "458f2cc96be52a0de17999f0108ebf7da32f3b3ee35326423a53da6960e7b043"
+    },
+    {
+      "project": "ADE Desktop App",
+      "title": "Theme System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/ADE Desktop App/Theme System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/ADE Desktop App/Theme System.txt",
+      "action": "copy",
+      "sha256": "8ee12e59cc6bfe4985fa9fd11c3aca35d38bb9120f266ccbde49e3bf2f6de14f"
+    },
+    {
+      "project": "Agents",
+      "title": "A-B Testing Framework",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/A-B Testing Framework.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/A-B Testing Framework.txt",
+      "action": "copy",
+      "sha256": "106b75abfb4d8a41cc22ca969fad4603079f66f2fd574f55ec359179cbc53d22"
+    },
+    {
+      "project": "Agents",
+      "title": "A/B Testing Framework",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/A B Testing Framework.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/A B Testing Framework.txt",
+      "action": "copy",
+      "sha256": "e8635eb32c38922b6d1d5b9fd0752f8bc6fb3cd300e0c10ff34f057e34830578"
+    },
+    {
+      "project": "Agents",
+      "title": "Accessibility Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Accessibility Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Accessibility Audit.txt",
+      "action": "copy",
+      "sha256": "35c5e17efa6c365f86a9fe24241b122d72ac7be10102b6a75d37d755aab33e6c"
+    },
+    {
+      "project": "Agents",
+      "title": "Accessibility Testing Suite",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Accessibility Testing Suite.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Accessibility Testing Suite.txt",
+      "action": "copy",
+      "sha256": "ed4593098b0718046924a8533ccd93241c1360ce0c4dd98d021611d7450dbf0e"
+    },
+    {
+      "project": "Agents",
+      "title": "Admin Panel Build",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Admin Panel Build.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Admin Panel Build.txt",
+      "action": "copy",
+      "sha256": "d99ebce5ab4d2c90c395d8cecb7ccf96a634d93fe59c68bbc8b608073ad8b391"
+    },
+    {
+      "project": "Agents",
+      "title": "API Contract Testing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/API Contract Testing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/API Contract Testing.txt",
+      "action": "copy",
+      "sha256": "5963f4c9b83ded4be5261edff5e052360b8d7825813e1ed38ba13864fe8f0021"
+    },
+    {
+      "project": "Agents",
+      "title": "API Documentation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/API Documentation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/API Documentation.txt",
+      "action": "copy",
+      "sha256": "a9acb06246916e0bd8f703b8f52817d7cfe240dff26c30eea58d7b7107f9638a"
+    },
+    {
+      "project": "Agents",
+      "title": "API Error Handling Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/API Error Handling Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/API Error Handling Fix.txt",
+      "action": "copy",
+      "sha256": "4c0879923167a671caaf6de12cac404f5ab6d6c144a19cbf99e12bd2f4189d68"
+    },
+    {
+      "project": "Agents",
+      "title": "API Layer Refactor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/API Layer Refactor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/API Layer Refactor.txt",
+      "action": "copy",
+      "sha256": "249197292f391315ad348bc7f0cd4b9e13e54f05b9e6695ca944b3e30d825c0f"
+    },
+    {
+      "project": "Agents",
+      "title": "API Response Time Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/API Response Time Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/API Response Time Optimization.txt",
+      "action": "copy",
+      "sha256": "c98e1fb3b4086e7a995725258fd5383d8664c582070492fd281f355777d767b2"
+    },
+    {
+      "project": "Agents",
+      "title": "API Security Review",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/API Security Review.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/API Security Review.txt",
+      "action": "copy",
+      "sha256": "770d86b791ffc6832313f0e41ffca2f645c320e26eb25daaa6519abf3af25d5e"
+    },
+    {
+      "project": "Agents",
+      "title": "Architecture Documentation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Architecture Documentation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Architecture Documentation.txt",
+      "action": "copy",
+      "sha256": "d6d69857457576af5ab916839fe5c2d62e6ebddf7be8ee72855e53f4675b226f"
+    },
+    {
+      "project": "Agents",
+      "title": "Architecture Refactor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Architecture Refactor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Architecture Refactor.txt",
+      "action": "copy",
+      "sha256": "216a2768605e7399f8b1847b8113cc392a14d6ac930a01314603263fa5dedda4"
+    },
+    {
+      "project": "Agents",
+      "title": "Authentication Bug Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Authentication Bug Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Authentication Bug Fix.txt",
+      "action": "copy",
+      "sha256": "77fdc82a4db8a828e56517e51908fb840bfd1638154fc5e8f97bbf3870649df9"
+    },
+    {
+      "project": "Agents",
+      "title": "Authentication Hardening",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Authentication Hardening.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Authentication Hardening.txt",
+      "action": "copy",
+      "sha256": "1bd0203ba304a5399e6b3fde0316b8156e36457fd9a664ecd4aa0f9a2a6ede84"
+    },
+    {
+      "project": "Agents",
+      "title": "Bug Fix Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Bug Fix Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Bug Fix Gang.txt",
+      "action": "copy",
+      "sha256": "e77392567e3b5ed8ba4cc4cbd02e7c144fe8c62d8f09619d74a8cdea640fecde"
+    },
+    {
+      "project": "Agents",
+      "title": "Build & Deploy Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Build & Deploy Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Build & Deploy Fix.txt",
+      "action": "copy",
+      "sha256": "536d8b82852f5ea12ce054797e1d8ed99f1cea2f39fc9582ec600303fcde4000"
+    },
+    {
+      "project": "Agents",
+      "title": "Caching Strategy Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Caching Strategy Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Caching Strategy Implementation.txt",
+      "action": "copy",
+      "sha256": "472aa852f4091495ba1e296a5f16fb11f44d50784af96007d7f67e455a1fac4c"
+    },
+    {
+      "project": "Agents",
+      "title": "Changelog & Release Notes",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Changelog & Release Notes.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Changelog & Release Notes.txt",
+      "action": "copy",
+      "sha256": "3efdf8da71aa06e94d0676d10bd0d89d40fac049fe204625e5d23a4a5d251f2d"
+    },
+    {
+      "project": "Agents",
+      "title": "Chaos Engineering Tests",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Chaos Engineering Tests.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Chaos Engineering Tests.txt",
+      "action": "copy",
+      "sha256": "3a714ac32d4072d9385dd977cadbab3dfbb433f1f98a535838131bd3065c1cf4"
+    },
+    {
+      "project": "Agents",
+      "title": "CI-CD Pipeline Overhaul",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/CI-CD Pipeline Overhaul.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/CI-CD Pipeline Overhaul.txt",
+      "action": "copy",
+      "sha256": "be5b1ba03df3741d576d8c0997f1c771fcb97eaa3144d03cf430ab9c49371d04"
+    },
+    {
+      "project": "Agents",
+      "title": "CI/CD Pipeline Overhaul",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/CI CD Pipeline Overhaul.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/CI CD Pipeline Overhaul.txt",
+      "action": "copy",
+      "sha256": "955410db2ee84d40746afa86e819661b25387eaef14797ae56f90eedadab7f3d"
+    },
+    {
+      "project": "Agents",
+      "title": "Cloud Provider Migration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Cloud Provider Migration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Cloud Provider Migration.txt",
+      "action": "copy",
+      "sha256": "65ef7333bab247c63bda68c597927e381f68922947506aa2ae53fdfaa9aec9af"
+    },
+    {
+      "project": "Agents",
+      "title": "Code Comment Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Code Comment Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Code Comment Audit.txt",
+      "action": "copy",
+      "sha256": "e54135791419be827bfc91f2e9ccddb714f9d8d862e1d194f34578c41427e07e"
+    },
+    {
+      "project": "Agents",
+      "title": "Code Consistency Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Code Consistency Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Code Consistency Audit.txt",
+      "action": "copy",
+      "sha256": "45373908054ec3c6f38009707327c9570410afc7bd6517634fcf2af7686bcb66"
+    },
+    {
+      "project": "Agents",
+      "title": "Code Quality Metrics",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Code Quality Metrics.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Code Quality Metrics.txt",
+      "action": "copy",
+      "sha256": "fa82395059f5361ca2a4c2e5d4fe206840e30766be5b68312a5e35f334fdebbb"
+    },
+    {
+      "project": "Agents",
+      "title": "Code Review Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Code Review Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Code Review Gang.txt",
+      "action": "copy",
+      "sha256": "268d0e8d88429164f5c73a2b58133bae16130cb2e9df719c4ad559f2bf51c2d3"
+    },
+    {
+      "project": "Agents",
+      "title": "Comment & Discussion System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Comment & Discussion System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Comment & Discussion System.txt",
+      "action": "copy",
+      "sha256": "6f0a69e7c5a988f120080fa1723b1066555d36d43035d1cc338fc31a51ded312"
+    },
+    {
+      "project": "Agents",
+      "title": "Component Library Extraction",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Component Library Extraction.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Component Library Extraction.txt",
+      "action": "copy",
+      "sha256": "6cf017601b87a75281e3741414dc5294039985a58fc1054b2ea1439a094a80b0"
+    },
+    {
+      "project": "Agents",
+      "title": "Config & Environment Refactor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Config & Environment Refactor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Config & Environment Refactor.txt",
+      "action": "copy",
+      "sha256": "b24d9ee77ab435f6b11d8235dcdc92d8f6d86817386a50209bf1a2d1fe83ef4a"
+    },
+    {
+      "project": "Agents",
+      "title": "Container Orchestration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Container Orchestration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Container Orchestration.txt",
+      "action": "copy",
+      "sha256": "7695dcd3de667c869af94fee813fd67a9fb7f99f0eea3c1cd0d27f8aa0b39946"
+    },
+    {
+      "project": "Agents",
+      "title": "Core Web Vitals Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Core Web Vitals Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Core Web Vitals Fix.txt",
+      "action": "copy",
+      "sha256": "da8a45548c73219498f0ae2c766d0712eda7009a018d1c6748ab39253165c2a5"
+    },
+    {
+      "project": "Agents",
+      "title": "CORS & CSP Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/CORS & CSP Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/CORS & CSP Configuration.txt",
+      "action": "copy",
+      "sha256": "aed20f63fc6873ddebef78e7e2263f8386c860af3995f1ad5662daf8987b0755"
+    },
+    {
+      "project": "Agents",
+      "title": "Cost Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Cost Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Cost Optimization.txt",
+      "action": "copy",
+      "sha256": "465bd7292b1096ac54e9b080a2b0cf72e8bd5fa3dbeb7c07f28a727a6ce02498"
+    },
+    {
+      "project": "Agents",
+      "title": "Cross-browser Compatibility",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Cross-browser Compatibility.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Cross-browser Compatibility.txt",
+      "action": "copy",
+      "sha256": "774ca2e2a642cecdeecfc4553a4098bf6b2dfbc33a15fa6dcddb78c7d8a56b89"
+    },
+    {
+      "project": "Agents",
+      "title": "CSS Framework Migration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/CSS Framework Migration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/CSS Framework Migration.txt",
+      "action": "copy",
+      "sha256": "b014a8aedab3dd68dc75e37c563c8381f442f99d94610ea99ac65476cf26a47f"
+    },
+    {
+      "project": "Agents",
+      "title": "Data Anonymization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Data Anonymization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Data Anonymization.txt",
+      "action": "copy",
+      "sha256": "aef5d4f8a0af75cc26f318f3320901d0da34a0c11b26efcfb30136d9ad4caa57"
+    },
+    {
+      "project": "Agents",
+      "title": "Data Integrity Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Data Integrity Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Data Integrity Fix.txt",
+      "action": "copy",
+      "sha256": "1e314e049bd118d9de7b4afa6492cbbe8b2ec656a8cda098747045508e134360"
+    },
+    {
+      "project": "Agents",
+      "title": "Data Pipeline Build",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Data Pipeline Build.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Data Pipeline Build.txt",
+      "action": "copy",
+      "sha256": "02c30f14782e85a0350d46834fc3f47307d7e80aebd887f47442ffd14b5fb4fe"
+    },
+    {
+      "project": "Agents",
+      "title": "Data Privacy Compliance",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Data Privacy Compliance.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Data Privacy Compliance.txt",
+      "action": "copy",
+      "sha256": "78402ae303b994e935a9eb08d8a0a218b10e4aeba68b6cbe76943017fede3e24"
+    },
+    {
+      "project": "Agents",
+      "title": "Database Migration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Database Migration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Database Migration.txt",
+      "action": "copy",
+      "sha256": "9aee295eaec6eb9468cb2a675e70f9ad262a64bea8f55235150d2dc8e1326059"
+    },
+    {
+      "project": "Agents",
+      "title": "Database Query Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Database Query Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Database Query Optimization.txt",
+      "action": "copy",
+      "sha256": "7c5761bd1eaa5e213f1ca9c092a581b8b9385dc741c1662a18a001299cd09d93"
+    },
+    {
+      "project": "Agents",
+      "title": "Database Schema Refactor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Database Schema Refactor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Database Schema Refactor.txt",
+      "action": "copy",
+      "sha256": "148a503c80854cc8edf2583e3ea2e852c057dc75f55dc1944419eec73c1ac554"
+    },
+    {
+      "project": "Agents",
+      "title": "Dead Code Elimination",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Dead Code Elimination.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Dead Code Elimination.txt",
+      "action": "copy",
+      "sha256": "90ca2af70042c0bf2b8649d7d86b3f2c92e20c9ad5e0ba0fb04d9628d8b601ac"
+    },
+    {
+      "project": "Agents",
+      "title": "Dependency Cleanup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Dependency Cleanup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Dependency Cleanup.txt",
+      "action": "copy",
+      "sha256": "4f1f185dd4b1cca33b21fc0a9cd77c3a83f3c78dfb8c33a9e72fc2af4b29dfe1"
+    },
+    {
+      "project": "Agents",
+      "title": "Dependency Vulnerability Scan",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Dependency Vulnerability Scan.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Dependency Vulnerability Scan.txt",
+      "action": "copy",
+      "sha256": "53543f9104d398ee0894d258f00de4779b5d55d48a4cf9d8615f889559760134"
+    },
+    {
+      "project": "Agents",
+      "title": "Developer Onboarding Guide",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Developer Onboarding Guide.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Developer Onboarding Guide.txt",
+      "action": "copy",
+      "sha256": "7920a07afe916ac95adc9227f9570283ae409c60507282fed0fa2134cd2ccf69"
+    },
+    {
+      "project": "Agents",
+      "title": "Disaster Recovery Plan",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Disaster Recovery Plan.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Disaster Recovery Plan.txt",
+      "action": "copy",
+      "sha256": "6e1f93f7cdd0e7ac33aedb7a922a54c284943094ff30260a61ef349150a0583b"
+    },
+    {
+      "project": "Agents",
+      "title": "Documentation Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Documentation Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Documentation Gang.txt",
+      "action": "copy",
+      "sha256": "05021d5c38aa8b5d1d950faaad5136898cb729f1f3c790aba57d95a4418f5e36"
+    },
+    {
+      "project": "Agents",
+      "title": "E2E Test Automation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/E2E Test Automation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/E2E Test Automation.txt",
+      "action": "copy",
+      "sha256": "9e233070110d15e321500ea750c2542f9ff4b989d0a0ad5a96c1cab1b4aa9196"
+    },
+    {
+      "project": "Agents",
+      "title": "Encryption Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Encryption Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Encryption Implementation.txt",
+      "action": "copy",
+      "sha256": "6e7ffdb98cc11a9c4b551be030fd34835ae9102a83e89acdeb6c19e8c1dc2182"
+    },
+    {
+      "project": "Agents",
+      "title": "Error Handling Standardization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Error Handling Standardization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Error Handling Standardization.txt",
+      "action": "copy",
+      "sha256": "4a58a12cb511079def54defd53bd177442bdd35a892a32b50c64e48cd41b25ad"
+    },
+    {
+      "project": "Agents",
+      "title": "Event Tracking Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Event Tracking Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Event Tracking Implementation.txt",
+      "action": "copy",
+      "sha256": "9155a21e9d02baceb7c6b5286100a02aacfb7cd1664aa74028ccc16d31f62087"
+    },
+    {
+      "project": "Agents",
+      "title": "Export & Reporting",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Export & Reporting.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Export & Reporting.txt",
+      "action": "copy",
+      "sha256": "cb224dacb8bf6827748f9f3a5f194d8888259a26015c144c00a13aa4c43fa765"
+    },
+    {
+      "project": "Agents",
+      "title": "Feature Build Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Feature Build Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Feature Build Gang.txt",
+      "action": "copy",
+      "sha256": "9cfc90c5316e86f750bf6ceebda89f80b1d352bf5bf7fe771c2109fcd678db0a"
+    },
+    {
+      "project": "Agents",
+      "title": "File Upload System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/File Upload System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/File Upload System.txt",
+      "action": "copy",
+      "sha256": "df6e46198536fe4f0299c6b57a7017461c323c625941e4c62c82aa73aff36a2e"
+    },
+    {
+      "project": "Agents",
+      "title": "Framework Version Upgrade",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Framework Version Upgrade.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Framework Version Upgrade.txt",
+      "action": "copy",
+      "sha256": "bb7acb151c34075bbb9333c057e93419744eb4c6494a2e258d5e6ecb9b377e78"
+    },
+    {
+      "project": "Agents",
+      "title": "Frontend Bundle Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Frontend Bundle Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Frontend Bundle Optimization.txt",
+      "action": "copy",
+      "sha256": "f14288fde879629089f7f1020a7dcf116e4a9a443939d65a2e68551348a8df48"
+    },
+    {
+      "project": "Agents",
+      "title": "Image & Asset Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Image & Asset Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Image & Asset Optimization.txt",
+      "action": "copy",
+      "sha256": "9964ab95e6e51933b4e7286bc4c3c525b96914228bc1d6b10e1ba3ed736652e8"
+    },
+    {
+      "project": "Agents",
+      "title": "Infrastructure as Code",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Infrastructure as Code.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Infrastructure as Code.txt",
+      "action": "copy",
+      "sha256": "9387bf8cfed29150110f68131a3711684558fc326b710e0286e7306ed538533c"
+    },
+    {
+      "project": "Agents",
+      "title": "Infrastructure Security Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Infrastructure Security Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Infrastructure Security Audit.txt",
+      "action": "copy",
+      "sha256": "e14cf1a6f28a456dc5ce3113e6fd839aaa4d43d4359b7aeb8397636c52d0b689"
+    },
+    {
+      "project": "Agents",
+      "title": "Integration Test Suite",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Integration Test Suite.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Integration Test Suite.txt",
+      "action": "copy",
+      "sha256": "fca3551210a71a46567080386957b4c88aa2de1333d606f1be5dabda0ba5bce9"
+    },
+    {
+      "project": "Agents",
+      "title": "JavaScript to TypeScript",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/JavaScript to TypeScript.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/JavaScript to TypeScript.txt",
+      "action": "copy",
+      "sha256": "38d9acffb5a59e93b13eab88bf5f6d557d7ce246fbac3f5226f176e70a7ca2dc"
+    },
+    {
+      "project": "Agents",
+      "title": "Lint & Format Enforcement",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Lint & Format Enforcement.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Lint & Format Enforcement.txt",
+      "action": "copy",
+      "sha256": "4f04f4b6c6db6935218d749dc5c53de2516fbef18ab145d2e4f4b557c0d63def"
+    },
+    {
+      "project": "Agents",
+      "title": "Load & Stress Testing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Load & Stress Testing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Load & Stress Testing.txt",
+      "action": "copy",
+      "sha256": "c47fc24d4b556246e2464724fe137a3c73f4c30aea3cb31ccb0b97a4e0bb787b"
+    },
+    {
+      "project": "Agents",
+      "title": "Log Analytics Pipeline",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Log Analytics Pipeline.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Log Analytics Pipeline.txt",
+      "action": "copy",
+      "sha256": "50bf5780d105046906cfb402828b4a90823c779e642e054cc534153cb8364f6b"
+    },
+    {
+      "project": "Agents",
+      "title": "Logging & Observability Refactor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Logging & Observability Refactor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Logging & Observability Refactor.txt",
+      "action": "copy",
+      "sha256": "cba17fb2e9a63f9a4b3529c5553da2d9cd64043bfa70a00142d66617af94e17c"
+    },
+    {
+      "project": "Agents",
+      "title": "Memory Leak Investigation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Memory Leak Investigation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Memory Leak Investigation.txt",
+      "action": "copy",
+      "sha256": "b9c596a9d40b3d5443e7b214666202ed965d6ee2ed45df7c4c53afdc6c06c389"
+    },
+    {
+      "project": "Agents",
+      "title": "Memory Usage Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Memory Usage Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Memory Usage Optimization.txt",
+      "action": "copy",
+      "sha256": "91171feda53628fe9cf756e8b3577e9c2213876486d4ed0f50b75340979cc92e"
+    },
+    {
+      "project": "Agents",
+      "title": "Migration Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Migration Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Migration Gang.txt",
+      "action": "copy",
+      "sha256": "30d8b115f37bc1dfac258179a8adc564a18d90230a7176acc695277ce90686fe"
+    },
+    {
+      "project": "Agents",
+      "title": "ML Model Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/ML Model Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/ML Model Integration.txt",
+      "action": "copy",
+      "sha256": "2a8497a549dd89ad5e77c044398ced856210ca7ae5686343797d98b8e996d254"
+    },
+    {
+      "project": "Agents",
+      "title": "Mobile Responsiveness Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Mobile Responsiveness Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Mobile Responsiveness Fix.txt",
+      "action": "copy",
+      "sha256": "67b30799296ee9becbd25c293d941a3c75b4a00fee9c41c2184b7fbc1f465aa4"
+    },
+    {
+      "project": "Agents",
+      "title": "Monitoring & Alerting Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Monitoring & Alerting Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Monitoring & Alerting Setup.txt",
+      "action": "copy",
+      "sha256": "364b53f2336b41728ed74e651be919df6a2fdcdda65885dca67c6cd8e60e794e"
+    },
+    {
+      "project": "Agents",
+      "title": "Monolith to Microservices",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Monolith to Microservices.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Monolith to Microservices.txt",
+      "action": "copy",
+      "sha256": "ad7083e2633d14900443f9992af63bf7dc8fc18625e0498e8096d871178097bd"
+    },
+    {
+      "project": "Agents",
+      "title": "Multi-tenant Support",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Multi-tenant Support.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Multi-tenant Support.txt",
+      "action": "copy",
+      "sha256": "9cd0b1ff15026de567d350c8e80edb16e2d93c8d9309e00726b95ef073a05922"
+    },
+    {
+      "project": "Agents",
+      "title": "Mutation Testing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Mutation Testing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Mutation Testing.txt",
+      "action": "copy",
+      "sha256": "0a8e91f8466b90aa0e27a1900b9d341f57e2cdd953386482753cf25797a75f1f"
+    },
+    {
+      "project": "Agents",
+      "title": "Notification System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Notification System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Notification System.txt",
+      "action": "copy",
+      "sha256": "b2b60441e396bfd3ecdea5c09d06450b4574d2114965f34b20563059400c2653"
+    },
+    {
+      "project": "Agents",
+      "title": "Onboarding Flow",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Onboarding Flow.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Onboarding Flow.txt",
+      "action": "copy",
+      "sha256": "ce66f83f3ba986640067ab8307790fb344c660de60551a62f69088c44144b6ab"
+    },
+    {
+      "project": "Agents",
+      "title": "Penetration Test Simulation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Penetration Test Simulation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Penetration Test Simulation.txt",
+      "action": "copy",
+      "sha256": "22e84bb794ef29e491585af3ea2144a2325f65feb75d3f673764b126ff60b925"
+    },
+    {
+      "project": "Agents",
+      "title": "Performance Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Performance Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Performance Gang.txt",
+      "action": "copy",
+      "sha256": "0767fdfd8c948327a72b41f408ea04bdeee4d0f271af4ab2c4c41adb4a3e758a"
+    },
+    {
+      "project": "Agents",
+      "title": "Race Condition Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Race Condition Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Race Condition Fix.txt",
+      "action": "copy",
+      "sha256": "462c93bd8b578d6eae121decee26eac6fcc5fbb2e2e8ec558520fe1931827b93"
+    },
+    {
+      "project": "Agents",
+      "title": "Real-time Collaboration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Real-time Collaboration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Real-time Collaboration.txt",
+      "action": "copy",
+      "sha256": "1597304744b3ced175b9725ec8a3e40c7783ea4580eed1f267e1a24dbbef75d1"
+    },
+    {
+      "project": "Agents",
+      "title": "REST to GraphQL Migration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/REST to GraphQL Migration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/REST to GraphQL Migration.txt",
+      "action": "copy",
+      "sha256": "0a7ed53458f28974c4370f640a0f27751458caba6d73fe2d8b8af9265b8b5552"
+    },
+    {
+      "project": "Agents",
+      "title": "Runbook Creation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Runbook Creation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Runbook Creation.txt",
+      "action": "copy",
+      "sha256": "5e019c3151af3d1d23bc6347ee2b691f86e6ec3e2a3048def93d6cd5a914644c"
+    },
+    {
+      "project": "Agents",
+      "title": "Search Feature Build",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Search Feature Build.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Search Feature Build.txt",
+      "action": "copy",
+      "sha256": "3686bef35f87626e337a7f5ad4130caa819c84d2e1332bd4fe9f480bb0ea8256"
+    },
+    {
+      "project": "Agents",
+      "title": "Secrets Detection Sweep",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Secrets Detection Sweep.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Secrets Detection Sweep.txt",
+      "action": "copy",
+      "sha256": "bcf6cde5efecd86df12a98792bf954aa8aa5801c5f4276fe5e91dd86681a094f"
+    },
+    {
+      "project": "Agents",
+      "title": "Security Audit Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Security Audit Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Security Audit Gang.txt",
+      "action": "copy",
+      "sha256": "3b006895f2e7df84cf4b941dbca4281df5a634cfc8148fa4c5ad88700c7094d2"
+    },
+    {
+      "project": "Agents",
+      "title": "SQL Injection Prevention",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/SQL Injection Prevention.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/SQL Injection Prevention.txt",
+      "action": "copy",
+      "sha256": "f334b51826496a112eb5e8abddf728a9f3b0d631e9b83e7585eaa20316eb65fd"
+    },
+    {
+      "project": "Agents",
+      "title": "State Management Bug Fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/State Management Bug Fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/State Management Bug Fix.txt",
+      "action": "copy",
+      "sha256": "c35847621558940532763b22c4c64e3d57e43fd9fa2a48e9d193e06d76156168"
+    },
+    {
+      "project": "Agents",
+      "title": "State Management Refactor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/State Management Refactor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/State Management Refactor.txt",
+      "action": "copy",
+      "sha256": "5dfddecc92521495cad84afd06588b6de779a7aee71d38b1bdb1643904db51fd"
+    },
+    {
+      "project": "Agents",
+      "title": "Technical Debt Assessment",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Technical Debt Assessment.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Technical Debt Assessment.txt",
+      "action": "copy",
+      "sha256": "9e0b2887f88087838621b8bcca497cfc1d5a0bf33ce6d48e747b283086d5f2c3"
+    },
+    {
+      "project": "Agents",
+      "title": "Test Refactor & Reorganize",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Test Refactor & Reorganize.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Test Refactor & Reorganize.txt",
+      "action": "copy",
+      "sha256": "9c2cdad10eda9375f1284305021cc15ae9f33ea1a7487386d0cc265e7370e2fb"
+    },
+    {
+      "project": "Agents",
+      "title": "Testing Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Testing Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Testing Gang.txt",
+      "action": "copy",
+      "sha256": "01122ef95cf5a0f595c4216d1ddcc4846437863aa9530fbf6d8eeeb7ffddae76"
+    },
+    {
+      "project": "Agents",
+      "title": "Type Safety Enforcement",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Type Safety Enforcement.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Type Safety Enforcement.txt",
+      "action": "copy",
+      "sha256": "ef25751640540ce30158a5bf43f1cdf49f7c43d79a7be9d6dbb107ec1b0b1e50"
+    },
+    {
+      "project": "Agents",
+      "title": "Unit Test Coverage Push",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Unit Test Coverage Push.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Unit Test Coverage Push.txt",
+      "action": "copy",
+      "sha256": "469ee747b0e9d06956ea012abb6721debf1fe1f6085df6bfe53315a973c84a42"
+    },
+    {
+      "project": "Agents",
+      "title": "User Dashboard Build",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/User Dashboard Build.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/User Dashboard Build.txt",
+      "action": "copy",
+      "sha256": "149ca3d7c921b33011546ff9b6f61cdb1958e1d08a59f6d36b2f1b2db5bf2c80"
+    },
+    {
+      "project": "Agents",
+      "title": "User Documentation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/User Documentation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/User Documentation.txt",
+      "action": "copy",
+      "sha256": "d87e54d12bda9a83f1cacbcf31e2b336ceebc0fc36dc617af974de7009a5636a"
+    },
+    {
+      "project": "Agents",
+      "title": "Visual Regression Testing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Visual Regression Testing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Visual Regression Testing.txt",
+      "action": "copy",
+      "sha256": "6f4945729f92fa2b08b9547e4e0fa7f780ca912fd2f5a59f8c754d2f8b8cdd89"
+    },
+    {
+      "project": "Agents",
+      "title": "Workflow Automation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/Workflow Automation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/Workflow Automation.txt",
+      "action": "copy",
+      "sha256": "2169d8db4803f07336d642a79293f7d086b0c2164c6d50427230b7abb18bf4fd"
+    },
+    {
+      "project": "Agents",
+      "title": "XSS Prevention Gang",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Agents/XSS Prevention Gang.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Agents/XSS Prevention Gang.txt",
+      "action": "copy",
+      "sha256": "9a2ac817a97d6488a5c91c6726b82753e1b5e6e9f3d4386d715952264d29507c"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "01 — Bridge Memory marketing content: research + plan",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/01 — Bridge Memory marketing content research + plan.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/01 — Bridge Memory marketing content research + plan.txt",
+      "action": "copy",
+      "sha256": "4e8b0c5bd60738b4b1228d5e960eb12fe18a6f52e5d3320ea2de17bf087e9ed4"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "01 — SEO audit — Vibe Academy UI",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/01 — SEO audit — Vibe Academy UI.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/01 — SEO audit — Vibe Academy UI.txt",
+      "action": "copy",
+      "sha256": "779a56c6542661ccc93f3b4df404e3414801ad54ef994560def7dca4ad694b66"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "02 — Execute the Bridge Memory plan",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/02 — Execute the Bridge Memory plan.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/02 — Execute the Bridge Memory plan.txt",
+      "action": "copy",
+      "sha256": "49d2f276c64841b7617c7ec54d428de9e9371bcd425a80062b4fada54b6dab59"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "02 — Lighthouse performance audit — every page, both viewports",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/02 — Lighthouse performance audit — every page, both viewports.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/02 — Lighthouse performance audit — every page, both viewports.txt",
+      "action": "copy",
+      "sha256": "f051df94f2d19aa0c96122a544e7fe88d89ea953b760b420a80aea858ff4b011"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "03 — Fix unreadable button on MCP Servers page",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/03 — Fix unreadable button on MCP Servers page.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/03 — Fix unreadable button on MCP Servers page.txt",
+      "action": "copy",
+      "sha256": "5c6c1e668fad2ef40f1d42786220f4089e386c4ec7ce6addc50088dd051c458c"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "03 — Security audit — Vibe Academy API",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/03 — Security audit — Vibe Academy API.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/03 — Security audit — Vibe Academy API.txt",
+      "action": "copy",
+      "sha256": "c3e7c80cd8aadd4229763426d3c395db1b196b783bffda5478cbe5118991fc40"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "04 — Polish + verify the bug fix",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/04 — Polish + verify the bug fix.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/04 — Polish + verify the bug fix.txt",
+      "action": "copy",
+      "sha256": "836a30dc1746e4916f327821007f27515004ad591b716dd1ebd4d215986ae14b"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "04 — Vibe Academy app — design overhaul to match UI repo",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/04 — Vibe Academy app — design overhaul to match UI repo.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/04 — Vibe Academy app — design overhaul to match UI repo.txt",
+      "action": "copy",
+      "sha256": "7297c1a08dd2983b97ee415714ebba7c0ae576c473f3083b9eeb6ce4f7324c3f"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "05 — Initialize Bridge Memory hub for Vibe Academy",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/05 — Initialize Bridge Memory hub for Vibe Academy.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/05 — Initialize Bridge Memory hub for Vibe Academy.txt",
+      "action": "copy",
+      "sha256": "fb437546cfc01c9af0fe0acc703f39cab01a161693cd2b585f9841c1eb1fae5f"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "05 — Vibe Academy mobile app — full API integration build",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/05 — Vibe Academy mobile app — full API integration build.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/05 — Vibe Academy mobile app — full API integration build.txt",
+      "action": "copy",
+      "sha256": "e179542459c5dfd746f797cb6aa3549e5cdb01aac29c8eb52290289fa02a22a3"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "06 — Register Vibe Academy in BridgeMind",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/06 — Register Vibe Academy in BridgeMind.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/06 — Register Vibe Academy in BridgeMind.txt",
+      "action": "copy",
+      "sha256": "f1891fd2a85336bad604b6955a983deaf92632790d1db4990412ef3e0e9d2d66"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "06 — Vibe Academy marketing site — content + design expansion",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/06 — Vibe Academy marketing site — content + design expansion.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/06 — Vibe Academy marketing site — content + design expansion.txt",
+      "action": "copy",
+      "sha256": "163d3238b92ee0cc40a758d8218a116ff3d439cc5f94c15d15c9e38aa62e4cba"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "07 — Continue working — paused agent",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/07 — Continue working — paused agent.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/07 — Continue working — paused agent.txt",
+      "action": "copy",
+      "sha256": "f3cc9b4f7acbe94b727ff8b0d1a788c73e8c86682fc8bba5262191ee4ac8bbeb"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "07 — Security audit: Vibe Academy API",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/07 — Security audit Vibe Academy API.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/07 — Security audit Vibe Academy API.txt",
+      "action": "copy",
+      "sha256": "1cd873661379805bbf18cead102f6fd64461f66de18228e5d7d3cc8747313868"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "08 — Continue working — paused agent (variant)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/08 — Continue working — paused agent (variant).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/08 — Continue working — paused agent (variant).txt",
+      "action": "copy",
+      "sha256": "b0a0d989fbd81bd9073ed3f90c7f2a099d0d17a0727fb71647af8ec892b22aa8"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "08 — SEO audit: Vibe Academy frontend",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/08 — SEO audit Vibe Academy frontend.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/08 — SEO audit Vibe Academy frontend.txt",
+      "action": "copy",
+      "sha256": "6e188dd4be3613ccc2eb90e25e3d736bf37671085890f2ad1a73c0154122b499"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "09 — Code quality + AI-slop review",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/09 — Code quality + AI-slop review.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/09 — Code quality + AI-slop review.txt",
+      "action": "copy",
+      "sha256": "db1ecfe4e8d403eebc045edf23551d6b846362d38783d9a90cf36b31faf9927c"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "09 — Status check",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/09 — Status check.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/09 — Status check.txt",
+      "action": "copy",
+      "sha256": "1ad31e3716f7a5d2ff02e1da8e6d78a9216e00a7528249dfad12cee20896c138"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "10 — Bridge Memory navigation: back-forward + history",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/10 — Bridge Memory navigation back-forward + history.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/10 — Bridge Memory navigation back-forward + history.txt",
+      "action": "copy",
+      "sha256": "14d244d2870a9c62fb32270fd9c1a97f1952519b2bf7c551882762420e02feb0"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "10 — Bridge Memory navigation: back/forward + history",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/10 — Bridge Memory navigation back forward + history.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/10 — Bridge Memory navigation back forward + history.txt",
+      "action": "copy",
+      "sha256": "7124e3086124add8eff9c5db2cbdf743f504ae57993370b7a1d3b9b3917e0f27"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "11 — Evaluate viewer feature request: front matter for MD memories",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/11 — Evaluate viewer feature request front matter for MD memories.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/11 — Evaluate viewer feature request front matter for MD memories.txt",
+      "action": "copy",
+      "sha256": "fcd3d2e3c4ee738bd38421148b2584c27ba673af77f224ccee321e5e32644021"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "12 — Finish remaining security updates",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/12 — Finish remaining security updates.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/12 — Finish remaining security updates.txt",
+      "action": "copy",
+      "sha256": "992963cc5245c754beae3fe45ce363cebdff00f356bd60071ab4e45298fc563e"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "13 — Execute recommended order with subagents",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/13 — Execute recommended order with subagents.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/13 — Execute recommended order with subagents.txt",
+      "action": "copy",
+      "sha256": "8de22b5b41be92f8c3473de77b17b4b9b329f871f6bfdb38320dd746b1bd9a58"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "14 — Fix the API bug",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/14 — Fix the API bug.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/14 — Fix the API bug.txt",
+      "action": "copy",
+      "sha256": "1423adade40ccc3a64acdb19d5de14f401c02aa481ecd75b079886f96f1566de"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "15 — Fix Bridge Memory graph view default position",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/15 — Fix Bridge Memory graph view default position.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/15 — Fix Bridge Memory graph view default position.txt",
+      "action": "copy",
+      "sha256": "0d483a641b05d7027491dc2403e81af4bbfce1a86832fbfa9de2fd22faa90200"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "16 — Fix clipped \"Y\" in Vibe Academy hero",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/16 — Fix clipped Y in Vibe Academy hero.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/16 — Fix clipped Y in Vibe Academy hero.txt",
+      "action": "copy",
+      "sha256": "7c7bdc442070a32b1bc46cf5ab595de46e885781e2e222dc844cd7544b88fb80"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "17 — Add database memory entry to Bridge Memory",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/17 — Add database memory entry to Bridge Memory.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/17 — Add database memory entry to Bridge Memory.txt",
+      "action": "copy",
+      "sha256": "2b546cf44fc02493252528e00b0d392d6ad35cf1262a08ac2a900ae915a23fcb"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "18 — Open six Claude Code agents in current workspace",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/18 — Open six Claude Code agents in current workspace.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/18 — Open six Claude Code agents in current workspace.txt",
+      "action": "copy",
+      "sha256": "3e7b29e4fd793e59c7567b40b66c778bde914bf18e2abedf91f82223d459329c"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "19 — Parallel security audit: six agents on BridgeMind API",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/19 — Parallel security audit six agents on BridgeMind API.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/19 — Parallel security audit six agents on BridgeMind API.txt",
+      "action": "copy",
+      "sha256": "8a88676e02ac58d77ca74c8f9b75d8b70909b2ef1a0e227aceee56ee47beb0f1"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "20 — Mind-reading - zero-input feature research",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/20 — Mind-reading - zero-input feature research.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/20 — Mind-reading - zero-input feature research.txt",
+      "action": "copy",
+      "sha256": "cf8e6f1c1778dae5092ebea7345df87c5832488ecfb36389d12fd4e5711f5b56"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "20 — Mind-reading / zero-input feature research",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/20 — Mind-reading zero-input feature research.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/20 — Mind-reading zero-input feature research.txt",
+      "action": "copy",
+      "sha256": "620584c650f21ea241a9bad2624a5818bcd3b54de5c184f91b2df4853b277de6"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "21 — Vibe Academy design overhaul",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/21 — Vibe Academy design overhaul.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/21 — Vibe Academy design overhaul.txt",
+      "action": "copy",
+      "sha256": "b77f7a2ee668be73e0eda4661a9442ba716bfacdd9cb2e5322290a4632ac0cb4"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "22 — Enable Codex Yolo mode",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/22 — Enable Codex Yolo mode.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/22 — Enable Codex Yolo mode.txt",
+      "action": "copy",
+      "sha256": "1cc0c94ccc0ea29082e4122e852a87dd7654e1d3f8d733e50064ef88348d752a"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "23 — Bump version + deploy BridgeSpace",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/23 — Bump version + deploy BridgeSpace.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/23 — Bump version + deploy BridgeSpace.txt",
+      "action": "copy",
+      "sha256": "96a3834b775bbfa6d1abad23dd0312add0b734346648dc58e9131ae96466fd74"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "24 — Fix login error message: invalid password",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/24 — Fix login error message invalid password.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/24 — Fix login error message invalid password.txt",
+      "action": "copy",
+      "sha256": "ba477ad3843b23387bcbae9493c274d6f7d8ab33458f57b457ae37be041ad502"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "25 — Diagnose URL-not-updating bug in BridgeSpace browser",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/25 — Diagnose URL-not-updating bug in BridgeSpace browser.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/25 — Diagnose URL-not-updating bug in BridgeSpace browser.txt",
+      "action": "copy",
+      "sha256": "d533f05609395295a901f2972557e21bb9869b703a31c04a9ae52ca05cf5f5c8"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "26 — Find best Remotion skill online",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/26 — Find best Remotion skill online.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/26 — Find best Remotion skill online.txt",
+      "action": "copy",
+      "sha256": "2dd5a5fdfd71cebca69ff1cd0509e57edd00d06854507cce8f829cc197cb849b"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "27 — Delete Remotion directory",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/27 — Delete Remotion directory.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/27 — Delete Remotion directory.txt",
+      "action": "copy",
+      "sha256": "772447d22d0d0f8f321400a401fe18affe4185715ab83785d77e8a855b085ea8"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "28 — Install Remotion skill + create new project dir",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/28 — Install Remotion skill + create new project dir.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/28 — Install Remotion skill + create new project dir.txt",
+      "action": "copy",
+      "sha256": "95a67897fc0e30e22cf8e29d1683f1da40dd2eb0d7d7966d0806cba798e56a0c"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "29 — Confirm Remotion skill installed + run install command",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/29 — Confirm Remotion skill installed + run install command.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/29 — Confirm Remotion skill installed + run install command.txt",
+      "action": "copy",
+      "sha256": "1b7f5d786a37aa75cd9240f4c8dd6ba69f9cd2205cccbd7b222cd4f07beddb8a"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "30 — BridgeSpace Product Hunt marketing video",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/30 — BridgeSpace Product Hunt marketing video.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/30 — BridgeSpace Product Hunt marketing video.txt",
+      "action": "copy",
+      "sha256": "510b3d9e3d1066f6b9e193c65e35d8c46beab23bd41ab5eb1082b3e0fd18b71c"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "31 — Set up product screenshots directory",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/31 — Set up product screenshots directory.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/31 — Set up product screenshots directory.txt",
+      "action": "copy",
+      "sha256": "90dc79034552af9bb41a687a57deddb9f7a3318e1be43d14e0aa4197a333ab0d"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "32 — Bridge Memory: Product Hunt launch prep",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/32 — Bridge Memory Product Hunt launch prep.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/32 — Bridge Memory Product Hunt launch prep.txt",
+      "action": "copy",
+      "sha256": "7c7e07062581c8420e808a5c2b0d58896018413490593b22bbf471b026581c90"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "AI-Powered Feature with Existing API",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/AI-Powered Feature with Existing API.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/AI-Powered Feature with Existing API.txt",
+      "action": "copy",
+      "sha256": "13cd9909056706de18660b169d5ed6e024ac496e5d029d7635816eaa0ae84d0e"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Bug Diagnosis with Pinpoint Implementation Plan",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Bug Diagnosis with Pinpoint Implementation Plan.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Bug Diagnosis with Pinpoint Implementation Plan.txt",
+      "action": "copy",
+      "sha256": "9e45fa8d1350b66f81c400227413efab0acca6174e42c8a8ac6bddd435fc87e4"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Bug Hunt — Codebase-Wide",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Bug Hunt — Codebase-Wide.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Bug Hunt — Codebase-Wide.txt",
+      "action": "copy",
+      "sha256": "4a38c6d26aa228f4b47560c927577929aec5fae9f37e839441316aa402addb2a"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Cross-OS Compatibility Investigation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Cross-OS Compatibility Investigation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Cross-OS Compatibility Investigation.txt",
+      "action": "copy",
+      "sha256": "e51de33ab749abdd15c9a7de4defcfa840070c8efa95bf6e3df22ca9f01b43eb"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Deep-Dive Investigation (No-Code-Change Recon)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Deep-Dive Investigation (No-Code-Change Recon).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Deep-Dive Investigation (No-Code-Change Recon).txt",
+      "action": "copy",
+      "sha256": "febfb47d4d530345df7fe437f8c907c6159e94714218f12cfcabe85ce11cd182"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Feature Spec — Investigation to Implementation Plan",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Feature Spec — Investigation to Implementation Plan.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Feature Spec — Investigation to Implementation Plan.txt",
+      "action": "copy",
+      "sha256": "effea4b2350d67c8608a319ba05dfe2734ff55411339153b9cd22db7ae32be58"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Layout Refactor (Major UX Change)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Layout Refactor (Major UX Change).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Layout Refactor (Major UX Change).txt",
+      "action": "copy",
+      "sha256": "6e78f3d05da6ba3d0c5e8750316975b66616ce8537632c75caaa77e622b936f9"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Live Agent Status Roll-Up",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Live Agent Status Roll-Up.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Live Agent Status Roll-Up.txt",
+      "action": "copy",
+      "sha256": "8d80d4fb27ddfc5df0b6c7957501f853e8e8c20939564dc90187ad43dc411e40"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Marketing Asset Generation (Multi-Product)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Marketing Asset Generation (Multi-Product).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Marketing Asset Generation (Multi-Product).txt",
+      "action": "copy",
+      "sha256": "b3c6661abc53feb40e5440aebfe4e6ab5256c5980582aa9640b44e6101ec2c19"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Master Prompt Template (Fallback)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Master Prompt Template (Fallback).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Master Prompt Template (Fallback).txt",
+      "action": "copy",
+      "sha256": "6e780097c5e0b415ac5f20a469c02928bf0dec4df4d95ebffcb42296193b9f67"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Multi-Agent Fleet Launch (Mixed Models)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Multi-Agent Fleet Launch (Mixed Models).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Multi-Agent Fleet Launch (Mixed Models).txt",
+      "action": "copy",
+      "sha256": "9f92242fe3ae62c757a283797d1923ad9c63bdc918ff1e076bd1abbe71d587de"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Performance Bottleneck Investigation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Performance Bottleneck Investigation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Performance Bottleneck Investigation.txt",
+      "action": "copy",
+      "sha256": "b1bef7adc8415c0c2aa47102ab7fcf1ab8c55caff845a6646b0adba095783add"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Pre-Launch Production Readiness Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Pre-Launch Production Readiness Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Pre-Launch Production Readiness Audit.txt",
+      "action": "copy",
+      "sha256": "6442c6134a4d0250f43aed27b1d9d7eb07e75bab08fb9d9ede387c4edebcce69"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Security Vulnerability Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Security Vulnerability Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Security Vulnerability Audit.txt",
+      "action": "copy",
+      "sha256": "131268c7e98ff7bcd6abb9b9826495334f73d7cdac57cb7a1d5c821194389ea7"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "Skill Creation (Claude Code-Style)",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/Skill Creation (Claude Code-Style).txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/Skill Creation (Claude Code-Style).txt",
+      "action": "copy",
+      "sha256": "6ff7a756deb3956925a03db30090a1694c07eddc8b19bb2211b96683e757972f"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "UI Polish - Styling Refinement",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/UI Polish - Styling Refinement.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/UI Polish - Styling Refinement.txt",
+      "action": "copy",
+      "sha256": "5ce53b953fbd9ceee0b7019e428a9335c5476931777cab90da69d04773689178"
+    },
+    {
+      "project": "BS Multi-Agent Prompts",
+      "title": "UI Polish / Styling Refinement",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/BS Multi-Agent Prompts/UI Polish Styling Refinement.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/BS Multi-Agent Prompts/UI Polish Styling Refinement.txt",
+      "action": "copy",
+      "sha256": "156de8d6ae55c6c1638ac4ceb5fb7c5d3e7ae8e9ceea946c7deb9bc0baa9a302"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Address Form",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Address Form.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Address Form.txt",
+      "action": "copy",
+      "sha256": "fa26258fb3c8dee649ba9feb5ea472560dd457715962cdb234992ccf29264bc6"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "API Client Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/API Client Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/API Client Setup.txt",
+      "action": "copy",
+      "sha256": "0e110f53e41b733cd40d44cd680de9ff79a35505168591126d1ab18205bbdc94"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "API Error Handler",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/API Error Handler.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/API Error Handler.txt",
+      "action": "copy",
+      "sha256": "0d1023b6b4c9db979e903bc142db609d353472848a496f548a875b1985ccfa17"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "API Response Formatter",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/API Response Formatter.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/API Response Formatter.txt",
+      "action": "copy",
+      "sha256": "4f6ce7a870f9245f3a2a1d4ce8c6181527f559a1d77e9568c04b9cfcc98959c2"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "API Test Suite",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/API Test Suite.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/API Test Suite.txt",
+      "action": "copy",
+      "sha256": "2acd7c1cf1c93267c64d04461e04d4dd12242e163e93b3a7bd9169e334fd75ab"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Auth Token Manager",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Auth Token Manager.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Auth Token Manager.txt",
+      "action": "copy",
+      "sha256": "f067f39a2eb9473bcb681c702ae0ace1c79c26e91e2fa5b969a2471d19d2cbee"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Background Worker",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Background Worker.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Background Worker.txt",
+      "action": "copy",
+      "sha256": "4455c24c797fd95169807f0ce9cb060d9469c22fa53430091b35e82a5987afe0"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Build Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Build Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Build Configuration.txt",
+      "action": "copy",
+      "sha256": "5f649e6637b15a40534d992059f20ac95cb79eb9ce90f2fa312c6f8e73d77e0d"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Card Component System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Card Component System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Card Component System.txt",
+      "action": "copy",
+      "sha256": "260860266dd7c03dd7e9db5c81a5b2592756bd6efdbde16f3ae161a683966000"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "CLI Tool Builder",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/CLI Tool Builder.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/CLI Tool Builder.txt",
+      "action": "copy",
+      "sha256": "2c5fd77c59d68108ea2363b7a753465f0d93edc751d77f2274c8934838d9587c"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Code Generator",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Code Generator.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Code Generator.txt",
+      "action": "copy",
+      "sha256": "1d40f7f3ac31aec1cb52a426b45843eb1ee2d2cf20fa162f810ef1be6706d37f"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Contract Testing Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Contract Testing Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Contract Testing Setup.txt",
+      "action": "copy",
+      "sha256": "656e210c191308376eb7e18b90037a7280080a2edda26e48130fc86ccc2d3b8a"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Cron Job Scheduler",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Cron Job Scheduler.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Cron Job Scheduler.txt",
+      "action": "copy",
+      "sha256": "4611f7ed8e04ee0fb81895ecfeb7e127a949e929b873f48fd970e0fbbdd9a6bd"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "CSS Animation Library",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/CSS Animation Library.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/CSS Animation Library.txt",
+      "action": "copy",
+      "sha256": "781bb897d3d384d3c7c7305e056fc3899b8ee0ac3cfff5f7db583aa1a451e264"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Dark Mode Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Dark Mode Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Dark Mode Implementation.txt",
+      "action": "copy",
+      "sha256": "1297177dabbbae7491de27a456fdd6c809b78323acddde1d92a04bff9fce3090"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Data Transformation Layer",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Data Transformation Layer.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Data Transformation Layer.txt",
+      "action": "copy",
+      "sha256": "4ba4a9cb271da1dccddd3e6e108d73832167d14cbd4a9ccc2c6d7ff16896cffc"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Database Repository Pattern",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Database Repository Pattern.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Database Repository Pattern.txt",
+      "action": "copy",
+      "sha256": "7330eafe451b2b80956aa01a965a662f5d592b14139e5362c826ba07d0802b88"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Date Range Picker",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Date Range Picker.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Date Range Picker.txt",
+      "action": "copy",
+      "sha256": "633ec87ded27ad49966e39107daf3ec563f6a382e63d65544c8c06f62dec6bc7"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Development Script",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Development Script.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Development Script.txt",
+      "action": "copy",
+      "sha256": "6a58d398cd942ed5e2a5133cc698387accb18089c143587b9437780a3ec44ba5"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Dynamic Form Builder",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Dynamic Form Builder.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Dynamic Form Builder.txt",
+      "action": "copy",
+      "sha256": "1580eef661530d6d9f75cae936c9c5f47bb5c778f10ecd46c764c1c2694db89e"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "E2E Test Page Objects",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/E2E Test Page Objects.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/E2E Test Page Objects.txt",
+      "action": "copy",
+      "sha256": "e81994f4148ce677ca97d08eedbb39606e08afbc17f4a52e9109574d46013f46"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Email Template Engine",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Email Template Engine.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Email Template Engine.txt",
+      "action": "copy",
+      "sha256": "a5f816f622f9fef5be1e3538a2afd6ce74a5d3d0d9ab39891cc310abb53c9261"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Environment Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Environment Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Environment Configuration.txt",
+      "action": "copy",
+      "sha256": "76cd1a9a100df20d9db38c8dc90cc0051ec8eb9074e06cafe96cde9642001aef"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Error Boundary System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Error Boundary System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Error Boundary System.txt",
+      "action": "copy",
+      "sha256": "e644a446175a24b0b50e012beb221f240dff33321bf8beb46e528d8e738b754c"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Error Logging Service",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Error Logging Service.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Error Logging Service.txt",
+      "action": "copy",
+      "sha256": "78346d6b1d0f242b56a522e22eb64484c23e02061ad0d4abdcc3ae09c9fea22b"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Error Page Templates",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Error Page Templates.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Error Page Templates.txt",
+      "action": "copy",
+      "sha256": "ed0410c514ad9f38d8a83f42e65b807a02aa79bab3002a390dc4897653ed9a3e"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "ESLint & Prettier Config",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/ESLint & Prettier Config.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/ESLint & Prettier Config.txt",
+      "action": "copy",
+      "sha256": "79bc207a6af37dd9770a4c635bfcbda96bc9f855d18220d4b78f5cbef788108a"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Event Emitter System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Event Emitter System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Event Emitter System.txt",
+      "action": "copy",
+      "sha256": "46add032285fd62f80eed8add82f335a12321dfe42f118f1ae7c0849c13228c1"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Express Middleware",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Express Middleware.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Express Middleware.txt",
+      "action": "copy",
+      "sha256": "4b8e59264db4d9fa1de0f9170f42e8d778b028cc2904d69ffe93d519df872393"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "File Download Handler",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/File Download Handler.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/File Download Handler.txt",
+      "action": "copy",
+      "sha256": "3025ce6d2999f394a98c5d80eea62a36893bea465a3a36616d3ec8a0f467fd1f"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "File Processing Service",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/File Processing Service.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/File Processing Service.txt",
+      "action": "copy",
+      "sha256": "0073ce7402a2ed602668c6ffb540edff91a9ea7b42ab31cbb7443e7ed7ba085c"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "File Upload Form",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/File Upload Form.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/File Upload Form.txt",
+      "action": "copy",
+      "sha256": "c913222689e19c6d28559814474d0c1e5c6aabad72a517cfe2772a74fc48006f"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Form Error Display",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Form Error Display.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Form Error Display.txt",
+      "action": "copy",
+      "sha256": "7a5e58e870f9c181dcf5b97d581b1f339ab45e504d2ff3abcb138682646f710c"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Form State Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Form State Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Form State Management.txt",
+      "action": "copy",
+      "sha256": "f4929eb7737b7005d3f1b65a8075fb413db40b4519042be84dc3d9dcc47a97fc"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Form Validation Schema",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Form Validation Schema.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Form Validation Schema.txt",
+      "action": "copy",
+      "sha256": "6772b0692bbcd43b4a56b01208bdaca3562fc83c80e9a6cb2c40290465714d82"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Git Hooks Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Git Hooks Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Git Hooks Setup.txt",
+      "action": "copy",
+      "sha256": "264c516d8595871c05c399146ac0620a6874468b6d5d49cca1d41ce0032777d4"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Global Notification State",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Global Notification State.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Global Notification State.txt",
+      "action": "copy",
+      "sha256": "c4d2bdbb5e62470dbfdc7fd4cadaae2868e7c95b078a0506632b082199824bff"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "GraphQL Query Builder",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/GraphQL Query Builder.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/GraphQL Query Builder.txt",
+      "action": "copy",
+      "sha256": "c1b37adb86ea6587722815608e41a15b1c88cf649915ef9262f4c10e68a409a5"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Grid Dashboard Layout",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Grid Dashboard Layout.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Grid Dashboard Layout.txt",
+      "action": "copy",
+      "sha256": "2c5da344c6e3b3222ba03b652ed5958795759f091407268fffb49fc1a10d0afd"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Health Check Endpoint",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Health Check Endpoint.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Health Check Endpoint.txt",
+      "action": "copy",
+      "sha256": "bb0d890bf4b64772ff3140d5125530894a2b03460e5e5bcb74aa65071f6a9add"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Loading State System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Loading State System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Loading State System.txt",
+      "action": "copy",
+      "sha256": "e7c04b5e88017f906ce3db21ccbcc7faf8a1f111be68ec74d4bc58d3cc9e6e41"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Login Page",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Login Page.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Login Page.txt",
+      "action": "copy",
+      "sha256": "d961793f70f8b0e36337b2fcb660d1f3998c0665ffdc63fbd9e559c427430aab"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "MFA Setup Flow",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/MFA Setup Flow.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/MFA Setup Flow.txt",
+      "action": "copy",
+      "sha256": "cdc54853535821a6ba51386d86e5aab8e0ab86a56b8b8818ac025a1f94067f61"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Micro-interactions",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Micro-interactions.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Micro-interactions.txt",
+      "action": "copy",
+      "sha256": "529367fefeb90a022f2d5782a4d92adc492e04689257b85d4a4190d685a6eb90"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Mock Factory",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Mock Factory.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Mock Factory.txt",
+      "action": "copy",
+      "sha256": "2d3a8b6f18f4246a411fadbb1dbe3ca305261f52fd2e044fa71deea17b8aaa00"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Monorepo Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Monorepo Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Monorepo Setup.txt",
+      "action": "copy",
+      "sha256": "117e37845d3fdbbd52961d9ec38a26591ede45d71868c48049c2cc85828891db"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Multi-step Form Wizard",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Multi-step Form Wizard.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Multi-step Form Wizard.txt",
+      "action": "copy",
+      "sha256": "313fd5fa65991d0d4d916fb4c1ffd94d5784087577f8a4ccb15ceb0fbb369f96"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Offline State Sync",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Offline State Sync.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Offline State Sync.txt",
+      "action": "copy",
+      "sha256": "8a46d1913c1cae5e9d1ad99242ee52170b6f05b39adc50207f4fc0f2313f73ed"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Optimistic UI Updates",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Optimistic UI Updates.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Optimistic UI Updates.txt",
+      "action": "copy",
+      "sha256": "a36961a7f21cd6185d87197ede74115be3d2a93cb5771f3d01822db2beb2ee63"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Page Transition Animations",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Page Transition Animations.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Page Transition Animations.txt",
+      "action": "copy",
+      "sha256": "33dd3367f1b546252277e60dbe5378abef554f2f9b5b055d27158e96527eb9c5"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Pagination Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Pagination Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Pagination Implementation.txt",
+      "action": "copy",
+      "sha256": "d189a6d3ff8b1399359afd8715dfdb5493bb71d3982869b95d4cdbd30fa15946"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Password Reset Flow",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Password Reset Flow.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Password Reset Flow.txt",
+      "action": "copy",
+      "sha256": "53cc7bb9de8aaf18994e47f23b6c8a0c9d1b2086ef487c95724275457b93e11e"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Performance Test Suite",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Performance Test Suite.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Performance Test Suite.txt",
+      "action": "copy",
+      "sha256": "746826811f02844c98919a592a1ee3598266f85236d4f1b09f3432f325469c1b"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Prefetching Strategy",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Prefetching Strategy.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Prefetching Strategy.txt",
+      "action": "copy",
+      "sha256": "7d067d458f4e759f8c8baf6f1c7d9a4841a055348ba04d729f7cea414b93a80e"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Print Stylesheet",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Print Stylesheet.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Print Stylesheet.txt",
+      "action": "copy",
+      "sha256": "77ccc153066737bfc04a496d016dd3179e40ddcb87e13fe1083f0b87ff273334"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Protected Route Guard",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Protected Route Guard.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Protected Route Guard.txt",
+      "action": "copy",
+      "sha256": "263d0ee7714a75b8452a91e9e611157a463fdc454f96bad15121e588e2436c66"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Animation Library",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Animation Library.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Animation Library.txt",
+      "action": "copy",
+      "sha256": "5e505aa6c179b4c6c30e3eee6d148b452850a2f9724e969f829b453257c621e5"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Component Builder",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Component Builder.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Component Builder.txt",
+      "action": "copy",
+      "sha256": "a07b2e986e708e4bc58f3ccf48f56e40d4c3139a156e58ebe6811f5ee9303bd4"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Context Provider",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Context Provider.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Context Provider.txt",
+      "action": "copy",
+      "sha256": "050a7e4febc2dc138e7808e5aa40804a8af7d2ff1b67767d80f883f223486efa"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Design System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Design System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Design System.txt",
+      "action": "copy",
+      "sha256": "cc395532da8e4bb969be6441d66de48f318cf0ae0a9e5dab551dc0189c4c29bb"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Drag & Drop",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Drag & Drop.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Drag & Drop.txt",
+      "action": "copy",
+      "sha256": "3337ace82de3dcc19b32d9cb0447ef20dc1f28c51f90d7fd9635b67dcf119651"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Error Boundary",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Error Boundary.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Error Boundary.txt",
+      "action": "copy",
+      "sha256": "1b357d69ee9d4c1100d3a37e1a77343dc9e7f7102a06eecbf8b98b171b4383d9"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Form Component",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Form Component.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Form Component.txt",
+      "action": "copy",
+      "sha256": "5ec47d7abe2c527d03a67a8802f3eb7cdfd9d1dd5a67d2637a15dddebab5a6c9"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Hook Builder",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Hook Builder.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Hook Builder.txt",
+      "action": "copy",
+      "sha256": "7da68011a5bd29935d8b563228c87219169da35ef73eadd2e891a7035231be76"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Infinite Scroll",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Infinite Scroll.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Infinite Scroll.txt",
+      "action": "copy",
+      "sha256": "f1a63434e276fa434f327ccf5a504e05c008da3a00c13f07b16d6794d08f7623"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Modal System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Modal System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Modal System.txt",
+      "action": "copy",
+      "sha256": "18beb9e2826de808cffacb59245e10f24efd745158fc4587e20dba0e2c64284a"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Performance Audit",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Performance Audit.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Performance Audit.txt",
+      "action": "copy",
+      "sha256": "58f7eac4068bb4b2e2922adb1122c724bee75efbd4ec65a08f56212b9d23ff2a"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Query Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Query Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Query Setup.txt",
+      "action": "copy",
+      "sha256": "d2fd9c577764aba2928d0e989bf18b9f24aa5150b7133d9f3e9e1c1a263f6fd6"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React SSR-SSG Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React SSR-SSG Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React SSR-SSG Setup.txt",
+      "action": "copy",
+      "sha256": "a28557b0bb45e6c28d3b22c16fa9f45a2c9a14f2c6592f5e4467292cf7769e10"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React SSR/SSG Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React SSR SSG Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React SSR SSG Setup.txt",
+      "action": "copy",
+      "sha256": "d399382325593ca9afe9e37887397862ce0f76644fca3c2ae9ad5fcd8d9b3ff1"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Table Component",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Table Component.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Table Component.txt",
+      "action": "copy",
+      "sha256": "ca106f390a4ca5ddab4ee6026a081e7c9a050e89f6eff063a299df77a889a69b"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "React Testing Suite",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/React Testing Suite.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/React Testing Suite.txt",
+      "action": "copy",
+      "sha256": "3f97fe987c1a9989752f3765de61a0247ca79dac7b7c9d7f8049b2edbf771a4b"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Real-time Data Subscription",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Real-time Data Subscription.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Real-time Data Subscription.txt",
+      "action": "copy",
+      "sha256": "fe3f8f3843cf36b9c724c9dea4184a0675f87f0451e00f19ded831800b6d2717"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Redux Toolkit Slice",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Redux Toolkit Slice.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Redux Toolkit Slice.txt",
+      "action": "copy",
+      "sha256": "a6ef2e3cc9743cce9998224522693c2e382a89c11088d698495f6000dfe1858b"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Registration Flow",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Registration Flow.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Registration Flow.txt",
+      "action": "copy",
+      "sha256": "1d07a1af2f8edaffa8c8f3503d6ddb2ed4049ff4f7d73165cb0df894b18738ac"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Responsive Layout System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Responsive Layout System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Responsive Layout System.txt",
+      "action": "copy",
+      "sha256": "8b1c08236f9034bef712c60657fc82bed8374dffcf0ff944b16e9e0d37f83a2f"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "REST API Endpoint",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/REST API Endpoint.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/REST API Endpoint.txt",
+      "action": "copy",
+      "sha256": "573317ebc81199cc7f80e5034dbac899bf01b37caa2b325ae189b5f755a0e6de"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Retry & Recovery Pattern",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Retry & Recovery Pattern.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Retry & Recovery Pattern.txt",
+      "action": "copy",
+      "sha256": "88acd40cbf123c8798ef184932bdda5e03bac7a52ee7b36a3bbf620b5d6d3b1c"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Rich Text Editor",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Rich Text Editor.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Rich Text Editor.txt",
+      "action": "copy",
+      "sha256": "c11cf7cd2b5c055c55153f5872911b1c3665c87318afeeb739ceca4acae5d246"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Scroll Animations",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Scroll Animations.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Scroll Animations.txt",
+      "action": "copy",
+      "sha256": "ce01ec7d24f60dc66a4a3c21237a24b62c34bc0d892d02f91e364c829bb6cf64"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Search & Filter Form",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Search & Filter Form.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Search & Filter Form.txt",
+      "action": "copy",
+      "sha256": "7108357e2b6bcba55ce3722c8f5d846a3998bb9741a98c368a3f909e89dd1e54"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Service Layer Pattern",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Service Layer Pattern.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Service Layer Pattern.txt",
+      "action": "copy",
+      "sha256": "ca2f747f46aa500f4d53ee6e9aecd035352f5d4dc6a15907429c25ad69ef2bfc"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Sidebar Navigation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Sidebar Navigation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Sidebar Navigation.txt",
+      "action": "copy",
+      "sha256": "193976cc9fd8b19c01adcdd728530a347ccac6e5fc7fe4515e2fb6630b01a1ca"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Skeleton Loading Screens",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Skeleton Loading Screens.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Skeleton Loading Screens.txt",
+      "action": "copy",
+      "sha256": "f70fd11d606492daf386e2f5156e555d134916213b5faaa838cb1f988efe0bb2"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Snapshot Testing Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Snapshot Testing Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Snapshot Testing Setup.txt",
+      "action": "copy",
+      "sha256": "623416152ed68bf2b67c1714c71973f06d3c90231dcc31be382963e838b6fabe"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Social Login Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Social Login Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Social Login Integration.txt",
+      "action": "copy",
+      "sha256": "092b1bece2d7f6a0325cca86664e4cc95ffa7154645bbdd77ae19e06b3d3b3b0"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Spacing & Layout Tokens",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Spacing & Layout Tokens.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Spacing & Layout Tokens.txt",
+      "action": "copy",
+      "sha256": "69af4c90d92e61449493d9e74ecdb9ec12cd29d7b2f974d8316e83b043817250"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "SWR Data Fetching",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/SWR Data Fetching.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/SWR Data Fetching.txt",
+      "action": "copy",
+      "sha256": "6f0999e9bb0e2de594711cfdd4b7acb55a069fa902c34df3795bb767eda2021f"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Tailwind Component Library",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Tailwind Component Library.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Tailwind Component Library.txt",
+      "action": "copy",
+      "sha256": "4d3f5ebba27248a908cd5d2e9c058ad8c1c37716f641d0b5fce3dd30eacba2c5"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Test Coverage Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Test Coverage Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Test Coverage Configuration.txt",
+      "action": "copy",
+      "sha256": "9dbf06f72a6d26ce27d5d8f937dbaea1e7bcd183228ef92412490a30c7544cd8"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Test Environment Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Test Environment Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Test Environment Setup.txt",
+      "action": "copy",
+      "sha256": "a71430b6470f712c1ae23ae90b31e723ea1ab53df6e450a30c86fa80068fef91"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Test Fixture System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Test Fixture System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Test Fixture System.txt",
+      "action": "copy",
+      "sha256": "87cb7a2b0342dfd03609ca4662950c74b149992edd988f882842ec040a8454fb"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Test Suite Generator",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Test Suite Generator.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Test Suite Generator.txt",
+      "action": "copy",
+      "sha256": "735eabc8cac6ca595224166cba08a05239c2938d61e16a0a47385da94add90cd"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Toast Notification System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Toast Notification System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Toast Notification System.txt",
+      "action": "copy",
+      "sha256": "05c47a6f2639e29ddb5aa3894afb3e04199819eec0c6f430d0dd1067f364951a"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "TypeScript Project Config",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/TypeScript Project Config.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/TypeScript Project Config.txt",
+      "action": "copy",
+      "sha256": "b95910490f82680f4f16390bc26a5603c6832687c792617f030263648de8e3c4"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Typography System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Typography System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Typography System.txt",
+      "action": "copy",
+      "sha256": "52288e503bca7aaff376341cee9c1ebb6e37fd9df52fbc3acea63716831c44c6"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "URL State Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/URL State Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/URL State Management.txt",
+      "action": "copy",
+      "sha256": "19f50de24c52bcb7c998626db0b39419a3d50e09b32c7fdf5d30cc98b142f34e"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "User Profile Settings",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/User Profile Settings.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/User Profile Settings.txt",
+      "action": "copy",
+      "sha256": "dbe41056c20fd6aeaa2ce29d433de762a5694202b38d855456aedd5b2d2c6327"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "VS Code Extension",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/VS Code Extension.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/VS Code Extension.txt",
+      "action": "copy",
+      "sha256": "3a7821e0342e31faef30a7a3a16893be759e3e3b8f83678e4032a50eda095556"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Webhook Handler",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Webhook Handler.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Webhook Handler.txt",
+      "action": "copy",
+      "sha256": "25521a35702cbdaa78073ee83ae157567a16ffb9e1caddc1a40c794c1fb6ad9a"
+    },
+    {
+      "project": "Prompt Library for Coding",
+      "title": "Zustand Store",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Prompt Library for Coding/Zustand Store.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Promp Library For Coding/_Recovered/Zustand Store.txt",
+      "action": "copy",
+      "sha256": "3d54943b025d805733b417abf1d5da35ee9871ee609584d9f071f68201d448e4"
+    },
+    {
+      "project": "Skills",
+      "title": "API Gateway Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/API Gateway Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/API Gateway Configuration.txt",
+      "action": "copy",
+      "sha256": "7a71f0a97388b893dee4087170ba23c9792a5ea60d251a667a0fbb9bc1b5ac1f"
+    },
+    {
+      "project": "Skills",
+      "title": "API Key Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/API Key Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/API Key Management.txt",
+      "action": "copy",
+      "sha256": "30d91374f0dcf29df43ce3d3df678529e9dd240e62b4291e4d8be92cf75a601f"
+    },
+    {
+      "project": "Skills",
+      "title": "API Rate Limiting",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/API Rate Limiting.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/API Rate Limiting.txt",
+      "action": "copy",
+      "sha256": "f41ccc8a7a749861270cdb01b9c4dfc3d3f2deeae689cfb652a4a82495cdd616"
+    },
+    {
+      "project": "Skills",
+      "title": "API Testing Automation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/API Testing Automation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/API Testing Automation.txt",
+      "action": "copy",
+      "sha256": "ae90c4f0a8c0188a509311fcf63ab4a5e96b4cfb1bc52715129fc95541e58991"
+    },
+    {
+      "project": "Skills",
+      "title": "API Versioning Strategy",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/API Versioning Strategy.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/API Versioning Strategy.txt",
+      "action": "copy",
+      "sha256": "df8552049e6b5507930a2a58ef005c1a85f33c1e8bd2bd68f6b7994204031c37"
+    },
+    {
+      "project": "Skills",
+      "title": "Application Monitoring",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Application Monitoring.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Application Monitoring.txt",
+      "action": "copy",
+      "sha256": "f1a93b183a20618d7a0913a64f547d6688e4ad4da34cd242dc6b033755c014b6"
+    },
+    {
+      "project": "Skills",
+      "title": "Artifact Registry Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Artifact Registry Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Artifact Registry Setup.txt",
+      "action": "copy",
+      "sha256": "e66c13ee34e2d2174170e0dc5829eff88ab73ff9bf333e45b8eeeac0322a11cc"
+    },
+    {
+      "project": "Skills",
+      "title": "Asset Pipeline",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Asset Pipeline.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Asset Pipeline.txt",
+      "action": "copy",
+      "sha256": "a3c9f2c9e402c1140802c1d5112d6d6f8ddc740ebeed0f65bd30bf8253ae3f46"
+    },
+    {
+      "project": "Skills",
+      "title": "Audit Logging System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Audit Logging System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Audit Logging System.txt",
+      "action": "copy",
+      "sha256": "67df9690cb8aee564fa41e10b36e4f4a09da63aabffb13bc38da4e5e92318ba8"
+    },
+    {
+      "project": "Skills",
+      "title": "Auto-Scaling Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Auto-Scaling Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Auto-Scaling Configuration.txt",
+      "action": "copy",
+      "sha256": "efa3faef85516f8bbf98130417e6d193728ac9401afd3a3e60271ce518038dc8"
+    },
+    {
+      "project": "Skills",
+      "title": "AWS Service Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/AWS Service Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/AWS Service Setup.txt",
+      "action": "copy",
+      "sha256": "540d6c6d46d0550f1d51d9e56bdfee65f0e517a0f1ba99cc98c1ed2d1cc82b0e"
+    },
+    {
+      "project": "Skills",
+      "title": "Background Job Queue",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Background Job Queue.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Background Job Queue.txt",
+      "action": "copy",
+      "sha256": "252671b0aaad1a92ef1ea9894fa1a16f85306ea0135153c50cd93a4cd197a58b"
+    },
+    {
+      "project": "Skills",
+      "title": "Backup & Restore System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Backup & Restore System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Backup & Restore System.txt",
+      "action": "copy",
+      "sha256": "b07e607cf435b5adae57152e187c5168b2c64b7eb9540ab7aa2e2f639cc7a232"
+    },
+    {
+      "project": "Skills",
+      "title": "Blue-Green Deployment",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Blue-Green Deployment.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Blue-Green Deployment.txt",
+      "action": "copy",
+      "sha256": "a60aee37c68ca6bf6adbc23e75f3cdb1af41ad9fb6824b62975ca6d8500612c0"
+    },
+    {
+      "project": "Skills",
+      "title": "Browser Caching",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Browser Caching.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Browser Caching.txt",
+      "action": "copy",
+      "sha256": "8e14472cdc5d7abc75ab91a153e8726b03803fe0efd34b84a6c87da8cc24d4dc"
+    },
+    {
+      "project": "Skills",
+      "title": "CDN Cache Strategy",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/CDN Cache Strategy.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/CDN Cache Strategy.txt",
+      "action": "copy",
+      "sha256": "ad2cc74a6af912b03fbd68858b69281a9c6a7971b3eee79da2113465d4c698d8"
+    },
+    {
+      "project": "Skills",
+      "title": "CDN Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/CDN Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/CDN Configuration.txt",
+      "action": "copy",
+      "sha256": "ba8ebed9fcd0bdbb6ed495a2f763469e52b819fa2dee25b7949683041e085cc7"
+    },
+    {
+      "project": "Skills",
+      "title": "Chat System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Chat System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Chat System.txt",
+      "action": "copy",
+      "sha256": "ca02fcdff58926e20322628435370ed67afda04a5c89e25978789b4765380b8f"
+    },
+    {
+      "project": "Skills",
+      "title": "CI-CD Pipeline Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/CI-CD Pipeline Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/CI-CD Pipeline Setup.txt",
+      "action": "copy",
+      "sha256": "f6459a8e7dd6854adcf3d59a1285a0717c37b0f8449b1cb5765e7235638c0c14"
+    },
+    {
+      "project": "Skills",
+      "title": "CI/CD Pipeline Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/CI CD Pipeline Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/CI CD Pipeline Setup.txt",
+      "action": "copy",
+      "sha256": "86f755d53aad9ba34db11ba09c415b10e9449cb04465e4e3534d9440777b73d3"
+    },
+    {
+      "project": "Skills",
+      "title": "Cloud Storage Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Cloud Storage Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Cloud Storage Setup.txt",
+      "action": "copy",
+      "sha256": "8182c5d79e9e34d1dee45b88c53b766a8ab1af824fac36860bb5db9fd1a3550d"
+    },
+    {
+      "project": "Skills",
+      "title": "Connection Pooling",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Connection Pooling.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Connection Pooling.txt",
+      "action": "copy",
+      "sha256": "5521d14729cff3f798d903878ae54b927eb47fd44264cd2331e60d1ae16b4966"
+    },
+    {
+      "project": "Skills",
+      "title": "Cost Monitoring",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Cost Monitoring.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Cost Monitoring.txt",
+      "action": "copy",
+      "sha256": "3410c03b2b36851ec8a13ec0e6b5ce4d78a091a67b7f64125423e20645b67673"
+    },
+    {
+      "project": "Skills",
+      "title": "Data Archival System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Data Archival System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Data Archival System.txt",
+      "action": "copy",
+      "sha256": "775a11aebe61f72d53b74297b217c9fe572de0c0a76bd352eb02397eb16c0723"
+    },
+    {
+      "project": "Skills",
+      "title": "Data Export System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Data Export System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Data Export System.txt",
+      "action": "copy",
+      "sha256": "075e6b1906efd81cf8930ae61eb6edcec24bad282b05219fc7dfdd92d0c74191"
+    },
+    {
+      "project": "Skills",
+      "title": "Data Import Pipeline",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Data Import Pipeline.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Data Import Pipeline.txt",
+      "action": "copy",
+      "sha256": "6713dfdea28fe79a52b4d07bea2cc5291f74f223e54f1db1d3e3504fe5cc8414"
+    },
+    {
+      "project": "Skills",
+      "title": "Data Seed Generator",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Data Seed Generator.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Data Seed Generator.txt",
+      "action": "copy",
+      "sha256": "180304a038af5e1a94792a5ba9ba2120da9e8eed1829dc22cb91f8b4f58dbac9"
+    },
+    {
+      "project": "Skills",
+      "title": "Data Validation Framework",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Data Validation Framework.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Data Validation Framework.txt",
+      "action": "copy",
+      "sha256": "4bcc749d8db9513cd0d7e99b3826668ca6f111093106b91c5bfd8705f0a600dc"
+    },
+    {
+      "project": "Skills",
+      "title": "Database Backup System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Database Backup System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Database Backup System.txt",
+      "action": "copy",
+      "sha256": "97ac556e371e9be352d63d1994939fd3e29e09479671fb1da3bc41c7b589a1b8"
+    },
+    {
+      "project": "Skills",
+      "title": "Database Migration System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Database Migration System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Database Migration System.txt",
+      "action": "copy",
+      "sha256": "5410ca338140d933abcb34205445e97809de6d1dfae51db11a94456b9d8a549b"
+    },
+    {
+      "project": "Skills",
+      "title": "Database Monitoring",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Database Monitoring.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Database Monitoring.txt",
+      "action": "copy",
+      "sha256": "2d36787cd79cc3b20d183aed8c0b5f374752a428d19e5e0a41604f453e06a88a"
+    },
+    {
+      "project": "Skills",
+      "title": "Database Schema Design",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Database Schema Design.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Database Schema Design.txt",
+      "action": "copy",
+      "sha256": "083373b2640ab8520798db769c39c81017d2bf74b611ebab3ec850ecff392cc9"
+    },
+    {
+      "project": "Skills",
+      "title": "Database Sharding",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Database Sharding.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Database Sharding.txt",
+      "action": "copy",
+      "sha256": "990eb5df6d532c99b800de8fab2bd06268374c62bb235c1db6b38aba6f895ab1"
+    },
+    {
+      "project": "Skills",
+      "title": "Distributed Tracing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Distributed Tracing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Distributed Tracing.txt",
+      "action": "copy",
+      "sha256": "9df310c7143cfcedc73887da0dd39896ef4e716e981a2cd2ba880f022b31556f"
+    },
+    {
+      "project": "Skills",
+      "title": "DNS & Domain Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/DNS & Domain Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/DNS & Domain Management.txt",
+      "action": "copy",
+      "sha256": "28ba3a255c3b1fcf95478865386a6405a72f566baef154ea1fb3020a7ad3e274"
+    },
+    {
+      "project": "Skills",
+      "title": "Docker Compose Development",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Docker Compose Development.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Docker Compose Development.txt",
+      "action": "copy",
+      "sha256": "cfbf753ce2fb66160b046777947e88ac78b34ad7a4d7f9fb876a5945f616f01e"
+    },
+    {
+      "project": "Skills",
+      "title": "Docker Containerization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Docker Containerization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Docker Containerization--recovered-1c0dd47872.txt",
+      "action": "copy-renamed-conflict",
+      "sha256": "1c0dd47872a4ae94ffed4a07dff4c1e2ac5385a978dda85ef7afead59b2618f4"
+    },
+    {
+      "project": "Skills",
+      "title": "Document Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Document Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Document Management.txt",
+      "action": "copy",
+      "sha256": "3c61469f5ad914b6d3778e14c71586c1bd68a44c44dcd632968faffca588bdce"
+    },
+    {
+      "project": "Skills",
+      "title": "Edge Computing Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Edge Computing Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Edge Computing Setup.txt",
+      "action": "copy",
+      "sha256": "f5de03496b7234d96c77c4f7b3ef4a0e4092226e86aa1d02d4abb4d4ff43ba82"
+    },
+    {
+      "project": "Skills",
+      "title": "Elasticsearch Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Elasticsearch Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Elasticsearch Setup.txt",
+      "action": "copy",
+      "sha256": "2aba87b8d24ac3fa16f5f8a4dcbd5921e5a224b07c9db0c3cca2ce8c995ec1fa"
+    },
+    {
+      "project": "Skills",
+      "title": "Email Service Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Email Service Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Email Service Integration--recovered-e6fbd7d0d2.txt",
+      "action": "copy-renamed-conflict",
+      "sha256": "e6fbd7d0d2e7315f659a5b8e04812452d6f3311ce238173052c88b85073a3827"
+    },
+    {
+      "project": "Skills",
+      "title": "Environment Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Environment Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Environment Management.txt",
+      "action": "copy",
+      "sha256": "624a69e231875d7ab20d312143913113c7d54a29c42858bcc624b7916f98718b"
+    },
+    {
+      "project": "Skills",
+      "title": "Error Tracking Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Error Tracking Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Error Tracking Setup.txt",
+      "action": "copy",
+      "sha256": "804ae860d447efd2d6a5944cfd9d539ee65193987dd6083fa5fab716ca650867"
+    },
+    {
+      "project": "Skills",
+      "title": "ETL Pipeline",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/ETL Pipeline.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/ETL Pipeline.txt",
+      "action": "copy",
+      "sha256": "612766791b163cc226ab188ee9c4d0160df0eac468cd5701f3e8aa5375f27212"
+    },
+    {
+      "project": "Skills",
+      "title": "Event-Driven Architecture",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Event-Driven Architecture.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Event-Driven Architecture.txt",
+      "action": "copy",
+      "sha256": "c67fbad222bb6d6adec87b5e1f408efcdfdb494af4bea4078fb815ec952ffdaa"
+    },
+    {
+      "project": "Skills",
+      "title": "Feature Flags System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Feature Flags System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Feature Flags System.txt",
+      "action": "copy",
+      "sha256": "50698d901f5c40772d5461cee0b421f7cbfa43d6d467c8bd047b76c1e3559347"
+    },
+    {
+      "project": "Skills",
+      "title": "File Upload Service",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/File Upload Service.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/File Upload Service.txt",
+      "action": "copy",
+      "sha256": "c1130d5be094a323077a04b0161a9e2df780438d82c0f751b1cfef8719a20276"
+    },
+    {
+      "project": "Skills",
+      "title": "Full-Text Search Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Full-Text Search Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Full-Text Search Setup.txt",
+      "action": "copy",
+      "sha256": "ab69f72bd55d834822ade45eb07ae1606e65524a49a47f26f3ddffaf814280e1"
+    },
+    {
+      "project": "Skills",
+      "title": "GitHub Actions Pipeline",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/GitHub Actions Pipeline.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/GitHub Actions Pipeline.txt",
+      "action": "copy",
+      "sha256": "811223f829b6cfd7b6df6c5923b913fd796d462e2ee269e9d51a3df9aa7e5c92"
+    },
+    {
+      "project": "Skills",
+      "title": "GitOps Workflow",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/GitOps Workflow.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/GitOps Workflow.txt",
+      "action": "copy",
+      "sha256": "0082ff1e2d4331e789d21c5ca0a18e8391433a040a87888c4939b5e93bf950e4"
+    },
+    {
+      "project": "Skills",
+      "title": "GraphQL Server Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/GraphQL Server Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/GraphQL Server Setup.txt",
+      "action": "copy",
+      "sha256": "f0bbed05fd4b7d1eaab5435ea83fe46df0351aa816ba86314b615040c7f49709"
+    },
+    {
+      "project": "Skills",
+      "title": "gRPC Service Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/gRPC Service Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/gRPC Service Setup.txt",
+      "action": "copy",
+      "sha256": "22a2b5c8c6ccb9f47789808d8151e89d7c616824eaeef307dec4cb6530a3c2a1"
+    },
+    {
+      "project": "Skills",
+      "title": "Image Processing Pipeline",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Image Processing Pipeline.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Image Processing Pipeline.txt",
+      "action": "copy",
+      "sha256": "c74dfbc161478b7b83033675c1e7f281ad6490403d7393ee5ec93072107c6580"
+    },
+    {
+      "project": "Skills",
+      "title": "IP Allowlisting & Geofencing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/IP Allowlisting & Geofencing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/IP Allowlisting & Geofencing.txt",
+      "action": "copy",
+      "sha256": "98e1740df5a2cad184dd485d2b53aae274c804f9f2391a3fc8f7afaa470b150b"
+    },
+    {
+      "project": "Skills",
+      "title": "JWT Authentication",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/JWT Authentication.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/JWT Authentication.txt",
+      "action": "copy",
+      "sha256": "fbc41d481c48ba37a6b6e39b7f673f3c740185674b518fcd3f76eff48d8b0108"
+    },
+    {
+      "project": "Skills",
+      "title": "Kubernetes Deployment",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Kubernetes Deployment.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Kubernetes Deployment.txt",
+      "action": "copy",
+      "sha256": "abbfcac8b93b49cd8d8bc1c30dba71979444888c7324438ca24c296d3066583f"
+    },
+    {
+      "project": "Skills",
+      "title": "Lazy Loading Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Lazy Loading Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Lazy Loading Implementation.txt",
+      "action": "copy",
+      "sha256": "2797677015487f2a6a6a1d059a3b2de7e158d7fe1adb8becac7477bd4b5c8636"
+    },
+    {
+      "project": "Skills",
+      "title": "Load Balancer Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Load Balancer Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Load Balancer Setup.txt",
+      "action": "copy",
+      "sha256": "6ced484bfe51fd498cb08ad93f67f2ed13b388b6e9e4d062edcd4515aaa11bb0"
+    },
+    {
+      "project": "Skills",
+      "title": "Log Aggregation Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Log Aggregation Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Log Aggregation Setup.txt",
+      "action": "copy",
+      "sha256": "6c768ae1d9315823557141b1f9d3dc6405baa37b441ce312a016e98d1bb02261"
+    },
+    {
+      "project": "Skills",
+      "title": "Managed Database Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Managed Database Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Managed Database Setup.txt",
+      "action": "copy",
+      "sha256": "cb95b560052d09e85a41b8e0878265ca9f2cf5e3879b642f78a7cdec484b6cc1"
+    },
+    {
+      "project": "Skills",
+      "title": "Message Queue Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Message Queue Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Message Queue Integration.txt",
+      "action": "copy",
+      "sha256": "cb4cd4cbf32dcb5458c1ba730e46a1dd8d7f92a2858f483491ecbf4b68efc2ab"
+    },
+    {
+      "project": "Skills",
+      "title": "Multi-Factor Authentication",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Multi-Factor Authentication.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Multi-Factor Authentication.txt",
+      "action": "copy",
+      "sha256": "fbf73f35ecff980dea220c356023406fc0ada98eb48721c02ba5fee044cf3330"
+    },
+    {
+      "project": "Skills",
+      "title": "Multi-Region Deployment",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Multi-Region Deployment.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Multi-Region Deployment.txt",
+      "action": "copy",
+      "sha256": "0aa0891eaf0e39c989032f362b53b545635b7dbb90c57f14eada6b5d3e903bc0"
+    },
+    {
+      "project": "Skills",
+      "title": "Multi-stage Docker Build",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Multi-stage Docker Build.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Multi-stage Docker Build.txt",
+      "action": "copy",
+      "sha256": "7c6cb7a4537a9f8145e496bb3cc78cb7ac1a030c72bb51a9bce07a7e4d917187"
+    },
+    {
+      "project": "Skills",
+      "title": "OAuth 2.0 Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/OAuth 2.0 Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/OAuth 2.0 Implementation.txt",
+      "action": "copy",
+      "sha256": "b63ad81e02d6183b11ccb15a0e744c14788bf22e00524d09f3d630dbf9c49c81"
+    },
+    {
+      "project": "Skills",
+      "title": "OpenAPI Specification",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/OpenAPI Specification.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/OpenAPI Specification.txt",
+      "action": "copy",
+      "sha256": "2d2f5a1a77c3d207883c9794de3952c32e06628df240061f691a302fb3cdf162"
+    },
+    {
+      "project": "Skills",
+      "title": "ORM Setup & Configuration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/ORM Setup & Configuration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/ORM Setup & Configuration.txt",
+      "action": "copy",
+      "sha256": "23f07a54342649b77e2300e4e37a2ad16b8d5312ee6cbf7fab77debe3777ca83"
+    },
+    {
+      "project": "Skills",
+      "title": "Password Policy Engine",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Password Policy Engine.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Password Policy Engine.txt",
+      "action": "copy",
+      "sha256": "c928c1a9cf225a3945bf62129dd4c8bafd855b6ad7a837205eec624e57cc3bbc"
+    },
+    {
+      "project": "Skills",
+      "title": "PDF Generation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/PDF Generation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/PDF Generation.txt",
+      "action": "copy",
+      "sha256": "db124c6adffffdf61f01d74498f5163dfffca812bf082bb21ddcfed0ed2ff2a3"
+    },
+    {
+      "project": "Skills",
+      "title": "Performance Monitoring",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Performance Monitoring.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Performance Monitoring.txt",
+      "action": "copy",
+      "sha256": "a87ffbfb3a11d5751e2ee6d616178c0027cf8a8dd651d7b19c815afea612f23a"
+    },
+    {
+      "project": "Skills",
+      "title": "Pub-Sub System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Pub-Sub System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Pub-Sub System.txt",
+      "action": "copy",
+      "sha256": "05f63aff3037e2782b63c5b6c4cc08e1b65701ff0e9130b8b1b4c75c63b25d7b"
+    },
+    {
+      "project": "Skills",
+      "title": "Pub/Sub System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Pub Sub System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Pub Sub System.txt",
+      "action": "copy",
+      "sha256": "99ee92b440685e29a5b5dbb7f5ef4a8ef0cf2981eadde1469e339cb717bb135e"
+    },
+    {
+      "project": "Skills",
+      "title": "Push Notification Service",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Push Notification Service.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Push Notification Service.txt",
+      "action": "copy",
+      "sha256": "4b128e9ed62ae9937c14ea3fa41d6dcd0784ed60140e554a29cd9ca9041a9876"
+    },
+    {
+      "project": "Skills",
+      "title": "Query Optimization",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Query Optimization.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Query Optimization.txt",
+      "action": "copy",
+      "sha256": "be4d768022c63da1993d434f8028c19e401c523156347a82d57100bb39b6aa8d"
+    },
+    {
+      "project": "Skills",
+      "title": "Query Result Caching",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Query Result Caching.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Query Result Caching.txt",
+      "action": "copy",
+      "sha256": "b7dd49af6572483a48241ffea7c3903faacbe058a0673870698f125d3542268c"
+    },
+    {
+      "project": "Skills",
+      "title": "RBAC Permission System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/RBAC Permission System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/RBAC Permission System.txt",
+      "action": "copy",
+      "sha256": "7f1a7686d8ce7afb388490d541011e22aeeab197c18da5c736abb0a6bedfb6fe"
+    },
+    {
+      "project": "Skills",
+      "title": "Redis Cache Layer",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Redis Cache Layer.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Redis Cache Layer.txt",
+      "action": "copy",
+      "sha256": "8a9c6e375caecd466795f0dfa7c2d41d623e85286038e474e47d873be8399c5e"
+    },
+    {
+      "project": "Skills",
+      "title": "Redis Implementation",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Redis Implementation.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Redis Implementation.txt",
+      "action": "copy",
+      "sha256": "de868e02b688d3108fb714bc29f03bb9d7ab693672256c872ee46bb57e3ec985"
+    },
+    {
+      "project": "Skills",
+      "title": "Reporting Engine",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Reporting Engine.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Reporting Engine.txt",
+      "action": "copy",
+      "sha256": "56d346baee83bcefce99bd8a98dfe4fc3967a58faca1ae6282ca5c4d34beb7e4"
+    },
+    {
+      "project": "Skills",
+      "title": "Request Deduplication",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Request Deduplication.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Request Deduplication.txt",
+      "action": "copy",
+      "sha256": "6ae9b10d7308cdf87e07693723fb44109e592d010b44eb6e223f6d827f418fea"
+    },
+    {
+      "project": "Skills",
+      "title": "Response Compression",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Response Compression.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Response Compression.txt",
+      "action": "copy",
+      "sha256": "ee68008ea1ba9c7900f46cac2e08ae2d43f738a15053d67c7d903c1cdcf19da8"
+    },
+    {
+      "project": "Skills",
+      "title": "REST API Design",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/REST API Design.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/REST API Design.txt",
+      "action": "copy",
+      "sha256": "cf7f85d261bebe87ed3d0902990c906e5023079ed27502993a3b374a07bd7256"
+    },
+    {
+      "project": "Skills",
+      "title": "Secrets Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Secrets Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Secrets Management.txt",
+      "action": "copy",
+      "sha256": "31a4348b0c58a71669c3ae09191c8c4de4b510e1388183b51e8a6cc15fc48b2d"
+    },
+    {
+      "project": "Skills",
+      "title": "Security Monitoring",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Security Monitoring.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Security Monitoring.txt",
+      "action": "copy",
+      "sha256": "57e1d8802cf4ebf182eba3932d1a71b820315ca4a6635571a0e367f758910fbf"
+    },
+    {
+      "project": "Skills",
+      "title": "Server-Sent Events",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Server-Sent Events.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Server-Sent Events.txt",
+      "action": "copy",
+      "sha256": "f07a87d96607fbaa942cd8cb39ef440d5730ad5afa73fd43db96c7e1022ca54d"
+    },
+    {
+      "project": "Skills",
+      "title": "Serverless Functions",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Serverless Functions.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Serverless Functions.txt",
+      "action": "copy",
+      "sha256": "9e7ec930d7957fdf9815337c24924344917cc92c3fb36383994bc988fc527df9"
+    },
+    {
+      "project": "Skills",
+      "title": "Service Mesh Setup",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Service Mesh Setup.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Service Mesh Setup.txt",
+      "action": "copy",
+      "sha256": "61fadc36b483e13def17a9472592ff14c96fc3c1721060917d8488179918ef39"
+    },
+    {
+      "project": "Skills",
+      "title": "Session Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Session Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Session Management.txt",
+      "action": "copy",
+      "sha256": "0a8eacbf4380d43d330fb84cb915a981535b469c893a1aa6231ec182d010e832"
+    },
+    {
+      "project": "Skills",
+      "title": "SMS & Voice Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/SMS & Voice Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/SMS & Voice Integration.txt",
+      "action": "copy",
+      "sha256": "3f5df2fe926a9dd08f78aa2bcd152487ca74c8f44f0be0e85678dfbbaca4f228"
+    },
+    {
+      "project": "Skills",
+      "title": "SSL-TLS Certificate Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/SSL-TLS Certificate Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/SSL-TLS Certificate Management.txt",
+      "action": "copy",
+      "sha256": "c9a06b0817ba263c6b1495c0c9b8629e758bc0afa2b83e373a2c7c6f667b4d96"
+    },
+    {
+      "project": "Skills",
+      "title": "SSL/TLS Certificate Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/SSL TLS Certificate Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/SSL TLS Certificate Management.txt",
+      "action": "copy",
+      "sha256": "b3ef5193f47b69c5c6cf10d721862a51442b36c9da4e34f4f688136a18b5247c"
+    },
+    {
+      "project": "Skills",
+      "title": "SSO with SAML",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/SSO with SAML.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/SSO with SAML.txt",
+      "action": "copy",
+      "sha256": "7ec8b9adbb788de1ea34fd0b1f9bff7ed36de97b96fe4fa77ac2f63f51dabab1"
+    },
+    {
+      "project": "Skills",
+      "title": "Structured Logging",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Structured Logging.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Structured Logging.txt",
+      "action": "copy",
+      "sha256": "f9b96cd928b82c7441ff0230781fe4c235b3146e257d84e3af1c41bcb4b9d0ee"
+    },
+    {
+      "project": "Skills",
+      "title": "Temporary File Management",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Temporary File Management.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Temporary File Management.txt",
+      "action": "copy",
+      "sha256": "5cd3379b7b0cb7156e429eadd6d5423487df664b64d883850d0b8c3ce4fb80e0"
+    },
+    {
+      "project": "Skills",
+      "title": "Terraform Infrastructure",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Terraform Infrastructure.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Terraform Infrastructure.txt",
+      "action": "copy",
+      "sha256": "0e65ccbf2091c31ebefd8d4c5347a87d0fbb76c66e3fecfc445004df3a69f0eb"
+    },
+    {
+      "project": "Skills",
+      "title": "Third-party API Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Third-party API Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Third-party API Integration.txt",
+      "action": "copy",
+      "sha256": "67f75bec45ef2db5c99cc1c1201d8cdd502636c36ef83e265c93848c6cbcaea5"
+    },
+    {
+      "project": "Skills",
+      "title": "Time-Series Database",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Time-Series Database.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Time-Series Database.txt",
+      "action": "copy",
+      "sha256": "daf59c2a80bdd2e1cbbdd3c6a4d6c28ee88902921aabfffd96cf190f62bac786"
+    },
+    {
+      "project": "Skills",
+      "title": "Uptime Monitoring",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Uptime Monitoring.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Uptime Monitoring.txt",
+      "action": "copy",
+      "sha256": "769f91955575b10df9f8710658c95f937baa218c075c3755b1423a9d4254ceb6"
+    },
+    {
+      "project": "Skills",
+      "title": "Vercel Deployment",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Vercel Deployment.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Vercel Deployment.txt",
+      "action": "copy",
+      "sha256": "f0b33a9ebbe36329b636681349cfc546e2e6d78e920c4a7763aa68a7d8aa3298"
+    },
+    {
+      "project": "Skills",
+      "title": "Video Processing",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Video Processing.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Video Processing.txt",
+      "action": "copy",
+      "sha256": "6f91c7fc7c40805712c1659d5dc8b769a2bfd73ba147e11e454a09aefd18560c"
+    },
+    {
+      "project": "Skills",
+      "title": "VPN & Network Security",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/VPN & Network Security.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/VPN & Network Security.txt",
+      "action": "copy",
+      "sha256": "7c469795198a317b57b75a511151dd1969271d928c313740aa2d7544063a0e4c"
+    },
+    {
+      "project": "Skills",
+      "title": "Webhook System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/Webhook System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/Webhook System.txt",
+      "action": "copy",
+      "sha256": "e071504ecda30b11253676217ee5a9b9baf6e94980085023588f85cdf6e39497"
+    },
+    {
+      "project": "Skills",
+      "title": "WebSocket Server",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Skills/WebSocket Server.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Skills/WebSocket Server.txt",
+      "action": "copy",
+      "sha256": "140bd6713cc8bff9ff6906a0a6f643599887c8e24b104c0eacd34f782e35e909"
+    },
+    {
+      "project": "Vibe Platform",
+      "title": "Analytics Dashboard",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Vibe Platform/Analytics Dashboard.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Vibe Platform/Analytics Dashboard.txt",
+      "action": "copy",
+      "sha256": "51f26aa0b50ecf67018b28cd645e7e97002effc63dd575d6ed438e152d789494"
+    },
+    {
+      "project": "Vibe Platform",
+      "title": "Email Notification System",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Vibe Platform/Email Notification System.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Vibe Platform/Email Notification System.txt",
+      "action": "copy",
+      "sha256": "025c5879a52444ceb04281684da4e83c82ea9d9f29f9a6413f0aee7b6379d4d0"
+    },
+    {
+      "project": "Vibe Platform",
+      "title": "Generate Landing Page",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Vibe Platform/Generate Landing Page.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Vibe Platform/Generate Landing Page.txt",
+      "action": "copy",
+      "sha256": "4648090cf7ff1a5b720afa0984eba1940a698c66fbee6e4c478504d03efafa6f"
+    },
+    {
+      "project": "Vibe Platform",
+      "title": "Payment Integration",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Vibe Platform/Payment Integration.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Vibe Platform/Payment Integration.txt",
+      "action": "copy",
+      "sha256": "72c456e05be9594d9d62fac472caae6bb179da5f0e7319030118de290752c7cc"
+    },
+    {
+      "project": "Vibe Platform",
+      "title": "Refactor Auth Component",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Vibe Platform/Refactor Auth Component.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Vibe Platform/Refactor Auth Component.txt",
+      "action": "copy",
+      "sha256": "647fed1d41a53d2f92e446477efc1507b5571b4156cf9753d0dabd87279382d1"
+    },
+    {
+      "project": "Vibe Platform",
+      "title": "SEO Optimization Pass",
+      "source": "/Users/jake/orca/workspaces/MakeShipHappenCollective/ShipSpace/recovery/shipspace-old-prompts-2026-08-20/recovered-only-library/Vibe Platform/SEO Optimization Pass.txt",
+      "destination": "/Users/jake/MakeShipHappenCollective/Prompts/Vibe Platform/SEO Optimization Pass.txt",
+      "action": "copy",
+      "sha256": "1ef37bd48a9fc4f17e0a4bc750924943f935785b041493512ea8eedeab57dddd"
+    }
+  ]
+}
