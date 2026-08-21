@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "codex:auto": "codex --full-auto",
+    "codex:auto": "codex --approve-for-me",
     "codex:auto:danger": "codex --dangerously-bypass-approvals-and-sandbox",
     "shipmind": "cd shipmind && npm run shipmind",
     "shipmind:dev": "cd shipmind && npm run shipmind:dev",
