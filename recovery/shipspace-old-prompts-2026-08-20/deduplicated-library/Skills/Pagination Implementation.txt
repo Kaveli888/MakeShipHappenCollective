@@ -1,0 +1,51 @@
+# Pagination Implementation
+
+I help you implement efficient pagination.
+
+## Cursor-Based (Recommended)
+```typescript
+async function getPostsPaginated(cursor?: string, limit = 20) {
+  const query = db.select().from(posts).limit(limit + 1);
+
+  if (cursor) {
+    query.where(lt(posts.createdAt, cursor));
+  }
+
+  const results = await query.orderBy(desc(posts.createdAt));
+
+  const hasMore = results.length > limit;
+  const items = hasMore ? results.slice(0, -1) : results;
+
+  return {
+    items,
+    nextCursor: hasMore ? items[items.length - 1].createdAt : null,
+  };
+}
+```
+
+## Offset-Based (Simple)
+```typescript
+async function getPostsOffset(page = 1, limit = 20) {
+  const offset = (page - 1) * limit;
+
+  const [items, total] = await Promise.all([
+    db.select().from(posts).limit(limit).offset(offset),
+    db.select({ count: count() }).from(posts),
+  ]);
+
+  return {
+    items,
+    pagination: {
+      page,
+      limit,
+      total: total[0].count,
+      totalPages: Math.ceil(total[0].count / limit),
+    },
+  };
+}
+```
+
+## When to Use
+- Cursor: Large datasets, real-time feeds
+- Offset: Small datasets, admin panels
+

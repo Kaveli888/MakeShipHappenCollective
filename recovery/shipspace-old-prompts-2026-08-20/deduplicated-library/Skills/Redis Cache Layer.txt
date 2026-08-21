@@ -1,0 +1,1 @@
+Implement a Redis caching layer with cache-aside pattern, write-through caching, TTL management, cache invalidation strategies, connection pooling, clustering, and cache hit/miss monitoring.

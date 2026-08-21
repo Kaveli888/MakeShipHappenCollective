@@ -1,0 +1,1 @@
+Set up performance monitoring with real user monitoring (RUM), synthetic monitoring, API latency tracking, database query timing, and performance budgets with CI enforcement.

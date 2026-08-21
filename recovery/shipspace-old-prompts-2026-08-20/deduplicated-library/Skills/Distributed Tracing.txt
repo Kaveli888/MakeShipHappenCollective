@@ -1,0 +1,1 @@
+Implement distributed tracing with OpenTelemetry. Add trace propagation across services, span instrumentation, trace sampling, Jaeger/Zipkin visualization, and performance bottleneck identification.

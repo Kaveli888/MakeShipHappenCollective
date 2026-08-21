@@ -1,0 +1,59 @@
+# Mobile Navigation Patterns
+
+I help you implement navigation patterns in mobile apps.
+
+## Tab Navigation
+```tsx
+const Tab = createBottomTabNavigator();
+
+function TabNavigator() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+        }}
+      />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
+```
+
+## Stack Navigation with Auth
+```tsx
+function RootNavigator() {
+  const { user } = useAuthStore();
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {user ? (
+        <Stack.Screen name="Main" component={TabNavigator} />
+      ) : (
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+      )}
+    </Stack.Navigator>
+  );
+}
+```
+
+## Deep Linking
+```tsx
+const linking = {
+  prefixes: ['myapp://', 'https://myapp.com'],
+  config: {
+    screens: {
+      Home: '',
+      Details: 'details/:id',
+      Profile: 'profile',
+    },
+  },
+};
+
+<NavigationContainer linking={linking}>
+  {/* ... */}
+</NavigationContainer>
+```
+

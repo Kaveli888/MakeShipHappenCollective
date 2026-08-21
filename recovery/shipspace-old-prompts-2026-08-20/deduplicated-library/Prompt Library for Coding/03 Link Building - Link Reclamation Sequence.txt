@@ -1,0 +1,1 @@
+/goal Create a link reclamation email sequence. Email 1: unlinked mention request. Email 2: follow-up. Email 3: final ask. Each under 100 words with subject lines. Don't stop until all 3 are complete.

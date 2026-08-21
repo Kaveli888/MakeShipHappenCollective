@@ -1,0 +1,1 @@
+Build a video processing pipeline with upload, transcoding to multiple formats/resolutions, thumbnail extraction, HLS/DASH streaming, progress tracking, and CDN delivery.

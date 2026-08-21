@@ -1,0 +1,51 @@
+# Stripe Payment Integration
+
+I help you integrate Stripe payments.
+
+## Stripe Setup
+```typescript
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+});
+```
+
+## Create Checkout Session
+```typescript
+async function createCheckoutSession(priceId: string, userId: string) {
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    payment_method_types: ['card'],
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${process.env.APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.APP_URL}/cancel`,
+    metadata: { userId },
+  });
+
+  return session.url;
+}
+```
+
+## Webhook Handler
+```typescript
+async function handleWebhook(body: Buffer, signature: string) {
+  const event = stripe.webhooks.constructEvent(
+    body,
+    signature,
+    process.env.STRIPE_WEBHOOK_SECRET!
+  );
+
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const session = event.data.object;
+      await activateSubscription(session.metadata.userId);
+      break;
+    case 'customer.subscription.deleted':
+      const subscription = event.data.object;
+      await cancelSubscription(subscription.metadata.userId);
+      break;
+  }
+}
+```
+

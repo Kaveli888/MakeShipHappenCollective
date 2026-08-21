@@ -1,0 +1,63 @@
+# Implement Audit Logging
+
+You are implementing audit logging.
+
+## Audit Log Schema
+```typescript
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id),
+  action: text('action').notNull(), // 'create', 'update', 'delete'
+  entityType: text('entity_type').notNull(), // 'user', 'post', etc.
+  entityId: uuid('entity_id').notNull(),
+  changes: jsonb('changes'), // { before: {...}, after: {...} }
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+```
+
+## Audit Service
+```typescript
+@Injectable()
+export class AuditService {
+  async log(params: {
+    userId: string;
+    action: 'create' | 'update' | 'delete';
+    entityType: string;
+    entityId: string;
+    changes?: { before?: any; after?: any };
+    request: Request;
+  }) {
+    await db.insert(auditLogs).values({
+      userId: params.userId,
+      action: params.action,
+      entityType: params.entityType,
+      entityId: params.entityId,
+      changes: params.changes,
+      ipAddress: params.request.ip,
+      userAgent: params.request.headers['user-agent'],
+    });
+  }
+}
+```
+
+## Usage in Service
+```typescript
+async update(id: string, dto: UpdatePostDto, userId: string, request: Request) {
+  const before = await this.findOne(id);
+  const after = await db.update(posts).set(dto).where(eq(posts.id, id)).returning();
+
+  await this.auditService.log({
+    userId,
+    action: 'update',
+    entityType: 'post',
+    entityId: id,
+    changes: { before, after: after[0] },
+    request,
+  });
+
+  return after[0];
+}
+```
+

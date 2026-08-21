@@ -1,0 +1,1 @@
+Set up environment management with development, staging, and production environments. Implement environment parity, configuration management, secret injection, and environment promotion workflows.

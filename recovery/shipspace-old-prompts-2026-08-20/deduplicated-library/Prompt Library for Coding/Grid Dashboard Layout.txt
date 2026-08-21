@@ -1,0 +1,1 @@
+Build a responsive dashboard grid layout with resizable widgets, drag-to-rearrange, responsive breakpoints, persistent layout, and smooth animations during layout changes.

@@ -1,0 +1,1 @@
+Set up snapshot testing for API responses and component rendering. Configure serializers, handle dynamic values, implement approval workflow, and automate snapshot updates in CI.

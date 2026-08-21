@@ -1,0 +1,1 @@
+Build an image processing pipeline with resizing, cropping, format conversion (WebP/AVIF), thumbnail generation, CDN delivery, responsive image srcset generation, and lazy loading.

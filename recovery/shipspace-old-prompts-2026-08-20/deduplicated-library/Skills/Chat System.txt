@@ -1,0 +1,1 @@
+Build a real-time chat system with direct messages, group channels, typing indicators, read receipts, message editing/deletion, file attachments, and emoji reactions.

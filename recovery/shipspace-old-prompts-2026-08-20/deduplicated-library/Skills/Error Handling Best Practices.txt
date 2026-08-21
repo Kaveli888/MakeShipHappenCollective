@@ -1,0 +1,61 @@
+# Error Handling Best Practices
+
+I help you implement robust error handling.
+
+## Custom Error Classes
+```typescript
+export class AppError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number = 500,
+    public code: string = 'INTERNAL_ERROR',
+  ) {
+    super(message);
+    this.name = 'AppError';
+  }
+}
+
+export class NotFoundError extends AppError {
+  constructor(resource: string) {
+    super(`${resource} not found`, 404, 'NOT_FOUND');
+  }
+}
+
+export class ValidationError extends AppError {
+  constructor(message: string) {
+    super(message, 422, 'VALIDATION_ERROR');
+  }
+}
+```
+
+## Global Error Handler (NestJS)
+```typescript
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+
+    const { status, body } = this.getErrorResponse(exception);
+
+    response.status(status).json(body);
+  }
+
+  private getErrorResponse(exception: unknown) {
+    if (exception instanceof AppError) {
+      return {
+        status: exception.statusCode,
+        body: {
+          error: exception.code,
+          message: exception.message,
+        },
+      };
+    }
+    return {
+      status: 500,
+      body: { error: 'INTERNAL_ERROR', message: 'Something went wrong' },
+    };
+  }
+}
+```
+

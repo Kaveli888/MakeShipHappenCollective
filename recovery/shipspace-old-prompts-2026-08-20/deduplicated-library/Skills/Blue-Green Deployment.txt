@@ -1,0 +1,1 @@
+Implement blue-green deployment strategy with automatic traffic switching, health check validation, instant rollback capability, database migration handling, and deployment verification tests.

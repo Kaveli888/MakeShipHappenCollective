@@ -1,0 +1,47 @@
+# Debug Authentication Issue
+
+You are debugging an authentication problem.
+
+## Common Issues
+
+### Token Not Sent
+```typescript
+// ❌ Bug: forgetting to include token
+fetch('/api/protected');
+
+// ✅ Fix: include Authorization header
+fetch('/api/protected', {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+```
+
+### Token Expired
+- Check JWT expiration with jwt.io
+- Implement token refresh logic
+- Handle 401 responses gracefully
+
+### Token Not Persisted
+```typescript
+// Store token after login
+localStorage.setItem('token', token);
+
+// Retrieve on app load
+const token = localStorage.getItem('token');
+```
+
+### Wrong Token Format
+```typescript
+// ❌ Bug: missing "Bearer " prefix
+headers: { 'Authorization': token }
+
+// ✅ Fix: include prefix
+headers: { 'Authorization': `Bearer ${token}` }
+```
+
+## Debugging Steps
+1. Check if token exists in storage
+2. Verify token is not expired (check exp claim)
+3. Confirm token is being sent in request
+4. Check server-side token validation
+5. Verify token secret matches on server
+

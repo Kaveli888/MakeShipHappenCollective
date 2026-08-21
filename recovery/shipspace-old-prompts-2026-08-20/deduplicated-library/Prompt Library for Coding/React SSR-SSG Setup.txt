@@ -1,0 +1,1 @@
+Set up server-side rendering or static site generation with Next.js. Configure data fetching strategies, ISR, middleware, API routes, image optimization, and SEO metadata.

@@ -1,0 +1,54 @@
+# Mobile Push Notifications
+
+I help you implement push notifications in mobile apps.
+
+## Expo Notifications Setup
+```typescript
+import * as Notifications from 'expo-notifications';
+
+// Configure notification handler
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
+// Register for push notifications
+async function registerForPushNotifications() {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== 'granted') return null;
+
+  const token = await Notifications.getExpoPushTokenAsync({
+    projectId: 'your-project-id',
+  });
+  return token.data;
+}
+```
+
+## Handle Notifications
+```typescript
+useEffect(() => {
+  // Received while app is foregrounded
+  const subscription = Notifications.addNotificationReceivedListener(
+    (notification) => {
+      console.log('Received:', notification);
+    }
+  );
+
+  // User tapped notification
+  const responseSubscription = Notifications.addNotificationResponseReceivedListener(
+    (response) => {
+      const { data } = response.notification.request.content;
+      navigation.navigate('Details', { id: data.id });
+    }
+  );
+
+  return () => {
+    subscription.remove();
+    responseSubscription.remove();
+  };
+}, []);
+```
+

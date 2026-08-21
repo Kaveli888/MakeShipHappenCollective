@@ -1,0 +1,1 @@
+Build a mock data factory with Faker.js for generating realistic test data. Create factories for all data models with proper relationships, overrides, and batch creation support.

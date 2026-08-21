@@ -1,0 +1,1 @@
+Fix all mobile responsiveness issues. Address layout breaks, touch interaction problems, viewport issues, font scaling, image sizing, and ensure proper behavior on iOS and Android devices.

@@ -1,0 +1,1 @@
+Create a comprehensive ESLint and Prettier configuration with TypeScript support, React rules, import ordering, accessibility rules, custom rules, and shareable config package.

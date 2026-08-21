@@ -1,0 +1,1 @@
+/goal Create a client-facing SEO summary email for this month's data: [paste data]. Translate every metric into plain English. Highlight 3 wins and 3 priorities. Keep it under 300 words. Don't stop until it's complete.

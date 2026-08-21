@@ -1,0 +1,1 @@
+Review infrastructure configuration for security issues including open ports, misconfigured firewalls, unencrypted data at rest/transit, IAM permission over-provisioning, and missing logging.

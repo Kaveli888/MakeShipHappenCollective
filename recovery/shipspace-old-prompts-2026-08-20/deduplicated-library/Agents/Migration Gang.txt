@@ -1,0 +1,1 @@
+Plan and execute a technology migration (e.g. framework upgrade, database switch, cloud provider migration). Create a migration plan, implement changes incrementally, maintain backward compatibility, and validate each step.

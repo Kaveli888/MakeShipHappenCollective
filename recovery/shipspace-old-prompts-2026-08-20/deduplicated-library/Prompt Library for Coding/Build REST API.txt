@@ -1,0 +1,49 @@
+# Build REST API
+
+You are building a REST API endpoint.
+
+## Complete CRUD Controller
+```typescript
+@Controller('posts')
+@UseGuards(JwtAuthGuard)
+@ApiTags('posts')
+export class PostsController {
+  constructor(private postsService: PostsService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'List posts' })
+  findAll(@Query() query: ListPostsDto) {
+    return this.postsService.findAll(query);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get post by ID' })
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(id);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Create post' })
+  create(@Body() dto: CreatePostDto, @GetUser() user: User) {
+    return this.postsService.create(dto, user.id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update post' })
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdatePostDto,
+    @GetUser() user: User,
+  ) {
+    return this.postsService.update(id, dto, user.id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete post' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.postsService.remove(id, user.id);
+  }
+}
+```
+

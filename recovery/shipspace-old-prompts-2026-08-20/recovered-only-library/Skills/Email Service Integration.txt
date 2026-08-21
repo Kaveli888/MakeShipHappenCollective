@@ -1,0 +1,1 @@
+Build an email service with template engine, MJML responsive templates, sending via SES/SendGrid, bounce/complaint handling, delivery tracking, and email analytics dashboard.

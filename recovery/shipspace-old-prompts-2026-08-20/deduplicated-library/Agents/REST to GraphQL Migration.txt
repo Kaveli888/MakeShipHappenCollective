@@ -1,0 +1,1 @@
+Migrate REST API endpoints to GraphQL. Design the schema, implement resolvers, add DataLoader for N+1 prevention, update frontend queries, maintain REST backwards compatibility, and deprecate old endpoints.

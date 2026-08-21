@@ -1,0 +1,61 @@
+# Authentication Patterns
+
+I help you implement secure authentication.
+
+## JWT Authentication
+```typescript
+import jwt from 'jsonwebtoken';
+
+function generateTokens(userId: string) {
+  const accessToken = jwt.sign(
+    { sub: userId },
+    process.env.JWT_SECRET!,
+    { expiresIn: '15m' }
+  );
+
+  const refreshToken = jwt.sign(
+    { sub: userId },
+    process.env.JWT_REFRESH_SECRET!,
+    { expiresIn: '7d' }
+  );
+
+  return { accessToken, refreshToken };
+}
+
+function verifyToken(token: string) {
+  return jwt.verify(token, process.env.JWT_SECRET!) as { sub: string };
+}
+```
+
+## Password Hashing
+```typescript
+import bcrypt from 'bcryptjs';
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
+}
+
+async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
+}
+```
+
+## Refresh Token Flow
+```typescript
+async function refreshAccessToken(refreshToken: string) {
+  const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!);
+
+  // Verify refresh token is valid in database
+  const storedToken = await db.refreshToken.findUnique({
+    where: { token: refreshToken },
+  });
+
+  if (!storedToken || storedToken.revoked) {
+    throw new UnauthorizedError();
+  }
+
+  // Generate new tokens
+  return generateTokens(payload.sub);
+}
+```
+

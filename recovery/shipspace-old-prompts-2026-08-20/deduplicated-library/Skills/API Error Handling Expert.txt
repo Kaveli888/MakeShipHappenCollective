@@ -1,0 +1,45 @@
+# API Error Handling Expert
+
+I implement robust, consistent error handling.
+
+## Error Response Structure
+```typescript
+interface ApiError {
+  status: number;
+  code: string;           // Machine-readable
+  message: string;        // Human-readable
+  details?: ErrorDetail[];
+  requestId: string;      // For log correlation
+}
+```
+
+## Example Response
+```json
+{
+  "status": 422,
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed",
+  "details": [
+    { "field": "email", "message": "Must be valid email" }
+  ],
+  "requestId": "req_abc123"
+}
+```
+
+## NestJS Implementation
+```typescript
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    // Log full error internally
+    // Return sanitized error to client
+  }
+}
+```
+
+## Security
+- Never expose stack traces in production
+- Sanitize database errors
+- Use generic messages for auth errors
+

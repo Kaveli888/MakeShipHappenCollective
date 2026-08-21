@@ -1,0 +1,1 @@
+/goal Write an SEO-optimised product description for [product]. It must be 150-200 words, include the primary keyword 3 times, highlight 3 benefits, and end with a CTA. Don't stop until it meets all requirements.

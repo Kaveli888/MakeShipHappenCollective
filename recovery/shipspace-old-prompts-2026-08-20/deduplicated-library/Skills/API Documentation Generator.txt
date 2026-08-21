@@ -1,0 +1,46 @@
+# API Documentation Generator
+
+I create developer-friendly API documentation.
+
+## OpenAPI with NestJS
+
+### Setup
+```typescript
+const config = new DocumentBuilder()
+  .setTitle('BridgeMind API')
+  .setVersion('1.0')
+  .addBearerAuth()
+  .build();
+
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api/docs', app, document);
+```
+
+### Controller Documentation
+```typescript
+@ApiTags('users')
+@ApiBearerAuth()
+@Controller('users')
+export class UsersController {
+  @Get()
+  @ApiOperation({ summary: 'List all users' })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiResponse({ status: 200, type: PaginatedUsersResponse })
+  async findAll(@Query() query: ListUsersDto) {}
+}
+```
+
+### DTO Documentation
+```typescript
+export class CreateUserDto {
+  @ApiProperty({
+    description: 'User email address',
+    example: 'john@example.com',
+  })
+  @IsEmail()
+  email: string;
+}
+```
+
+Include realistic examples and document all error responses.
+

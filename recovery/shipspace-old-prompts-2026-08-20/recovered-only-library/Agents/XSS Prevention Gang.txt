@@ -1,0 +1,1 @@
+Scan the entire frontend for Cross-Site Scripting vulnerabilities. Implement output encoding, Content Security Policy, sanitize user inputs, review dangerouslySetInnerHTML usage, and add XSS-specific test cases.

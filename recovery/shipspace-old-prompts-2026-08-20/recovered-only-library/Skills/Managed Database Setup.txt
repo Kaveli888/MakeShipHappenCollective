@@ -1,0 +1,1 @@
+Set up managed database services (RDS/Cloud SQL/PlanetScale) with multi-AZ deployment, read replicas, automated backups, monitoring, parameter tuning, and connection pooling.

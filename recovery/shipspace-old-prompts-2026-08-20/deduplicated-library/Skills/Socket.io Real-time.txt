@@ -1,0 +1,67 @@
+# Socket.io Real-time
+
+I help you build real-time features with Socket.io.
+
+## Server Setup (NestJS)
+```typescript
+@WebSocketGateway({
+  cors: { origin: '*' },
+})
+export class ChatGateway {
+  @WebSocketServer()
+  server: Server;
+
+  @SubscribeMessage('message')
+  handleMessage(@MessageBody() data: { room: string; text: string }) {
+    this.server.to(data.room).emit('message', {
+      text: data.text,
+      timestamp: new Date(),
+    });
+  }
+
+  @SubscribeMessage('join')
+  handleJoin(@ConnectedSocket() client: Socket, @MessageBody() room: string) {
+    client.join(room);
+    return { event: 'joined', room };
+  }
+}
+```
+
+## Client Setup (React)
+```tsx
+import { io, Socket } from 'socket.io-client';
+
+function useSocket() {
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    const s = io('http://localhost:3000');
+    setSocket(s);
+
+    return () => { s.disconnect(); };
+  }, []);
+
+  return socket;
+}
+
+function Chat({ room }: { room: string }) {
+  const socket = useSocket();
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit('join', room);
+    socket.on('message', (msg) => setMessages((prev) => [...prev, msg]));
+
+    return () => { socket.off('message'); };
+  }, [socket, room]);
+
+  const sendMessage = (text: string) => {
+    socket?.emit('message', { room, text });
+  };
+
+  return /* render chat UI */;
+}
+```
+

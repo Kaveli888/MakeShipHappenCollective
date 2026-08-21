@@ -1,0 +1,1 @@
+Implement API rate limiting with sliding window algorithm, per-user and per-endpoint limits, rate limit headers, graceful degradation, allowlisting, and a dashboard for monitoring usage patterns.

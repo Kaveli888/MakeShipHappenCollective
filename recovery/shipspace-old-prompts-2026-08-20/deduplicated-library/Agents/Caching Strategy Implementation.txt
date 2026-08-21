@@ -1,0 +1,1 @@
+Implement a multi-layer caching strategy including browser cache, CDN cache, application cache (Redis), and database query cache. Define TTL policies, cache invalidation logic, and cache warming procedures.

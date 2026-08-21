@@ -1,0 +1,1 @@
+Create a comprehensive OpenAPI 3.0 specification for all API endpoints. Include request/response schemas, authentication schemes, examples, descriptions, and generate client SDKs automatically.

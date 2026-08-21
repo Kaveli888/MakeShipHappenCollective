@@ -1,0 +1,1 @@
+Update the NextAuth configuration to support OAuth providers (Google, GitHub), add role-based access control, implement session refresh, and add proper error handling for auth failures.

@@ -1,0 +1,1 @@
+Implement a RESTful API endpoint with input validation, authentication middleware, proper HTTP status codes, error responses, pagination, and OpenAPI documentation.

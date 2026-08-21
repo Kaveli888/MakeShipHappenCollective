@@ -1,0 +1,1 @@
+/goal Write a content refresh strategy for these 10 underperforming articles: [list]. For each, suggest: what to add, what to remove, keyword targets to update, and internal links to add. Don't stop until all 10 have a refresh plan.

@@ -1,0 +1,1 @@
+Build an A/B testing framework with experiment configuration, user bucketing, variant assignment, statistical significance calculation, and a dashboard for experiment results and metrics.

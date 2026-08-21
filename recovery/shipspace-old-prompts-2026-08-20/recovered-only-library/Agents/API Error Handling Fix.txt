@@ -1,0 +1,1 @@
+Fix API error handling issues including unhandled promise rejections, incorrect status codes, missing error messages, timeout handling, and retry logic failures.

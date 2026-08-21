@@ -1,0 +1,1 @@
+Audit the entire platform for SEO improvements. Add meta tags, Open Graph data, structured data (JSON-LD), sitemap generation, canonical URLs, and optimize page load speed for Core Web Vitals.

@@ -1,0 +1,1 @@
+Implement the service layer pattern with business logic encapsulation, dependency injection, transaction management, input validation, and clear separation from controllers and repositories.

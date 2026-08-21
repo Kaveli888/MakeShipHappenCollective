@@ -1,0 +1,1 @@
+Set up Git hooks with Husky and lint-staged. Configure pre-commit linting, pre-push testing, commit message validation with Commitlint, and automatic changelog generation.

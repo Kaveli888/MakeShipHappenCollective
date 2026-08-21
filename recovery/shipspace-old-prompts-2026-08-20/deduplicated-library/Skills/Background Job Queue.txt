@@ -1,0 +1,1 @@
+Set up a background job processing system with BullMQ or similar. Implement job scheduling, retries, priorities, concurrency control, progress tracking, and a monitoring dashboard.

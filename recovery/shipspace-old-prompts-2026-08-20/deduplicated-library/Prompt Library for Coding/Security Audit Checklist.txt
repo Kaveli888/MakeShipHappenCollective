@@ -1,0 +1,43 @@
+# Security Audit Checklist
+
+Review code for security vulnerabilities.
+
+## Input Validation
+- [ ] All user input is validated
+- [ ] SQL queries use parameterized statements
+- [ ] HTML output is escaped (XSS prevention)
+- [ ] File uploads are validated (type, size)
+
+## Authentication
+- [ ] Passwords hashed with bcrypt/argon2
+- [ ] Secure session management
+- [ ] Rate limiting on auth endpoints
+- [ ] Account lockout after failed attempts
+
+## Authorization
+- [ ] Proper access control checks
+- [ ] No direct object references
+- [ ] Role-based permissions enforced
+- [ ] API endpoints protected
+
+## Data Protection
+- [ ] Sensitive data encrypted at rest
+- [ ] HTTPS enforced
+- [ ] Secure headers configured
+- [ ] No secrets in code or logs
+
+## Common Vulnerabilities
+```typescript
+// ❌ SQL Injection
+db.query(`SELECT * FROM users WHERE id = ${id}`);
+
+// ✅ Parameterized
+db.query('SELECT * FROM users WHERE id = $1', [id]);
+
+// ❌ XSS
+<div dangerouslySetInnerHTML={{ __html: userInput }} />
+
+// ✅ Escaped
+<div>{userInput}</div>
+```
+

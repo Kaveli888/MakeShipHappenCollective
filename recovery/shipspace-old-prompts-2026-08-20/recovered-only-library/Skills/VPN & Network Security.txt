@@ -1,0 +1,1 @@
+Set up VPN access to internal infrastructure. Configure WireGuard/OpenVPN, implement network segmentation, private subnets, bastion hosts, and network access control lists.

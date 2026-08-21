@@ -1,0 +1,1 @@
+Fix state management bugs including stale state, incorrect updates, race conditions in reducers, missing state resets, hydration mismatches, and infinite re-render loops.

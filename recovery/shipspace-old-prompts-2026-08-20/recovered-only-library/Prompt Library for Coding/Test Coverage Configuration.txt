@@ -1,0 +1,1 @@
+Configure test coverage with Istanbul/c8. Set coverage thresholds, generate HTML reports, exclude test files and generated code, track coverage trends, and enforce in CI.

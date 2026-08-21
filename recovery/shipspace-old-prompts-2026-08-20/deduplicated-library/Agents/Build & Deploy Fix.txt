@@ -1,0 +1,1 @@
+Fix build and deployment issues including broken builds, environment variable misconfigurations, dependency conflicts, failing health checks, and deployment rollback procedures.

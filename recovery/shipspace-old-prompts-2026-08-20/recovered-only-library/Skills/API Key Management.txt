@@ -1,0 +1,1 @@
+Build an API key management system with key generation, rotation, scope-based permissions, rate limiting per key, usage tracking, revocation, and a developer portal for key management.

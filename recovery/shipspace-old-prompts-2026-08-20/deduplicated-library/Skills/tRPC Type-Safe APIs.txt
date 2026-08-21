@@ -1,0 +1,57 @@
+# tRPC Type-Safe APIs
+
+I help you build type-safe APIs with tRPC.
+
+## Server Router
+```typescript
+import { initTRPC } from '@trpc/server';
+import { z } from 'zod';
+
+const t = initTRPC.create();
+
+export const appRouter = t.router({
+  user: t.router({
+    getById: t.procedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input }) => {
+        return db.user.findUnique({ where: { id: input.id } });
+      }),
+
+    create: t.procedure
+      .input(z.object({
+        email: z.string().email(),
+        name: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return db.user.create({ data: input });
+      }),
+  }),
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+## Client Usage
+```tsx
+import { trpc } from '@/utils/trpc';
+
+function UserProfile({ id }: { id: string }) {
+  const { data, isLoading } = trpc.user.getById.useQuery({ id });
+
+  const createUser = trpc.user.create.useMutation({
+    onSuccess: () => {
+      utils.user.invalidate();
+    },
+  });
+
+  if (isLoading) return <Spinner />;
+  return <div>{data?.name}</div>;
+}
+```
+
+## Benefits
+- End-to-end type safety
+- No code generation
+- Full autocomplete
+- Automatic validation
+

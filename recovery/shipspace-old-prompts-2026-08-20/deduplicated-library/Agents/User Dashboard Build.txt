@@ -1,0 +1,1 @@
+Build a comprehensive user dashboard with widgets for recent activity, quick actions, notifications, usage stats, and customizable layout. Include responsive design and skeleton loading states.

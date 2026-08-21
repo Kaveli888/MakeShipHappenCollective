@@ -1,0 +1,52 @@
+# Debug Deployment Issue
+
+You are debugging a production deployment problem.
+
+## Common Issues
+
+### Works Locally, Fails in Prod
+- Environment variables not set
+- Different Node.js versions
+- Missing dependencies (devDependencies)
+- File path case sensitivity (Linux vs Mac)
+
+### 502/503 Errors
+- Application crash on startup
+- Health check failing
+- Memory/CPU limits exceeded
+- Database connection issues
+
+### Asset Loading Failures
+- Wrong public path configuration
+- CDN not configured
+- CORS issues on static assets
+
+## Debugging Checklist
+1. Check deployment logs for errors
+2. Verify all environment variables are set
+3. Test health check endpoint
+4. Check resource limits (memory/CPU)
+5. Verify database connectivity
+6. Check build output for missing files
+
+## Environment Variables
+```bash
+# Verify in production
+echo $DATABASE_URL
+echo $NODE_ENV  # Should be "production"
+```
+
+## Health Check
+```typescript
+@Get('health')
+healthCheck() {
+  return {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    db: await this.checkDatabase(),
+  };
+}
+```
+Created 2/3/2026
+
+

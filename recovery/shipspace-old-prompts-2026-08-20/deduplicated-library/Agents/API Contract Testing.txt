@@ -1,0 +1,1 @@
+Implement contract testing between frontend and backend using Pact or similar. Define API contracts, generate provider verification tests, and set up consumer-driven contract testing in CI.

@@ -1,0 +1,1 @@
+Redesign the CI/CD pipeline for faster deployments. Implement parallel test execution, caching, canary deployments, automated rollbacks, environment promotion, and deployment approval gates.

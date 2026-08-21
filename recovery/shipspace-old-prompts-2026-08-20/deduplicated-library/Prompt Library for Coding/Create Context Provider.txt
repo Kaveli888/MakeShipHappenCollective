@@ -1,0 +1,66 @@
+# Create Context Provider
+
+You are creating a React Context provider.
+
+## Context Pattern
+```typescript
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (credentials: Credentials) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for existing session
+    checkAuth().then(user => {
+      setUser(user);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const login = useCallback(async (credentials: Credentials) => {
+    const user = await authApi.login(credentials);
+    setUser(user);
+  }, []);
+
+  const logout = useCallback(() => {
+    authApi.logout();
+    setUser(null);
+  }, []);
+
+  const value = useMemo(() => ({
+    user,
+    isLoading,
+    login,
+    logout,
+  }), [user, isLoading, login, logout]);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+}
+```
+
+## Best Practices
+- Type the context value
+- Create custom hook for consuming
+- Memoize the value to prevent re-renders
+- Throw error if used outside provider
+

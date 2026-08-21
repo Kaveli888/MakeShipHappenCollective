@@ -1,0 +1,1 @@
+Build a Zustand store with typed state, actions, computed values, middleware (persist, devtools, immer), selectors for performance, and comprehensive unit tests.

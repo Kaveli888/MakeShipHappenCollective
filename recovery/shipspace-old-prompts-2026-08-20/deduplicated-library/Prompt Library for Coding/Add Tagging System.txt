@@ -1,0 +1,69 @@
+# Add Tagging System
+
+You are implementing a tagging system.
+
+## Schema
+```typescript
+export const tags = pgTable('tags', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull().unique(),
+  slug: text('slug').notNull().unique(),
+  postCount: integer('post_count').default(0),
+});
+
+export const postTags = pgTable('post_tags', {
+  postId: uuid('post_id').references(() => posts.id, { onDelete: 'cascade' }).notNull(),
+  tagId: uuid('tag_id').references(() => tags.id, { onDelete: 'cascade' }).notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.postId, table.tagId] }),
+}));
+```
+
+## Service
+```typescript
+@Injectable()
+export class TagsService {
+  async findOrCreateTags(names: string[]): Promise<Tag[]> {
+    const results: Tag[] = [];
+
+    for (const name of names) {
+      const slug = this.slugify(name);
+      const existing = await db.query.tags.findFirst({
+        where: eq(tags.slug, slug),
+      });
+
+      if (existing) {
+        results.push(existing);
+      } else {
+        const [created] = await db.insert(tags)
+          .values({ name, slug })
+          .returning();
+        results.push(created);
+      }
+    }
+
+    return results;
+  }
+
+  async setPostTags(postId: string, tagNames: string[]) {
+    // Remove existing
+    await db.delete(postTags).where(eq(postTags.postId, postId));
+
+    // Add new
+    const tagEntities = await this.findOrCreateTags(tagNames);
+    for (const tag of tagEntities) {
+      await db.insert(postTags).values({ postId, tagId: tag.id });
+    }
+
+    // Update counts
+    await this.updateTagCounts();
+  }
+
+  async getPopularTags(limit = 20) {
+    return db.select().from(tags)
+      .orderBy(desc(tags.postCount))
+      .limit(limit);
+  }
+}
+```
+

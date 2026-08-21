@@ -1,0 +1,52 @@
+# Add Activity Feed
+
+You are building an activity feed.
+
+## Activity Schema
+```typescript
+export const activities = pgTable('activities', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  actorId: uuid('actor_id').references(() => users.id).notNull(),
+  action: text('action').notNull(), // 'created_post', 'liked', 'commented', etc.
+  targetType: text('target_type').notNull(), // 'post', 'comment', 'user'
+  targetId: uuid('target_id').notNull(),
+  data: jsonb('data'), // Additional context
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Index for user's feed
+CREATE INDEX activities_actor_idx ON activities(actor_id, created_at DESC);
+```
+
+## Feed Service
+```typescript
+async getFeed(userId: string, cursor?: string, limit = 20) {
+  // Get users the current user follows
+  const following = await db.select({ id: follows.followingId })
+    .from(follows)
+    .where(eq(follows.followerId, userId));
+
+  const followingIds = following.map(f => f.id);
+
+  // Get activities from followed users
+  const query = db.select()
+    .from(activities)
+    .where(inArray(activities.actorId, followingIds))
+    .orderBy(desc(activities.createdAt))
+    .limit(limit + 1);
+
+  if (cursor) {
+    query.where(lt(activities.createdAt, new Date(cursor)));
+  }
+
+  const results = await query;
+  const hasMore = results.length > limit;
+  const items = hasMore ? results.slice(0, -1) : results;
+
+  return {
+    items,
+    nextCursor: hasMore ? items[items.length - 1].createdAt.toISOString() : null,
+  };
+}
+```
+

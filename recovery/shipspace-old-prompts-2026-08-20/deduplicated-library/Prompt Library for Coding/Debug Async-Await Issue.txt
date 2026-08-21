@@ -1,0 +1,52 @@
+# Debug Async/Await Issue
+
+You are debugging an async/await problem.
+
+## Common Issues
+
+### Missing await
+```typescript
+// ❌ Bug: not awaiting async function
+const data = fetchData(); // Returns Promise, not data
+
+// ✅ Fix: add await
+const data = await fetchData();
+```
+
+### Unhandled Promise Rejection
+```typescript
+// ❌ Bug: no error handling
+await riskyOperation();
+
+// ✅ Fix: wrap in try-catch
+try {
+  await riskyOperation();
+} catch (error) {
+  handleError(error);
+}
+```
+
+### Sequential Instead of Parallel
+```typescript
+// ❌ Slow: sequential
+const a = await fetchA();
+const b = await fetchB();
+
+// ✅ Fast: parallel
+const [a, b] = await Promise.all([fetchA(), fetchB()]);
+```
+
+### Race Conditions
+```typescript
+// ❌ Bug: race condition
+let results = [];
+items.forEach(async item => {
+  results.push(await process(item)); // Order not guaranteed
+});
+
+// ✅ Fix: use Promise.all
+const results = await Promise.all(items.map(process));
+```
+
+Identify the async issue and provide the corrected code.
+

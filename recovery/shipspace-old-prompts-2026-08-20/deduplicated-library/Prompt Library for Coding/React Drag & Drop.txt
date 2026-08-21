@@ -1,0 +1,1 @@
+Implement drag and drop functionality with dnd-kit or react-beautiful-dnd. Support sortable lists, kanban boards, file drop zones, drag handles, and touch device support.

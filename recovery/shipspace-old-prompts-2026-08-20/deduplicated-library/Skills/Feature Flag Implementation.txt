@@ -1,0 +1,47 @@
+# Feature Flag Implementation
+
+I help you implement feature flags for safe releases.
+
+## Simple Feature Flags
+```typescript
+const featureFlags = {
+  NEW_DASHBOARD: process.env.FEATURE_NEW_DASHBOARD === 'true',
+  BETA_FEATURES: process.env.FEATURE_BETA === 'true',
+};
+
+// Usage
+if (featureFlags.NEW_DASHBOARD) {
+  return <NewDashboard />;
+}
+return <OldDashboard />;
+```
+
+## User-Based Flags
+```typescript
+async function isFeatureEnabled(userId: string, feature: string) {
+  const flag = await db.featureFlags.findFirst({
+    where: { name: feature },
+  });
+
+  if (!flag) return false;
+
+  // Global enable
+  if (flag.enabledForAll) return true;
+
+  // Percentage rollout
+  if (flag.percentage > 0) {
+    const hash = hashUserId(userId);
+    return hash % 100 < flag.percentage;
+  }
+
+  // Allowlist
+  return flag.allowedUsers.includes(userId);
+}
+```
+
+## Best Practices
+- Clean up old flags
+- Monitor flag usage
+- Test both paths
+- Document flag purposes
+

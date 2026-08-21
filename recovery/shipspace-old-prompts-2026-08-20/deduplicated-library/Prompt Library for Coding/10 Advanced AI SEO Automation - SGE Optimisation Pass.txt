@@ -1,0 +1,1 @@
+/goal Take this article and optimise it for Google's SGE (Search Generative Experience). Add direct answer sections, entity mentions, and structured data suggestions. Don't stop until all optimisations are applied.

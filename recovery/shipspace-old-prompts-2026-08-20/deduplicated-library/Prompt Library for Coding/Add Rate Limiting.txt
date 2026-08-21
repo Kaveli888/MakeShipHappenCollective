@@ -1,0 +1,56 @@
+# Add Rate Limiting
+
+You are implementing rate limiting.
+
+## NestJS Throttler
+```typescript
+// app.module.ts
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,      // Time window in seconds
+      limit: 100,   // Max requests per window
+    }),
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
+})
+export class AppModule {}
+```
+
+## Per-Route Limits
+```typescript
+@Controller('auth')
+export class AuthController {
+  @Throttle(5, 60)  // 5 requests per 60 seconds
+  @Post('login')
+  login() {}
+
+  @SkipThrottle()   // No rate limiting
+  @Get('status')
+  status() {}
+}
+```
+
+## Custom Rate Limiter
+```typescript
+@Injectable()
+export class RateLimiterService {
+  constructor(@Inject('REDIS') private redis: Redis) {}
+
+  async checkLimit(key: string, limit: number, windowSec: number) {
+    const current = await this.redis.incr(key);
+
+    if (current === 1) {
+      await this.redis.expire(key, windowSec);
+    }
+
+    if (current > limit) {
+      const ttl = await this.redis.ttl(key);
+      throw new TooManyRequestsException(`Retry after ${ttl} seconds`);
+    }
+  }
+}
+```
+

@@ -1,0 +1,1 @@
+Containerize the application with Docker. Create optimized multi-stage Dockerfiles, docker-compose for local development, health checks, volume mounts, and production-ready configurations.

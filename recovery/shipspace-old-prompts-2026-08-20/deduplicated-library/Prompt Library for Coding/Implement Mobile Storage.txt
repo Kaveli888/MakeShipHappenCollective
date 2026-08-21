@@ -1,0 +1,53 @@
+# Implement Mobile Storage
+
+You are implementing local storage in a React Native app.
+
+## AsyncStorage for Simple Data
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+async function saveData(key: string, value: any) {
+  await AsyncStorage.setItem(key, JSON.stringify(value));
+}
+
+async function loadData<T>(key: string): Promise<T | null> {
+  const data = await AsyncStorage.getItem(key);
+  return data ? JSON.parse(data) : null;
+}
+```
+
+## Secure Storage for Sensitive Data
+```typescript
+import * as SecureStore from 'expo-secure-store';
+
+async function saveToken(token: string) {
+  await SecureStore.setItemAsync('auth_token', token);
+}
+
+async function getToken() {
+  return await SecureStore.getItemAsync('auth_token');
+}
+
+async function deleteToken() {
+  await SecureStore.deleteItemAsync('auth_token');
+}
+```
+
+## Zustand with Persistence
+```typescript
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+const useStore = create(
+  persist(
+    (set) => ({
+      // state and actions
+    }),
+    {
+      name: 'app-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
+```
+

@@ -1,0 +1,1 @@
+Implement data anonymization for development and testing environments. Create masking rules for PII, build data generation scripts, implement k-anonymity, and ensure compliance with privacy regulations.

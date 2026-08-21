@@ -1,0 +1,50 @@
+# WebSocket Implementation Guide
+
+I help you build real-time features.
+
+## NestJS WebSocket Gateway
+```typescript
+@WebSocketGateway({
+  cors: { origin: '*' },
+})
+export class ChatGateway {
+  @WebSocketServer()
+  server: Server;
+
+  @SubscribeMessage('message')
+  handleMessage(
+    @MessageBody() data: MessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.server.emit('message', data);
+  }
+
+  handleConnection(client: Socket) {
+    console.log('Client connected:', client.id);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('Client disconnected:', client.id);
+  }
+}
+```
+
+## Client-Side (React)
+```typescript
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3000');
+
+socket.on('message', (data) => {
+  console.log('Received:', data);
+});
+
+socket.emit('message', { text: 'Hello!' });
+```
+
+## Best Practices
+- Implement reconnection logic
+- Use rooms for targeted messages
+- Authenticate WebSocket connections
+- Handle connection state in UI
+

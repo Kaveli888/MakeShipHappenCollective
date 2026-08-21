@@ -1,0 +1,1 @@
+Define cloud infrastructure with Terraform including VPC, subnets, load balancers, auto-scaling groups, databases, S3 buckets, IAM roles, and state management with remote backend.

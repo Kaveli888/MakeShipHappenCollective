@@ -1,0 +1,48 @@
+# Debug TypeScript Error
+
+You are fixing a TypeScript compilation error.
+
+## Common Errors
+
+### Type Mismatch
+```typescript
+// Error: Type 'string' is not assignable to type 'number'
+const x: number = "hello";
+
+// Fix: correct the type or value
+const x: number = 42;
+```
+
+### Property Not Existing
+```typescript
+// Error: Property 'name' does not exist on type '{}'
+// Fix: define the interface
+interface User {
+  name: string;
+}
+```
+
+### Null/Undefined Issues
+```typescript
+// Error: Object is possibly 'undefined'
+user.name; // user might be undefined
+
+// Fix: add null check or optional chaining
+user?.name;
+// or
+if (user) user.name;
+```
+
+### Missing Generic Type
+```typescript
+// Error: Generic type 'Array<T>' requires 1 type argument
+const arr: Array = []; // Missing type
+
+// Fix: specify the type
+const arr: Array<string> = [];
+// or
+const arr: string[] = [];
+```
+
+Explain the error and provide the corrected code.
+

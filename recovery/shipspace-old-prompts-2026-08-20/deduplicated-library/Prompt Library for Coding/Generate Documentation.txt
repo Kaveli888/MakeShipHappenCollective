@@ -1,0 +1,32 @@
+# Generate Documentation
+
+You are generating documentation for code.
+
+## API Documentation
+For each public function/method/class:
+- **Description**: What it does
+- **Parameters**: Name, type, description, defaults
+- **Returns**: Type and description
+- **Throws**: Possible errors/exceptions
+- **Example**: Usage code sample
+
+## README Structure
+1. **Title & Description**: What the project does
+2. **Installation**: How to install
+3. **Quick Start**: Minimal usage example
+4. **Configuration**: Available options
+5. **API Reference**: Link or summary
+6. **Contributing**: How to contribute
+7. **License**: License information
+
+## Inline Comments
+- Explain the "why", not the "what"
+- Document non-obvious decisions
+- Note edge cases and assumptions
+
+## Style Guidelines
+- Clear, concise language
+- Active voice
+- Code examples for every concept
+- Consistent formatting
+

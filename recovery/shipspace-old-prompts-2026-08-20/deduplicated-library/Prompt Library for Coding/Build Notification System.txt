@@ -1,0 +1,60 @@
+# Build Notification System
+
+You are building an in-app notification system.
+
+## Notification Schema
+```typescript
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  type: text('type').notNull(), // 'comment', 'like', 'follow', etc.
+  title: text('title').notNull(),
+  message: text('message'),
+  data: jsonb('data'), // { postId: '...', commentId: '...' }
+  readAt: timestamp('read_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+```
+
+## Notification Service
+```typescript
+@Injectable()
+export class NotificationsService {
+  constructor(private gateway: NotificationsGateway) {}
+
+  async create(params: CreateNotificationDto) {
+    const [notification] = await db.insert(notifications)
+      .values(params)
+      .returning();
+
+    // Send real-time notification
+    this.gateway.sendToUser(params.userId, notification);
+
+    return notification;
+  }
+
+  async markAsRead(userId: string, ids: string[]) {
+    await db.update(notifications)
+      .set({ readAt: new Date() })
+      .where(
+        and(
+          eq(notifications.userId, userId),
+          inArray(notifications.id, ids)
+        )
+      );
+  }
+
+  async getUnreadCount(userId: string) {
+    const result = await db.select({ count: count() })
+      .from(notifications)
+      .where(
+        and(
+          eq(notifications.userId, userId),
+          isNull(notifications.readAt)
+        )
+      );
+    return result[0].count;
+  }
+}
+```
+

@@ -1,0 +1,1 @@
+Migrate from one CSS framework to another (e.g., Bootstrap to Tailwind). Create a component mapping, update styles incrementally, maintain visual consistency, remove old framework, and update the design system.

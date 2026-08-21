@@ -1,0 +1,63 @@
+# Set Up Monitoring
+
+You are setting up application monitoring.
+
+## Application Metrics
+```typescript
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
+
+const cloudwatch = new CloudWatchClient({});
+
+async function recordMetric(name: string, value: number, unit: string = 'Count') {
+  await cloudwatch.send(new PutMetricDataCommand({
+    Namespace: 'MyApp',
+    MetricData: [{
+      MetricName: name,
+      Value: value,
+      Unit: unit,
+      Dimensions: [
+        { Name: 'Environment', Value: process.env.NODE_ENV || 'development' },
+      ],
+    }],
+  }));
+}
+
+// Usage
+await recordMetric('RequestsProcessed', 1);
+await recordMetric('ProcessingTime', 234, 'Milliseconds');
+await recordMetric('Errors', 0);
+```
+
+## Structured Logging
+```typescript
+function log(level: string, message: string, meta: object = {}) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...meta,
+  }));
+}
+
+// Usage
+log('info', 'Request processed', { requestId: '123', duration: 234 });
+log('error', 'Database error', { error: err.message, stack: err.stack });
+```
+
+## CloudWatch Alarm
+```yaml
+ErrorRateAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: HighErrorRate
+    MetricName: Errors
+    Namespace: MyApp
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 2
+    Threshold: 10
+    ComparisonOperator: GreaterThanThreshold
+    AlarmActions:
+      - !Ref AlertSNSTopic
+```
+

@@ -1,0 +1,1 @@
+Build a type-safe API client with Axios/fetch. Include interceptors for auth, request/response logging, retry logic, timeout handling, error normalization, and auto-generated types from OpenAPI.

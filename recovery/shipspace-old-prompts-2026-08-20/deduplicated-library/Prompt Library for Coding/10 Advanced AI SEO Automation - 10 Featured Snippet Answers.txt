@@ -1,0 +1,1 @@
+/goal Create a featured snippet optimisation strategy for these 10 keywords: [list]. For each, write a 40-60 word paragraph answer formatted for the paragraph snippet type. Don't stop until all 10 are written.

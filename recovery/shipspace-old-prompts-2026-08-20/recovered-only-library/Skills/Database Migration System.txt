@@ -1,0 +1,1 @@
+Set up a database migration system with versioned migrations, rollback support, seed data management, environment-specific data, CI integration, and zero-downtime migration strategies.

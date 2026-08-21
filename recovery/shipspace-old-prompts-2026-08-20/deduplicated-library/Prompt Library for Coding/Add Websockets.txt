@@ -1,0 +1,58 @@
+# Add Websockets
+
+You are implementing real-time features with WebSockets.
+
+## NestJS Gateway
+```typescript
+@WebSocketGateway({
+  cors: { origin: '*' },
+  namespace: 'chat',
+})
+export class ChatGateway {
+  @WebSocketServer()
+  server: Server;
+
+  @SubscribeMessage('message')
+  handleMessage(
+    @MessageBody() data: MessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    // Broadcast to room
+    this.server.to(data.roomId).emit('message', {
+      ...data,
+      timestamp: new Date(),
+    });
+  }
+
+  @SubscribeMessage('join')
+  handleJoin(
+    @MessageBody() roomId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(roomId);
+    return { event: 'joined', roomId };
+  }
+
+  handleConnection(client: Socket) {
+    console.log('Client connected:', client.id);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('Client disconnected:', client.id);
+  }
+}
+```
+
+## React Client
+```typescript
+const socket = io('http://localhost:3000/chat');
+
+socket.on('message', (data) => {
+  setMessages(prev => [...prev, data]);
+});
+
+const sendMessage = (text: string) => {
+  socket.emit('message', { roomId, text, userId });
+};
+```
+

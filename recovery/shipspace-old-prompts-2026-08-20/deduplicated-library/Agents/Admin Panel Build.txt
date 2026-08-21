@@ -1,0 +1,1 @@
+Build a comprehensive admin panel with user management, role permissions, system configuration, audit logs, feature flags, analytics overview, and bulk operations support.

@@ -1,0 +1,1 @@
+Implement a transactional email system with templates for welcome emails, password resets, billing alerts, weekly digests, and custom notifications. Support email preferences and unsubscribe.

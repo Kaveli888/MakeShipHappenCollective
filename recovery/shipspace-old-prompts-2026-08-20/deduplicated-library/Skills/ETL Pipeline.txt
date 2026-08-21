@@ -1,0 +1,1 @@
+Build an ETL pipeline for data processing. Implement extraction from multiple sources, transformation with validation and enrichment, loading into data warehouse, and scheduling with monitoring.

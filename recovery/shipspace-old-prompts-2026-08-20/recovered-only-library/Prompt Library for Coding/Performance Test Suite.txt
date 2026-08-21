@@ -1,0 +1,1 @@
+Build performance test scripts with k6. Define scenarios for load testing, stress testing, spike testing, and soak testing. Set thresholds, generate reports, and integrate with CI.

@@ -1,0 +1,1 @@
+Build a dynamic form builder that renders forms from JSON schema. Support all input types, conditional logic, validation rules, nested objects, arrays, and custom field components.

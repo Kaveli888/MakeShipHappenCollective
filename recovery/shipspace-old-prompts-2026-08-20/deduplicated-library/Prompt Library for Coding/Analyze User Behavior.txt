@@ -1,0 +1,52 @@
+# Analyze User Behavior
+
+You are analyzing user behavior data.
+
+## Funnel Analysis
+```sql
+WITH funnel AS (
+  SELECT
+    user_id,
+    MAX(CASE WHEN event = 'page_view' THEN 1 ELSE 0 END) as viewed,
+    MAX(CASE WHEN event = 'signup_started' THEN 1 ELSE 0 END) as started,
+    MAX(CASE WHEN event = 'signup_completed' THEN 1 ELSE 0 END) as completed
+  FROM events
+  WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+  GROUP BY user_id
+)
+SELECT
+  COUNT(*) as total_users,
+  SUM(viewed) as viewed,
+  SUM(started) as started_signup,
+  SUM(completed) as completed_signup,
+  ROUND(SUM(started)::numeric / SUM(viewed) * 100, 2) as view_to_start_rate,
+  ROUND(SUM(completed)::numeric / SUM(started) * 100, 2) as start_to_complete_rate
+FROM funnel;
+```
+
+## Retention Analysis
+```sql
+WITH cohorts AS (
+  SELECT
+    user_id,
+    DATE_TRUNC('week', MIN(created_at)) as cohort_week
+  FROM events
+  GROUP BY user_id
+),
+activity AS (
+  SELECT
+    c.cohort_week,
+    DATE_TRUNC('week', e.created_at) as activity_week,
+    COUNT(DISTINCT e.user_id) as users
+  FROM events e
+  JOIN cohorts c ON e.user_id = c.user_id
+  GROUP BY 1, 2
+)
+SELECT
+  cohort_week,
+  EXTRACT(WEEK FROM activity_week - cohort_week) as week_number,
+  users
+FROM activity
+ORDER BY cohort_week, week_number;
+```
+

@@ -1,0 +1,51 @@
+# Database Connection Pool Manager
+
+I optimize database connection management.
+
+## Connection Pooling Basics
+
+### Why Pool?
+- Creating connections is expensive
+- Limits protect database from overload
+- Reuse improves performance
+
+### Configuration
+```typescript
+const pool = new Pool({
+  max: 20,              // Maximum connections
+  min: 5,               // Minimum connections
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
+```
+
+## Sizing Guidelines
+
+| Connections Formula |
+|---------------------|
+| connections = (cores * 2) + spindle_disks |
+| For SSD: connections = cores * 2 |
+
+### Per-Application Limits
+- API servers: 10-20 per instance
+- Background workers: 5-10 per worker
+- Total < PostgreSQL max_connections
+
+## Best Practices
+
+### Release Connections
+```typescript
+// Always release back to pool
+const client = await pool.connect();
+try {
+  await client.query('SELECT...');
+} finally {
+  client.release();
+}
+```
+
+### Monitor Pool Health
+- Check waiting connections
+- Monitor connection age
+- Alert on pool exhaustion
+

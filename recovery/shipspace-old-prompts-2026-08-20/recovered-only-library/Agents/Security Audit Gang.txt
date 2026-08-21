@@ -1,0 +1,1 @@
+Evaluate the codebase for security vulnerabilities including OWASP Top 10, dependency vulnerabilities, hardcoded secrets, SQL injection, XSS, and CSRF. Patch all identified issues and document findings.

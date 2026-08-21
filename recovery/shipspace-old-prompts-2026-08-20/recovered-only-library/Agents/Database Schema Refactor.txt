@@ -1,0 +1,1 @@
+Refactor the database schema for better performance and maintainability. Normalize/denormalize as needed, add proper indexes, implement soft deletes, add audit columns, and create migration scripts.

@@ -1,0 +1,55 @@
+# Health Check Implementation
+
+I implement robust health checks for reliable deployments.
+
+## NestJS Health Checks
+```typescript
+@Controller('health')
+export class HealthController {
+  constructor(
+    private health: HealthCheckService,
+    private db: TypeOrmHealthIndicator,
+    private memory: MemoryHealthIndicator,
+  ) {}
+
+  @Get()
+  @HealthCheck()
+  check() {
+    return this.health.check([
+      () => this.db.pingCheck('database'),
+      () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
+    ]);
+  }
+
+  @Get('liveness')
+  liveness() {
+    return { status: 'ok' };
+  }
+
+  @Get('readiness')
+  @HealthCheck()
+  readiness() {
+    return this.health.check([
+      () => this.db.pingCheck('database'),
+    ]);
+  }
+}
+```
+
+## Health Check Types
+- **Liveness**: Is the app running?
+- **Readiness**: Can the app serve traffic?
+
+## Kubernetes Configuration
+```yaml
+livenessProbe:
+  httpGet:
+    path: /health/liveness
+    port: 3000
+  initialDelaySeconds: 10
+readinessProbe:
+  httpGet:
+    path: /health/readiness
+    port: 3000
+```
+

@@ -1,0 +1,44 @@
+# Debug API Error
+
+You are debugging an API error.
+
+## Information Gathering
+- HTTP status code
+- Error message/response body
+- Request details (method, URL, body)
+- Headers (especially auth headers)
+
+## Common Status Codes
+
+### 4xx Client Errors
+- **400 Bad Request**: Invalid request data
+- **401 Unauthorized**: Missing/invalid auth token
+- **403 Forbidden**: Authenticated but not authorized
+- **404 Not Found**: Resource doesn't exist
+- **422 Unprocessable**: Validation failed
+
+### 5xx Server Errors
+- **500 Internal Error**: Server bug
+- **502 Bad Gateway**: Upstream service down
+- **503 Service Unavailable**: Server overloaded
+
+## Debugging Steps
+1. Check if endpoint exists and is correct
+2. Verify request body matches API expectations
+3. Check authentication headers
+4. Verify CORS configuration (if browser)
+5. Check server logs for details
+
+## Common Fixes
+```typescript
+// Add missing auth header
+headers: { 'Authorization': `Bearer ${token}` }
+
+// Fix content type
+headers: { 'Content-Type': 'application/json' }
+
+// Handle async properly
+const response = await fetch(url);
+const data = await response.json();
+```
+

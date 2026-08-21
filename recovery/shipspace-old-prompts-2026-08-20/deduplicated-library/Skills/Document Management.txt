@@ -1,0 +1,1 @@
+Build a document management system with file versioning, metadata tagging, full-text search, access control, preview generation, sharing links, and document lifecycle management.

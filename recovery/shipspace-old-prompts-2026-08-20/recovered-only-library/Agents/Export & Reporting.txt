@@ -1,0 +1,1 @@
+Build a reporting system with customizable report templates, scheduled report generation, multiple export formats (PDF, CSV, Excel), email delivery, and a report builder UI.

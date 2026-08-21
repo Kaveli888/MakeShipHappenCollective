@@ -1,0 +1,1 @@
+Build a reusable animation library with Framer Motion. Create enter/exit animations, layout animations, gesture-based interactions, scroll-triggered animations, and shared layout transitions.

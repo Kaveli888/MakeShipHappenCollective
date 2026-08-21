@@ -1,0 +1,1 @@
+Configure and enforce linting and formatting across the entire codebase. Set up ESLint with strict rules, Prettier for formatting, Husky pre-commit hooks, and lint-staged for incremental checking.

@@ -1,0 +1,1 @@
+Implement a consistent error handling strategy. Create custom error classes, add error boundaries, standardize API error responses, implement global error logging, and ensure all promises have catch handlers.

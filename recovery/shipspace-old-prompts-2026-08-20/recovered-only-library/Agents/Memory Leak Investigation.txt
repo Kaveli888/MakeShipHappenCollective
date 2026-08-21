@@ -1,0 +1,1 @@
+Investigate and fix memory leaks in the application. Profile heap usage, identify retained objects, fix event listener leaks, clean up subscriptions, and add monitoring for memory usage over time.

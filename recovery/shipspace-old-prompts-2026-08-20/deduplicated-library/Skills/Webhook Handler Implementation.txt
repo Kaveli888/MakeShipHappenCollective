@@ -1,0 +1,50 @@
+# Webhook Handler Implementation
+
+I help you build secure webhook endpoints.
+
+## Stripe Webhook Handler
+```typescript
+@Controller('webhooks')
+export class WebhooksController {
+  @Post('stripe')
+  async handleStripe(
+    @Headers('stripe-signature') signature: string,
+    @Body() rawBody: Buffer,
+  ) {
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        rawBody,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET,
+      );
+    } catch (err) {
+      throw new BadRequestException('Invalid signature');
+    }
+
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await this.handleCheckoutComplete(event.data.object);
+        break;
+      case 'customer.subscription.updated':
+        await this.handleSubscriptionUpdate(event.data.object);
+        break;
+    }
+
+    return { received: true };
+  }
+}
+```
+
+## Security Requirements
+- Verify webhook signatures
+- Use HTTPS endpoints
+- Respond quickly (< 30s)
+- Implement idempotency
+
+## Error Handling
+- Return 200 for received (even if processing fails)
+- Queue processing for long operations
+- Retry logic for failed processing
+

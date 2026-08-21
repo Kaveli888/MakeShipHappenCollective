@@ -1,0 +1,60 @@
+# Create Utility Function
+
+You are creating a utility function.
+
+## Best Practices
+
+### Pure Functions
+```typescript
+// Good: no side effects, same input = same output
+function formatCurrency(amount: number, currency = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+}
+```
+
+### Type Safety
+```typescript
+function groupBy<T, K extends keyof T>(
+  items: T[],
+  key: K
+): Record<string, T[]> {
+  return items.reduce((groups, item) => {
+    const value = String(item[key]);
+    return {
+      ...groups,
+      [value]: [...(groups[value] || []), item],
+    };
+  }, {} as Record<string, T[]>);
+}
+```
+
+### Error Handling
+```typescript
+function parseJSON<T>(json: string): T | null {
+  try {
+    return JSON.parse(json) as T;
+  } catch {
+    return null;
+  }
+}
+```
+
+### JSDoc Documentation
+```typescript
+/**
+ * Truncates a string to a maximum length, adding ellipsis if needed.
+ * @param str - The string to truncate
+ * @param maxLength - Maximum length including ellipsis
+ * @returns Truncated string
+ * @example
+ * truncate('Hello World', 8) // 'Hello...'
+ */
+function truncate(str: string, maxLength: number): string {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength - 3) + '...';
+}
+```
+

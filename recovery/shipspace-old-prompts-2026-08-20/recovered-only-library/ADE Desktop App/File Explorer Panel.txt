@@ -1,0 +1,1 @@
+Build a file explorer sidebar with tree view, file icons by type, drag-and-drop, context menus, search, and integration with the terminal for quick navigation.

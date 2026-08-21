@@ -1,0 +1,58 @@
+# Add Social Login
+
+You are implementing social login (OAuth).
+
+## Google OAuth Strategy
+```typescript
+@Injectable()
+export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+  constructor(private authService: AuthService) {
+    super({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+      scope: ['email', 'profile'],
+    });
+  }
+
+  async validate(accessToken: string, refreshToken: string, profile: Profile) {
+    const { emails, displayName, photos } = profile;
+    const email = emails?.[0]?.value;
+
+    if (!email) throw new UnauthorizedException('No email provided');
+
+    // Find or create user
+    let user = await this.authService.findByEmail(email);
+
+    if (!user) {
+      user = await this.authService.createOAuthUser({
+        email,
+        name: displayName,
+        avatar: photos?.[0]?.value,
+        provider: 'google',
+        providerId: profile.id,
+      });
+    }
+
+    return user;
+  }
+}
+```
+
+## OAuth Controller
+```typescript
+@Controller('auth')
+export class AuthController {
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleAuth() {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const tokens = await this.authService.generateTokens(req.user);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${tokens.accessToken}`);
+  }
+}
+```
+

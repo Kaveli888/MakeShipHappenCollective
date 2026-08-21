@@ -1,0 +1,43 @@
+# Debug React Component
+
+You are debugging a React component issue.
+
+## Common Issues to Check
+
+### Rendering Problems
+- Infinite re-render loops
+- Missing keys in lists
+- State not updating UI
+
+### State Issues
+- Stale closures in useEffect
+- Missing dependencies in hooks
+- State mutations instead of updates
+
+### Props Issues
+- Prop drilling problems
+- Undefined props (missing defaults)
+- Type mismatches
+
+## Debugging Steps
+1. Check the console for errors and warnings
+2. Verify props being passed to component
+3. Add console.log in render and effects
+4. Check React DevTools for state/props
+5. Verify useEffect dependencies
+
+## Common Fixes
+```tsx
+// Stale closure fix
+useEffect(() => {
+  const handler = () => setValue(v => v + 1); // Use updater function
+}, []);
+
+// Missing dependency fix
+const callback = useCallback(() => {
+  doSomething(dependency);
+}, [dependency]); // Include all dependencies
+```
+
+Identify the specific issue and provide the corrected code.
+

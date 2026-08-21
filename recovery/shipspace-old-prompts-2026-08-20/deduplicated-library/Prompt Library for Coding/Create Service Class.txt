@@ -1,0 +1,58 @@
+# Create Service Class
+
+You are creating a NestJS service class.
+
+## Service Structure
+```typescript
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+
+@Injectable()
+export class ProjectsService {
+  constructor(
+    private readonly projectsRepository: ProjectsRepository,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
+
+  async create(dto: CreateProjectDto, userId: string) {
+    const project = await this.projectsRepository.create({
+      ...dto,
+      userId,
+    });
+
+    this.eventEmitter.emit('project.created', { project });
+
+    return project;
+  }
+
+  async findById(id: string, userId: string) {
+    const project = await this.projectsRepository.findOne({
+      where: { id, userId },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    return project;
+  }
+
+  async update(id: string, dto: UpdateProjectDto, userId: string) {
+    const project = await this.findById(id, userId);
+
+    return this.projectsRepository.update(project.id, dto);
+  }
+
+  async delete(id: string, userId: string) {
+    const project = await this.findById(id, userId);
+    await this.projectsRepository.delete(project.id);
+  }
+}
+```
+
+## Best Practices
+- Single responsibility
+- Inject dependencies
+- Throw appropriate exceptions
+- Emit events for side effects
+- Validate ownership/permissions
+

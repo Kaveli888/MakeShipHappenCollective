@@ -1,0 +1,1 @@
+Deploy edge functions with Cloudflare Workers or Lambda@Edge for low-latency processing. Implement geolocation routing, A/B testing at the edge, request transformation, and edge caching.

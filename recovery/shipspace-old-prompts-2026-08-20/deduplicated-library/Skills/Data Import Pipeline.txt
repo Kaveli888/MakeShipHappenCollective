@@ -1,0 +1,1 @@
+Build a data import pipeline with file upload, format validation, data mapping UI, transformation rules, error handling, duplicate detection, and progress tracking with rollback.

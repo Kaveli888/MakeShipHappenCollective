@@ -1,0 +1,1 @@
+Set up uptime monitoring for all endpoints and services. Configure health check endpoints, external monitoring (Pingdom/UptimeRobot), status page, incident management, and SLA tracking.

@@ -1,0 +1,1 @@
+Build automated API testing with Postman/Newman or similar. Create test collections for all endpoints, environment configurations, pre/post request scripts, and integrate into CI pipeline.

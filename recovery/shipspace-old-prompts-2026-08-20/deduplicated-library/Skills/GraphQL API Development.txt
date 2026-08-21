@@ -1,0 +1,60 @@
+# GraphQL API Development
+
+I help you build GraphQL APIs.
+
+## Schema Definition
+```graphql
+type User {
+  id: ID!
+  email: String!
+  name: String
+  posts: [Post!]!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String
+  author: User!
+}
+
+type Query {
+  user(id: ID!): User
+  users: [User!]!
+  post(id: ID!): Post
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  createPost(input: CreatePostInput!): Post!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String
+}
+```
+
+## Resolvers (NestJS)
+```typescript
+@Resolver(() => User)
+export class UserResolver {
+  constructor(private userService: UserService) {}
+
+  @Query(() => User, { nullable: true })
+  async user(@Args('id') id: string) {
+    return this.userService.findById(id);
+  }
+
+  @ResolveField(() => [Post])
+  async posts(@Parent() user: User) {
+    return this.postService.findByUserId(user.id);
+  }
+
+  @Mutation(() => User)
+  async createUser(@Args('input') input: CreateUserInput) {
+    return this.userService.create(input);
+  }
+}
+```
+

@@ -1,0 +1,60 @@
+# Data Pipeline Design
+
+I help you build reliable data pipelines.
+
+## ETL with Python
+```python
+from datetime import datetime
+import pandas as pd
+
+def extract(source: str) -> pd.DataFrame:
+    """Extract data from source."""
+    return pd.read_csv(source)
+
+def transform(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean and transform data."""
+    df = df.dropna()
+    df['amount'] = df['amount'].astype(float)
+    df['date'] = pd.to_datetime(df['date'])
+    df['year_month'] = df['date'].dt.to_period('M')
+    return df
+
+def load(df: pd.DataFrame, destination: str) -> None:
+    """Load data to destination."""
+    df.to_parquet(destination, index=False)
+
+def run_pipeline():
+    """Run the full ETL pipeline."""
+    raw = extract('data/raw.csv')
+    cleaned = transform(raw)
+    load(cleaned, 'data/processed.parquet')
+    print(f"Pipeline completed: {len(cleaned)} rows processed")
+```
+
+## Scheduling
+```python
+# Using APScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+scheduler = BlockingScheduler()
+
+@scheduler.scheduled_job('cron', hour=6)
+def daily_job():
+    run_pipeline()
+
+scheduler.start()
+```
+
+## Data Validation
+```python
+import pandera as pa
+
+schema = pa.DataFrameSchema({
+    "id": pa.Column(int, unique=True),
+    "amount": pa.Column(float, pa.Check.greater_than(0)),
+    "email": pa.Column(str, pa.Check.str_matches(r'^[\w.-]+@[\w.-]+\.\w+$')),
+})
+
+validated_df = schema.validate(df)
+```
+

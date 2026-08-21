@@ -1,0 +1,1 @@
+Implement retry and recovery patterns with exponential backoff, circuit breaker, fallback values, graceful degradation, and user-facing retry buttons with status indication.

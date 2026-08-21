@@ -1,0 +1,1 @@
+/goal Write a broken link outreach sequence: initial email, follow-up 1, and follow-up 2. Each email must be under 100 words. Include a subject line for each. Don't stop until all 3 emails are written.

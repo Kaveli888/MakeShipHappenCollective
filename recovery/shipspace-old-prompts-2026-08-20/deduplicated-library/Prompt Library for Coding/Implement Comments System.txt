@@ -1,0 +1,47 @@
+# Implement Comments System
+
+You are building a comments system.
+
+## Schema with Threading
+```typescript
+export const comments = pgTable('comments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  postId: uuid('post_id').references(() => posts.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  parentId: uuid('parent_id').references((): any => comments.id, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+```
+
+## Service
+```typescript
+async getCommentsWithReplies(postId: string) {
+  const allComments = await db.query.comments.findMany({
+    where: eq(comments.postId, postId),
+    with: { user: true },
+    orderBy: [asc(comments.createdAt)],
+  });
+
+  // Build tree structure
+  const commentMap = new Map();
+  const rootComments: Comment[] = [];
+
+  allComments.forEach(comment => {
+    commentMap.set(comment.id, { ...comment, replies: [] });
+  });
+
+  allComments.forEach(comment => {
+    if (comment.parentId) {
+      const parent = commentMap.get(comment.parentId);
+      if (parent) parent.replies.push(commentMap.get(comment.id));
+    } else {
+      rootComments.push(commentMap.get(comment.id));
+    }
+  });
+
+  return rootComments;
+}
+```
+

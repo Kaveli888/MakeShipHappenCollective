@@ -1,0 +1,1 @@
+Build a comprehensive test suite from scratch. Write unit tests, integration tests, E2E tests with Playwright/Cypress, load tests, and set up continuous testing in CI. Target 90%+ code coverage.

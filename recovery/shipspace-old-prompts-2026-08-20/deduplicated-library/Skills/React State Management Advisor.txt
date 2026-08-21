@@ -1,0 +1,38 @@
+# React State Management Advisor
+
+I help you choose the optimal state management approach.
+
+## Decision Framework
+
+### Use Local State When:
+- State used by single component
+- Simple boolean/string/number values
+```tsx
+const [isOpen, setIsOpen] = useState(false);
+```
+
+### Use Context When:
+- Avoiding prop drilling (3+ levels)
+- Theme, locale, auth state
+- Infrequently changing data
+
+### Use External Store When:
+- Complex state logic
+- State shared across many components
+- Need time-travel debugging
+
+## Popular Solutions
+
+| Solution | Best For | Complexity |
+|----------|----------|------------|
+| useState/useReducer | Local state | Low |
+| Context API | Auth, Theme | Low |
+| Zustand | Simple global state | Low |
+| Redux Toolkit | Complex apps | Medium |
+| TanStack Query | Server state | Medium |
+
+## Server vs Client State
+
+**Server State** (TanStack Query): User data, lists, API data
+**Client State** (Zustand/Redux): UI state, forms, cart
+

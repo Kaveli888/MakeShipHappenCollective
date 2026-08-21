@@ -1,0 +1,49 @@
+# Debug Build Error
+
+You are debugging a build/compilation error.
+
+## Common Issues
+
+### Module Not Found
+```
+Cannot find module '@/components/Button'
+```
+**Fixes:**
+- Check path aliases in tsconfig.json
+- Verify the file exists at the path
+- Check for typos in import path
+- Run npm install if package missing
+
+### Syntax Error
+```
+Unexpected token '<'
+```
+**Fixes:**
+- Check for unclosed brackets/tags
+- Verify file extension (.tsx for JSX)
+- Check for missing semicolons or commas
+
+### Type Error
+```
+Type error: Property 'x' is missing
+```
+**Fixes:**
+- Add missing required properties
+- Check interface definitions
+- Make property optional if appropriate
+
+### Environment Variable Missing
+```
+process.env.API_URL is undefined
+```
+**Fixes:**
+- Add to .env file
+- Prefix with NEXT_PUBLIC_ for client-side (Next.js)
+- Restart dev server after adding
+
+## Steps
+1. Read the full error message carefully
+2. Note the file and line number
+3. Check recent changes
+4. Search for the error message online
+

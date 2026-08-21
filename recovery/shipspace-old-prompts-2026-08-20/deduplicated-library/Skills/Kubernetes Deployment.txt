@@ -1,0 +1,1 @@
+Deploy the application to Kubernetes with Deployments, Services, Ingress, ConfigMaps, Secrets, HPA, resource limits, liveness/readiness probes, and Helm charts for packaging.

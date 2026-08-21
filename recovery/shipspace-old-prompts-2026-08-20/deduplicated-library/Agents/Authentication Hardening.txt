@@ -1,0 +1,1 @@
+Review and harden the authentication system. Implement brute force protection, account lockout policies, secure password hashing (bcrypt/argon2), MFA support, and session management best practices.

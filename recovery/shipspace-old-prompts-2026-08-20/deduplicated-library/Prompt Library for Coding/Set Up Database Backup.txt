@@ -1,0 +1,50 @@
+# Set Up Database Backup
+
+You are setting up database backups.
+
+## PostgreSQL Backup Script
+```bash
+#!/bin/bash
+set -e
+
+# Configuration
+BACKUP_DIR="/backups"
+RETENTION_DAYS=30
+S3_BUCKET="my-app-backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="backup_${DATE}.sql.gz"
+
+# Create backup
+echo "Creating backup..."
+pg_dump $DATABASE_URL | gzip > "${BACKUP_DIR}/${BACKUP_FILE}"
+
+# Upload to S3
+echo "Uploading to S3..."
+aws s3 cp "${BACKUP_DIR}/${BACKUP_FILE}" "s3://${S3_BUCKET}/${BACKUP_FILE}"
+
+# Clean old local backups
+echo "Cleaning old backups..."
+find ${BACKUP_DIR} -name "backup_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+
+# Clean old S3 backups
+aws s3 ls "s3://${S3_BUCKET}/" | while read -r line; do
+  createDate=$(echo $line | awk '{print $1" "$2}')
+  createDate=$(date -d "$createDate" +%s)
+  olderThan=$(date -d "-${RETENTION_DAYS} days" +%s)
+  if [[ $createDate -lt $olderThan ]]; then
+    fileName=$(echo $line | awk '{print $4}')
+    if [[ $fileName != "" ]]; then
+      aws s3 rm "s3://${S3_BUCKET}/${fileName}"
+    fi
+  fi
+done
+
+echo "Backup complete: ${BACKUP_FILE}"
+```
+
+## Cron Schedule
+```bash
+# Daily backup at 2 AM
+0 2 * * * /opt/scripts/backup.sh >> /var/log/backup.log 2>&1
+```
+

@@ -1,0 +1,1 @@
+Build a data transformation layer between API responses and UI models. Implement mappers, serializers, validators, default values, computed fields, and TypeScript type guards.

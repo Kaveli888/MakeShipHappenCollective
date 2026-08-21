@@ -1,0 +1,43 @@
+# Background Job Processor
+
+I help you implement reliable background jobs.
+
+## BullMQ Setup
+```typescript
+import { Queue, Worker } from 'bullmq';
+
+const emailQueue = new Queue('emails', {
+  connection: redisConnection,
+});
+
+// Add job
+await emailQueue.add('send-welcome', {
+  userId: user.id,
+  email: user.email,
+}, {
+  attempts: 3,
+  backoff: { type: 'exponential', delay: 1000 },
+});
+
+// Process jobs
+const worker = new Worker('emails', async (job) => {
+  switch (job.name) {
+    case 'send-welcome':
+      await sendWelcomeEmail(job.data);
+      break;
+  }
+}, { connection: redisConnection });
+```
+
+## Job Types
+- **Immediate**: Process ASAP
+- **Delayed**: Process after delay
+- **Recurring**: Cron-like schedules
+- **Prioritized**: High/low priority queues
+
+## Best Practices
+- Make jobs idempotent
+- Set appropriate timeouts
+- Monitor queue health
+- Handle dead letter jobs
+

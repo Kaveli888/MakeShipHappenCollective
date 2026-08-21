@@ -1,0 +1,1 @@
+Build a login page with email/password form, social login buttons, remember me checkbox, forgot password link, error messages, loading state, and redirect to intended destination.

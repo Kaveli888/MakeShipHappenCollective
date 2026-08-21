@@ -1,0 +1,61 @@
+# Vitest Unit Testing
+
+I help you write unit tests with Vitest.
+
+## Basic Tests
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+
+describe('UserService', () => {
+  it('should create a user', async () => {
+    const result = await userService.create({
+      email: 'test@example.com',
+    });
+
+    expect(result).toMatchObject({
+      email: 'test@example.com',
+    });
+    expect(result.id).toBeDefined();
+  });
+
+  it('should throw on duplicate email', async () => {
+    await expect(
+      userService.create({ email: 'existing@example.com' })
+    ).rejects.toThrow('Email already exists');
+  });
+});
+```
+
+## Mocking
+```typescript
+import { vi } from 'vitest';
+
+// Mock module
+vi.mock('./api', () => ({
+  fetchUser: vi.fn().mockResolvedValue({ id: '1', name: 'John' }),
+}));
+
+// Mock function
+const mockFn = vi.fn();
+mockFn.mockReturnValue(42);
+
+// Spy on method
+const spy = vi.spyOn(service, 'method');
+spy.mockImplementation(() => 'mocked');
+```
+
+## Configuration
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+    },
+  },
+});
+```
+

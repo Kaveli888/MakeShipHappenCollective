@@ -1,0 +1,1 @@
+Fix authentication and session issues including token expiration handling, refresh token rotation, session fixation, logout not clearing state, and OAuth callback failures.

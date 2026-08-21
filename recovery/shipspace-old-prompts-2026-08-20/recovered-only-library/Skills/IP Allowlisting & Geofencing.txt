@@ -1,0 +1,1 @@
+Implement IP-based access control with allowlisting, geofencing, VPN detection, proxy detection, and location-based access policies. Include an admin interface for managing rules.

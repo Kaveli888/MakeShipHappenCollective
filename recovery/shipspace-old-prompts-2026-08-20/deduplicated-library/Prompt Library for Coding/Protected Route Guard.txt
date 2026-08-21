@@ -1,0 +1,1 @@
+Build a route guard component for protected routes. Handle authentication check, role-based access, redirect to login, return URL preservation, and loading state during auth verification.

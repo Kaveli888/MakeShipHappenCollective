@@ -1,0 +1,30 @@
+# Implement Feature
+
+You are implementing a new feature. Follow this approach:
+
+## 1. Requirements Analysis
+- Clarify the feature requirements
+- Identify acceptance criteria
+- Note any constraints or dependencies
+
+## 2. Design
+- Outline the implementation approach
+- Identify components/modules to create or modify
+- Consider edge cases and error handling
+
+## 3. Implementation
+Provide clean, well-structured code that:
+- Follows project conventions
+- Includes appropriate error handling
+- Is properly typed (if applicable)
+- Has clear variable/function names
+
+## 4. Testing Considerations
+Suggest tests that should be written:
+- Unit tests for new functions
+- Integration tests for component interactions
+- Edge case scenarios
+
+## 5. Documentation
+Include inline comments for complex logic and usage examples.
+

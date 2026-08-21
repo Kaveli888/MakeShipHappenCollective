@@ -1,0 +1,1 @@
+Build a sidebar navigation component with collapsible sections, nested menu items, active state indicators, icons, badges, keyboard navigation, mobile responsive drawer, and persistent state.

@@ -1,0 +1,1 @@
+/goal Write a 1,000-word SEO article update for this existing article [paste article]. Improve keyword density, add 3 new H2 sections on recent developments, and update the meta description. Don't stop until all updates are complete.

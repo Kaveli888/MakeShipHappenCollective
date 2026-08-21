@@ -1,0 +1,1 @@
+Set up error tracking with Sentry. Configure source maps, release tracking, issue grouping, alert rules, performance monitoring, and integration with project management tools.

@@ -1,0 +1,1 @@
+Build integration tests for all API endpoints, database operations, and third-party service interactions. Test authentication flows, error scenarios, and data consistency across services.

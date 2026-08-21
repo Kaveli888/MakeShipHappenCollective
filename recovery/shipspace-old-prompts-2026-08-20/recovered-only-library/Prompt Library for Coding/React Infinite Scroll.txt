@@ -1,0 +1,1 @@
+Build an infinite scroll component with Intersection Observer, cursor-based pagination, loading skeletons, error retry, scroll position restoration, and virtual rendering for performance.

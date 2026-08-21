@@ -1,0 +1,1 @@
+/goal Write 5 meta titles and 5 meta descriptions for an article targeting [keyword]. Each title must be under 60 characters and include the keyword. Each description under 155 characters. Don't stop until all 10 are written.

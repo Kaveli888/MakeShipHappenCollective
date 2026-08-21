@@ -1,0 +1,1 @@
+Implement end-to-end tests using Playwright covering critical user flows: signup, login, core features, payments, and account management. Run in CI with screenshot comparison and video recording.

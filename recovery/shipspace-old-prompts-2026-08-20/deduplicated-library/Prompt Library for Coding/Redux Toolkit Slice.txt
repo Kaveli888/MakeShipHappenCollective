@@ -1,0 +1,1 @@
+Create a Redux Toolkit slice with typed state, reducers, async thunks, entity adapters, selectors, RTK Query integration, and optimistic updates.

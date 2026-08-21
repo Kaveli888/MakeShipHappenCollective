@@ -1,0 +1,1 @@
+Optimize all images and static assets. Implement responsive images with srcset, convert to WebP/AVIF, lazy load below-fold images, optimize SVGs, set up a CDN, and implement resource preloading.

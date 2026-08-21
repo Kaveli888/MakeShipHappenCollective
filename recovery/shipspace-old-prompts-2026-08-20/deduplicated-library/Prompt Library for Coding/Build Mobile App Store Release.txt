@@ -1,0 +1,51 @@
+# Build Mobile App Store Release
+
+You are preparing a mobile app for store release.
+
+## iOS App Store
+```bash
+# Build for production
+npx expo build:ios --type archive
+# or EAS Build
+npx eas build --platform ios --profile production
+
+# Submit to App Store
+npx eas submit --platform ios
+```
+
+## Google Play Store
+```bash
+# Build AAB
+npx expo build:android --type app-bundle
+# or EAS Build
+npx eas build --platform android --profile production
+
+# Submit to Play Store
+npx eas submit --platform android
+```
+
+## Pre-Release Checklist
+- [ ] Update version number
+- [ ] Test on real devices
+- [ ] Check all permissions
+- [ ] Optimize images and assets
+- [ ] Test deep links
+- [ ] Verify analytics tracking
+- [ ] Prepare store listing (screenshots, description)
+- [ ] Review privacy policy
+- [ ] Test in-app purchases if applicable
+
+## EAS Build Configuration
+```json
+// eas.json
+{
+  "build": {
+    "production": {
+      "distribution": "store",
+      "ios": { "resourceClass": "m-medium" },
+      "android": { "buildType": "app-bundle" }
+    }
+  }
+}
+```
+

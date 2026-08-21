@@ -1,0 +1,1 @@
+Build a data pipeline for analytics. Implement ETL processes, data warehousing, event streaming with Kafka, data transformation with dbt, and create dashboards for business metrics.

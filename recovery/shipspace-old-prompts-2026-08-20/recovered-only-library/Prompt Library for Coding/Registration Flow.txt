@@ -1,0 +1,1 @@
+Build a registration flow with email/password, social signup, email verification, profile setup step, terms acceptance, invite code support, and welcome email trigger.

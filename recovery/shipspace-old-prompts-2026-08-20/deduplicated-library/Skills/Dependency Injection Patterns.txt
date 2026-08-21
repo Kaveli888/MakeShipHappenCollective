@@ -1,0 +1,50 @@
+# Dependency Injection Patterns
+
+I help you leverage DI for testable, maintainable code.
+
+## NestJS Providers
+```typescript
+@Injectable()
+export class UserService {
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly emailService: EmailService,
+  ) {}
+
+  async createUser(dto: CreateUserDto) {
+    const user = await this.userRepository.create(dto);
+    await this.emailService.sendWelcome(user);
+    return user;
+  }
+}
+```
+
+## Custom Providers
+```typescript
+// Value provider
+{ provide: 'CONFIG', useValue: { apiUrl: 'https://api.example.com' } }
+
+// Factory provider
+{
+  provide: 'CONNECTION',
+  useFactory: async (config: ConfigService) => {
+    return createConnection(config.get('DATABASE_URL'));
+  },
+  inject: [ConfigService],
+}
+
+// Class provider
+{ provide: LoggerService, useClass: ProdLoggerService }
+```
+
+## Testing with DI
+```typescript
+const module = await Test.createTestingModule({
+  providers: [
+    UserService,
+    { provide: UserRepository, useValue: mockRepository },
+    { provide: EmailService, useValue: mockEmailService },
+  ],
+}).compile();
+```
+

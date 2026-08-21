@@ -1,0 +1,1 @@
+Set up core AWS services including EC2/ECS, RDS, S3, CloudFront, SQS, SNS, Lambda, and IAM with proper security groups, VPC configuration, and cost optimization.

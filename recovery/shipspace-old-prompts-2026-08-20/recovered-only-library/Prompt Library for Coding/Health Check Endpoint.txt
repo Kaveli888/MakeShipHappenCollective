@@ -1,0 +1,1 @@
+Implement a comprehensive health check endpoint that verifies database connectivity, Redis connection, external service availability, disk space, memory usage, and returns detailed status.

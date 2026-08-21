@@ -1,0 +1,54 @@
+# Zod Schema Validation
+
+I help you validate data with Zod schemas.
+
+## Basic Schemas
+```typescript
+import { z } from 'zod';
+
+const userSchema = z.object({
+  email: z.string().email('Invalid email'),
+  name: z.string().min(2, 'Name too short').max(100),
+  age: z.number().int().positive().optional(),
+  role: z.enum(['admin', 'user']).default('user'),
+});
+
+type User = z.infer<typeof userSchema>;
+```
+
+## Validation
+```typescript
+// Parse (throws on error)
+const user = userSchema.parse(data);
+
+// Safe parse (returns result object)
+const result = userSchema.safeParse(data);
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.error.issues);
+}
+```
+
+## Advanced Patterns
+```typescript
+// Refinements
+const passwordSchema = z.string()
+  .min(8)
+  .regex(/[A-Z]/, 'Must contain uppercase')
+  .regex(/[0-9]/, 'Must contain number');
+
+// Transformations
+const dateSchema = z.string().transform((s) => new Date(s));
+
+// Conditional validation
+const formSchema = z.object({
+  type: z.enum(['email', 'phone']),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+}).refine(
+  (data) => data.type === 'email' ? !!data.email : !!data.phone,
+  { message: 'Provide email or phone based on type' }
+);
+```
+

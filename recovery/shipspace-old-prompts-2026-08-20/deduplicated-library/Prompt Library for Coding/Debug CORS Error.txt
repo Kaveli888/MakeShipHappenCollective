@@ -1,0 +1,44 @@
+# Debug CORS Error
+
+You are debugging a CORS (Cross-Origin Resource Sharing) error.
+
+## Understanding CORS
+CORS blocks browser requests to different origins unless the server explicitly allows it.
+
+## Common Errors
+```
+Access to fetch at 'https://api.example.com' from origin
+'http://localhost:3000' has been blocked by CORS policy
+```
+
+## Server-Side Fix (NestJS)
+```typescript
+// main.ts
+app.enableCors({
+  origin: ['http://localhost:3000', 'https://myapp.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // If using cookies
+});
+```
+
+## Server-Side Fix (Express)
+```typescript
+import cors from 'cors';
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+```
+
+## Common Mistakes
+1. Wildcard (*) with credentials doesn't work
+2. Missing OPTIONS preflight handler
+3. Wrong port in origin
+
+## Client-Side Check
+- Ensure you're using the correct API URL
+- Check for typos in the endpoint
+- Verify the server is running
+

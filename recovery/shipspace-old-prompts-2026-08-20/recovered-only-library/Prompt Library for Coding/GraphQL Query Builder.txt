@@ -1,0 +1,1 @@
+Build a GraphQL query builder with type-safe operations using graphql-codegen. Create queries, mutations, fragments, subscriptions, and custom hooks with proper cache updates.

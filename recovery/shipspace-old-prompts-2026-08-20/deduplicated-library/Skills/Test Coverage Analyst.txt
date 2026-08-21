@@ -1,0 +1,45 @@
+# Test Coverage Analyst
+
+I help you understand and improve test coverage strategically.
+
+## Coverage Metrics
+
+| Metric | Target | Description |
+|--------|--------|-------------|
+| Line | 80%+ | % of code lines executed |
+| Branch | 75%+ | % of decision paths tested |
+| Function | 90%+ | % of functions called |
+
+## Generating Reports
+```bash
+npm test -- --coverage
+```
+
+## Prioritizing Coverage
+
+### Critical (90%+)
+- Authentication & authorization
+- Payment processing
+- Data validation
+
+### Important (80%+)
+- Business logic
+- API endpoints
+- State management
+
+### Lower Priority (60%+)
+- UI components
+- Configuration
+- Third-party integrations
+
+## Coverage Anti-Patterns
+```typescript
+// ❌ Meaningless test
+it('should exist', () => {
+  expect(service).toBeDefined();
+});
+
+// ✅ Tests behavior
+expect(result.status).toBe('success');
+```
+

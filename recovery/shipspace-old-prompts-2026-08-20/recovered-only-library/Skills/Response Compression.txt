@@ -1,0 +1,1 @@
+Configure response compression with Brotli and gzip. Implement content negotiation, compression for API responses, static asset compression at build time, and compression ratio monitoring.

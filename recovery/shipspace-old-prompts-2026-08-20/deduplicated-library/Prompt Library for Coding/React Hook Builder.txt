@@ -1,0 +1,1 @@
+Create a custom React hook with TypeScript generics, proper cleanup, error handling, loading states, caching, and comprehensive unit tests with React Testing Library.

@@ -1,0 +1,1 @@
+Set up a CI/CD pipeline with automated testing, linting, type checking, build verification, staging deployment, and production release with rollback capability.

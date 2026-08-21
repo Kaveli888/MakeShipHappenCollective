@@ -1,0 +1,1 @@
+Integrate social login with Google, GitHub, and Apple. Handle OAuth callbacks, account linking for existing users, profile data mapping, and error handling for denied permissions.

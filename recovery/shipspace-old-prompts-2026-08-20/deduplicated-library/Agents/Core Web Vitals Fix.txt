@@ -1,0 +1,1 @@
+Improve Core Web Vitals scores (LCP, FID, CLS) to achieve 90+ on all pages. Optimize critical rendering path, reduce layout shifts, defer non-critical resources, and implement resource hints.

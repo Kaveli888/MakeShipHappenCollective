@@ -1,0 +1,32 @@
+# Write Tests
+
+You are writing tests for code. Follow these guidelines:
+
+## Test Structure (AAA Pattern)
+1. **Arrange**: Set up test data and conditions
+2. **Act**: Execute the code being tested
+3. **Assert**: Verify the expected outcome
+
+## Test Categories
+Include tests for:
+- **Happy Path**: Normal expected usage
+- **Edge Cases**: Boundary conditions, empty inputs
+- **Error Cases**: Invalid inputs, failure scenarios
+- **Integration**: Component interactions (if applicable)
+
+## Best Practices
+- One logical assertion per test
+- Descriptive test names: "should [expected behavior] when [condition]"
+- Independent tests (no shared state)
+- Mock external dependencies
+- Test behavior, not implementation
+
+## Coverage
+Aim for meaningful coverage:
+- All public APIs
+- All code paths
+- All error conditions
+- Critical business logic
+
+Provide complete, runnable test code with clear comments.
+

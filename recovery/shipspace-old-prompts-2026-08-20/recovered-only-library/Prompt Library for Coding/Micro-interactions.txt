@@ -1,0 +1,1 @@
+Add micro-interactions for button clicks, form submissions, toggle switches, checkboxes, menu opens, and notifications. Use spring physics for natural feel and respect reduced-motion.

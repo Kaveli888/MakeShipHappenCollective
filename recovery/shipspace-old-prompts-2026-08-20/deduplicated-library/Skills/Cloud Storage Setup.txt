@@ -1,0 +1,1 @@
+Configure cloud storage (S3/GCS) with bucket policies, lifecycle rules, cross-region replication, versioning, encryption at rest, pre-signed URLs, and cost optimization with storage classes.

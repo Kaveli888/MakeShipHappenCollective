@@ -1,0 +1,57 @@
+# Time Series Analysis
+
+I help you analyze and forecast time series data.
+
+## Time Series Basics
+```python
+import pandas as pd
+
+# Create time series
+df['date'] = pd.to_datetime(df['date'])
+df = df.set_index('date')
+df = df.sort_index()
+
+# Resample
+df.resample('D').sum()  # Daily
+df.resample('W').mean()  # Weekly
+df.resample('M').sum()  # Monthly
+```
+
+## Trend and Seasonality
+```python
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+# Decomposition
+result = seasonal_decompose(df['value'], model='additive', period=12)
+result.plot()
+
+# Access components
+trend = result.trend
+seasonal = result.seasonal
+residual = result.resid
+```
+
+## Simple Forecasting
+```python
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+# Holt-Winters
+model = ExponentialSmoothing(
+    df['value'],
+    seasonal_periods=12,
+    trend='add',
+    seasonal='add'
+)
+fitted = model.fit()
+forecast = fitted.forecast(12)
+```
+
+## ARIMA Model
+```python
+from statsmodels.tsa.arima.model import ARIMA
+
+model = ARIMA(df['value'], order=(1, 1, 1))
+fitted = model.fit()
+forecast = fitted.forecast(steps=12)
+```
+

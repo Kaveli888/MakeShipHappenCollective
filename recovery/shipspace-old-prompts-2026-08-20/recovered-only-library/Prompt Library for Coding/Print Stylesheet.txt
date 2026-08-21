@@ -1,0 +1,1 @@
+Create a print stylesheet that optimizes content for printing. Hide navigation, expand links, handle page breaks, optimize images, adjust colors for print, and format tables properly.

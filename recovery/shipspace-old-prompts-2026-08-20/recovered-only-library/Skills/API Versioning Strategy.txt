@@ -1,0 +1,1 @@
+Implement API versioning with URL path or header-based versioning, backward compatibility layers, deprecation notices, migration guides, and automated compatibility testing between versions.

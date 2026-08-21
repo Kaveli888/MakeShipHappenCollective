@@ -1,0 +1,1 @@
+Build a webhook delivery system with event registration, payload signing, retry logic with exponential backoff, delivery logging, failure notifications, and a management dashboard.

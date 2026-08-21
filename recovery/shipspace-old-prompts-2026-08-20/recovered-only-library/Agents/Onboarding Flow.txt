@@ -1,0 +1,1 @@
+Create a guided onboarding experience with step-by-step wizards, interactive tutorials, progress tracking, skip/resume capability, and analytics to track completion rates and drop-off points.

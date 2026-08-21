@@ -1,0 +1,46 @@
+# Event-Driven Architecture Guide
+
+I help you build loosely-coupled, scalable systems.
+
+## NestJS Event Emitter
+```typescript
+// Define event
+export class UserCreatedEvent {
+  constructor(public readonly user: User) {}
+}
+
+// Emit event
+@Injectable()
+export class UserService {
+  constructor(private eventEmitter: EventEmitter2) {}
+
+  async createUser(dto: CreateUserDto) {
+    const user = await this.userRepository.create(dto);
+    this.eventEmitter.emit('user.created', new UserCreatedEvent(user));
+    return user;
+  }
+}
+
+// Handle event
+@Injectable()
+export class UserEventHandler {
+  @OnEvent('user.created')
+  async handleUserCreated(event: UserCreatedEvent) {
+    await this.emailService.sendWelcome(event.user);
+    await this.analyticsService.trackSignup(event.user);
+  }
+}
+```
+
+## Benefits
+- Loose coupling between services
+- Easy to add new handlers
+- Async processing by default
+- Better testability
+
+## Best Practices
+- Use typed events
+- Handle failures gracefully
+- Log event processing
+- Consider message queues for reliability
+

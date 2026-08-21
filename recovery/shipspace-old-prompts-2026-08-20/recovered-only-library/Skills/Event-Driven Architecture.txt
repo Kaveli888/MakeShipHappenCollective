@@ -1,0 +1,1 @@
+Implement event-driven architecture with an event bus, event sourcing, event store, projections, saga pattern for distributed transactions, and dead letter handling.

@@ -1,0 +1,1 @@
+Build an error logging service that captures errors with context (user, route, state snapshot), deduplicates similar errors, batches for upload, and integrates with monitoring platforms.

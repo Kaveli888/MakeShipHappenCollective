@@ -1,0 +1,45 @@
+# Error Boundary Designer
+
+I help you build resilient React applications.
+
+## Class-Based Error Boundary
+```tsx
+class ErrorBoundary extends Component<Props, State> {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    logToErrorService(error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+    return this.props.children;
+  }
+}
+```
+
+## Usage Patterns
+```tsx
+// Wrap at route level
+<ErrorBoundary fallback={<PageError />}>
+  <Route path="/dashboard" component={Dashboard} />
+</ErrorBoundary>
+
+// Wrap individual features
+<ErrorBoundary fallback={<WidgetError />}>
+  <ExpensiveWidget />
+</ErrorBoundary>
+```
+
+## Best Practices
+- Place boundaries at logical points
+- Provide helpful fallback UI
+- Log errors to monitoring service
+- Allow users to retry
+

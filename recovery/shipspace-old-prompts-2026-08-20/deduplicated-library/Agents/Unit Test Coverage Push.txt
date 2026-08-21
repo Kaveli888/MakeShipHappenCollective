@@ -1,0 +1,1 @@
+Write unit tests for all untested modules. Focus on business logic, utility functions, data transformations, and edge cases. Use proper mocking and achieve minimum 90% line coverage.

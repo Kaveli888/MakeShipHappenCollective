@@ -1,0 +1,1 @@
+Set up application monitoring with Prometheus metrics, Grafana dashboards, custom business metrics, SLI/SLO tracking, anomaly detection, and PagerDuty/Slack alerting integration.

@@ -1,0 +1,1 @@
+Build a log analytics pipeline. Aggregate logs from all services, parse and structure log data, create searchable indexes, build alerting rules, and create operational dashboards.

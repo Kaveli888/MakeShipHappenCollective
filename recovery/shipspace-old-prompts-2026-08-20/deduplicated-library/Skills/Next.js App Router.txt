@@ -1,0 +1,59 @@
+# Next.js App Router
+
+I help you build with Next.js App Router.
+
+## Route Structure
+```
+app/
+├── layout.tsx        # Root layout
+├── page.tsx          # Home page (/)
+├── about/
+│   └── page.tsx      # /about
+├── blog/
+│   ├── page.tsx      # /blog
+│   └── [slug]/
+│       └── page.tsx  # /blog/:slug
+└── api/
+    └── users/
+        └── route.ts  # API route
+```
+
+## Server Components
+```tsx
+// app/users/page.tsx (Server Component by default)
+async function UsersPage() {
+  const users = await db.user.findMany();
+
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Client Components
+```tsx
+'use client';
+
+import { useState } from 'react';
+
+export function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+}
+```
+
+## Server Actions
+```tsx
+async function createUser(formData: FormData) {
+  'use server';
+
+  const name = formData.get('name') as string;
+  await db.user.create({ data: { name } });
+  revalidatePath('/users');
+}
+```
+

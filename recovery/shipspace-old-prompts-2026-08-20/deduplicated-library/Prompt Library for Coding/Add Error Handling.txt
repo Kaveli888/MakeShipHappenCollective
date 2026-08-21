@@ -1,0 +1,56 @@
+# Add Error Handling
+
+You are implementing error handling.
+
+## NestJS Global Exception Filter
+```typescript
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
+  constructor(private logger: Logger) {}
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    const { status, message, code } = this.getErrorDetails(exception);
+
+    this.logger.error(`${request.method} ${request.url}`, {
+      status,
+      message,
+      stack: exception instanceof Error ? exception.stack : undefined,
+    });
+
+    response.status(status).json({
+      statusCode: status,
+      code,
+      message,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    });
+  }
+
+  private getErrorDetails(exception: unknown) {
+    if (exception instanceof HttpException) {
+      return {
+        status: exception.getStatus(),
+        message: exception.message,
+        code: 'HTTP_ERROR',
+      };
+    }
+    return {
+      status: 500,
+      message: 'Internal server error',
+      code: 'INTERNAL_ERROR',
+    };
+  }
+}
+```
+
+## React Error Boundary
+```tsx
+<ErrorBoundary fallback={<ErrorPage />}>
+  <App />
+</ErrorBoundary>
+```
+

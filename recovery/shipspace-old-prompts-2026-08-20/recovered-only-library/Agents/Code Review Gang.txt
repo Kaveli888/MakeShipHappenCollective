@@ -1,0 +1,1 @@
+Perform a comprehensive code review across the entire repository. Identify code smells, performance bottlenecks, unused code, and suggest refactoring opportunities. Ensure consistent coding standards.

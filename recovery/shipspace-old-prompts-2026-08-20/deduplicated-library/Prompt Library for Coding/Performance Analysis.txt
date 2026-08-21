@@ -1,0 +1,42 @@
+# Performance Analysis
+
+Analyze and improve application performance.
+
+## Backend Profiling
+
+### Identify Slow Queries
+```sql
+-- Find slow queries in PostgreSQL
+SELECT query, calls, total_time, mean_time
+FROM pg_stat_statements
+ORDER BY mean_time DESC
+LIMIT 20;
+```
+
+### Common Issues
+1. **N+1 Queries**: Use eager loading
+2. **Missing Indexes**: Add to WHERE columns
+3. **Large Payloads**: Paginate and select fields
+4. **No Caching**: Add Redis caching
+
+## Frontend Profiling
+
+### Core Web Vitals
+- LCP (Largest Contentful Paint): < 2.5s
+- INP (Interaction to Next Paint): < 200ms
+- CLS (Cumulative Layout Shift): < 0.1
+
+### Optimization Techniques
+1. **Code Splitting**: Lazy load routes
+2. **Image Optimization**: Use next/image
+3. **Bundle Analysis**: Check for bloat
+4. **Memoization**: memo, useMemo, useCallback
+
+## Measurement
+```typescript
+// Server timing
+const start = performance.now();
+await doWork();
+console.log(`Took ${performance.now() - start}ms`);
+```
+

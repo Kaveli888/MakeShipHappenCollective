@@ -1,0 +1,1 @@
+Convert a JavaScript project to TypeScript. Add tsconfig, rename files incrementally, add type definitions, fix type errors, configure strict mode, and set up type checking in CI.

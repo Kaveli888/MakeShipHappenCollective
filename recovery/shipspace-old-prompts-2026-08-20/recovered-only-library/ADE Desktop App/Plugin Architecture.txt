@@ -1,0 +1,1 @@
+Design and implement a plugin system that allows third-party extensions. Support plugin discovery, installation, sandboxed execution, API hooks, and a plugin marketplace UI.

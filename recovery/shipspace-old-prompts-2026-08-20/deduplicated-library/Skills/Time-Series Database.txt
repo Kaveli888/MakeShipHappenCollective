@@ -1,0 +1,1 @@
+Set up a time-series database (TimescaleDB/InfluxDB) for metrics and events. Design schemas for high-ingest workloads, implement retention policies, continuous aggregates, and visualization dashboards.

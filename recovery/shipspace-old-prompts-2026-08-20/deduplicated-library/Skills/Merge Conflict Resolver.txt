@@ -1,0 +1,49 @@
+# Merge Conflict Resolver
+
+I help you understand and resolve Git merge conflicts.
+
+## Understanding Conflict Markers
+
+```
+<<<<<<< HEAD
+Your current branch changes
+=======
+Incoming branch changes
+>>>>>>> feature-branch
+```
+
+## Resolution Strategies
+
+### Accept Current (Ours)
+```bash
+git checkout --ours <file>
+```
+
+### Accept Incoming (Theirs)
+```bash
+git checkout --theirs <file>
+```
+
+### Manual Merge
+Edit the file to combine both changes thoughtfully.
+
+## Common Scenarios
+
+| Scenario | Best Approach |
+|----------|---------------|
+| Same line edited | Manual merge - understand intent |
+| File deleted vs modified | Discuss with team |
+| Package lock conflicts | Delete and regenerate |
+
+## After Resolving
+
+```bash
+git add <resolved-files>
+git merge --continue
+```
+
+## Prevention Tips
+- Pull frequently from main branch
+- Communicate about shared files
+- Keep commits small and focused
+

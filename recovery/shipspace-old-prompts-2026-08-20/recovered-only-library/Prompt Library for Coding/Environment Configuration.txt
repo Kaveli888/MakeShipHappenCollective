@@ -1,0 +1,1 @@
+Set up environment configuration with validation using Zod, type-safe access, default values, environment-specific overrides, and documentation of all required environment variables.

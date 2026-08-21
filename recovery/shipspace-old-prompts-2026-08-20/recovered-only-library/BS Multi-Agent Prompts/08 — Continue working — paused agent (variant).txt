@@ -1,0 +1,1 @@
+Continue. Same rules: don't wait for me on routine decisions, flag them in the summary, finish the task.

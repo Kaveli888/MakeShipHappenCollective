@@ -1,0 +1,59 @@
+# Implement Favorites/Bookmarks
+
+You are implementing a favorites/bookmarks system.
+
+## Schema
+```typescript
+export const favorites = pgTable('favorites', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  postId: uuid('post_id').references(() => posts.id, { onDelete: 'cascade' }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (table) => ({
+  uniqueUserPost: unique().on(table.userId, table.postId),
+}));
+```
+
+## Service
+```typescript
+@Injectable()
+export class FavoritesService {
+  async toggle(userId: string, postId: string): Promise<{ favorited: boolean }> {
+    const existing = await db.query.favorites.findFirst({
+      where: and(
+        eq(favorites.userId, userId),
+        eq(favorites.postId, postId)
+      ),
+    });
+
+    if (existing) {
+      await db.delete(favorites).where(eq(favorites.id, existing.id));
+      return { favorited: false };
+    }
+
+    await db.insert(favorites).values({ userId, postId });
+    return { favorited: true };
+  }
+
+  async getUserFavorites(userId: string, page = 1, limit = 20) {
+    return db.query.favorites.findMany({
+      where: eq(favorites.userId, userId),
+      with: { post: true },
+      orderBy: [desc(favorites.createdAt)],
+      limit,
+      offset: (page - 1) * limit,
+    });
+  }
+
+  async isFavorited(userId: string, postId: string): Promise<boolean> {
+    const favorite = await db.query.favorites.findFirst({
+      where: and(
+        eq(favorites.userId, userId),
+        eq(favorites.postId, postId)
+      ),
+    });
+    return !!favorite;
+  }
+}
+```
+

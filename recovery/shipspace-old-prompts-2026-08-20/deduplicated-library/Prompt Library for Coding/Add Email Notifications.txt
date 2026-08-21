@@ -1,0 +1,47 @@
+# Add Email Notifications
+
+You are implementing email notifications.
+
+## SendGrid Integration
+```typescript
+import sgMail from '@sendgrid/mail';
+
+@Injectable()
+export class EmailService {
+  constructor(private config: ConfigService) {
+    sgMail.setApiKey(config.get('SENDGRID_API_KEY'));
+  }
+
+  async sendWelcome(user: User) {
+    await sgMail.send({
+      to: user.email,
+      from: 'hello@bridgemind.co',
+      templateId: 'd-welcome-template-id',
+      dynamicTemplateData: {
+        name: user.name,
+        verifyUrl: this.getVerifyUrl(user),
+      },
+    });
+  }
+
+  async sendPasswordReset(user: User, token: string) {
+    await sgMail.send({
+      to: user.email,
+      from: 'hello@bridgemind.co',
+      templateId: 'd-password-reset-id',
+      dynamicTemplateData: {
+        resetUrl: `https://app.bridgemind.co/reset?token=${token}`,
+      },
+    });
+  }
+}
+```
+
+## Event-Driven Emails
+```typescript
+@OnEvent('user.created')
+async handleUserCreated(event: UserCreatedEvent) {
+  await this.emailService.sendWelcome(event.user);
+}
+```
+

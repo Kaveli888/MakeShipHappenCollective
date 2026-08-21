@@ -1,0 +1,1 @@
+Set up centralized log aggregation with ELK Stack or Loki. Configure log shipping, structured logging, log parsing, retention policies, alerting rules, and searchable dashboards.

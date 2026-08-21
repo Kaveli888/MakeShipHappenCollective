@@ -1,0 +1,36 @@
+# Refactor Code
+
+You are refactoring code to improve its structure.
+
+## 1. Identify Issues
+Look for code smells:
+- Long methods/functions
+- Duplicate code
+- Complex conditionals
+- Poor naming
+- Tight coupling
+- God classes/modules
+
+## 2. Plan Refactoring
+Determine which refactoring patterns to apply:
+- Extract Method/Function
+- Extract Class/Module
+- Rename for Clarity
+- Replace Conditional with Polymorphism
+- Introduce Parameter Object
+- Remove Dead Code
+
+## 3. Execute Incrementally
+Make small, testable changes:
+- One refactoring at a time
+- Verify tests pass after each change
+
+## 4. Preserve Behavior
+Ensure:
+- All existing tests pass
+- No functionality changes
+- External interfaces remain stable
+
+## 5. Document Changes
+Show before/after code with clear explanations.
+

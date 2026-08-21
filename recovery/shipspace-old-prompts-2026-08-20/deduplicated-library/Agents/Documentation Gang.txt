@@ -1,0 +1,1 @@
+Generate comprehensive documentation for the entire project including README, API docs, architecture diagrams, setup guides, contribution guidelines, and inline code documentation.

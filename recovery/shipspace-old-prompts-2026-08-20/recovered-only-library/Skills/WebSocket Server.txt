@@ -1,0 +1,1 @@
+Build a WebSocket server with connection management, room-based messaging, presence indicators, reconnection logic, heartbeat mechanism, and horizontal scaling with Redis pub/sub.

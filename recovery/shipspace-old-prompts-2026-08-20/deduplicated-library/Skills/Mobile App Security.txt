@@ -1,0 +1,58 @@
+# Mobile App Security
+
+I help you secure mobile applications.
+
+## Secure Storage
+```typescript
+import * as SecureStore from 'expo-secure-store';
+
+async function saveToken(token: string) {
+  await SecureStore.setItemAsync('auth_token', token);
+}
+
+async function getToken() {
+  return await SecureStore.getItemAsync('auth_token');
+}
+```
+
+## Certificate Pinning
+```typescript
+// For React Native CLI apps
+import { fetch } from 'react-native-ssl-pinning';
+
+const response = await fetch('https://api.example.com/data', {
+  method: 'GET',
+  sslPinning: {
+    certs: ['cert1', 'cert2'],
+  },
+});
+```
+
+## Biometric Authentication
+```typescript
+import * as LocalAuthentication from 'expo-local-authentication';
+
+async function authenticateWithBiometrics() {
+  const hasHardware = await LocalAuthentication.hasHardwareAsync();
+  const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+  if (!hasHardware || !isEnrolled) return false;
+
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: 'Authenticate to continue',
+    fallbackLabel: 'Use passcode',
+  });
+
+  return result.success;
+}
+```
+
+## Security Best Practices
+- Never store sensitive data in AsyncStorage
+- Use secure storage for tokens
+- Implement certificate pinning in production
+- Validate all server responses
+- Use HTTPS everywhere
+Created 2/3/2026
+
+

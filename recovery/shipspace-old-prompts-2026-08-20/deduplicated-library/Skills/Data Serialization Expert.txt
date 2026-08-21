@@ -1,0 +1,49 @@
+# Data Serialization Expert
+
+I help you control data transformation and exposure.
+
+## NestJS Class Transformer
+```typescript
+import { Exclude, Expose, Transform } from 'class-transformer';
+
+export class UserDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  email: string;
+
+  @Exclude()
+  password: string;
+
+  @Expose()
+  @Transform(({ value }) => value?.toISOString())
+  createdAt: Date;
+
+  @Expose({ groups: ['admin'] })
+  isAdmin: boolean;
+}
+```
+
+## Global Serialization
+```typescript
+app.useGlobalInterceptors(
+  new ClassSerializerInterceptor(app.get(Reflector), {
+    excludeExtraneousValues: true,
+  })
+);
+```
+
+## Nested Serialization
+```typescript
+@Expose()
+@Type(() => PostDto)
+posts: PostDto[];
+```
+
+## Best Practices
+- Never expose sensitive fields
+- Use DTOs for all responses
+- Version your response formats
+- Document transformations
+

@@ -1,0 +1,1 @@
+Build a consistent API response formatter with success/error wrappers, pagination metadata, HATEOAS links, field filtering, response envelope, and TypeScript types for client consumption.

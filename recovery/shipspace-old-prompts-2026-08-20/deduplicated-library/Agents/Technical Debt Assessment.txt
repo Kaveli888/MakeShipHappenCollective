@@ -1,0 +1,1 @@
+Catalog all technical debt in the project. Create a prioritized backlog of debt items with estimated effort, business impact, and risk scores. Propose a debt reduction roadmap with quick wins identified.

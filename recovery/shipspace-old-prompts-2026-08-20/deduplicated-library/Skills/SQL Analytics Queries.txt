@@ -1,0 +1,70 @@
+# SQL Analytics Queries
+
+I help you write analytical SQL queries.
+
+## Window Functions
+```sql
+-- Running total
+SELECT
+  date,
+  amount,
+  SUM(amount) OVER (ORDER BY date) as running_total
+FROM orders;
+
+-- Rank within group
+SELECT
+  name,
+  department,
+  salary,
+  RANK() OVER (PARTITION BY department ORDER BY salary DESC) as dept_rank
+FROM employees;
+
+-- Moving average
+SELECT
+  date,
+  value,
+  AVG(value) OVER (
+    ORDER BY date
+    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+  ) as moving_avg_7d
+FROM metrics;
+```
+
+## CTEs for Readability
+```sql
+WITH monthly_sales AS (
+  SELECT
+    DATE_TRUNC('month', created_at) as month,
+    SUM(amount) as total
+  FROM orders
+  GROUP BY 1
+),
+growth AS (
+  SELECT
+    month,
+    total,
+    LAG(total) OVER (ORDER BY month) as prev_month,
+    total - LAG(total) OVER (ORDER BY month) as growth
+  FROM monthly_sales
+)
+SELECT * FROM growth;
+```
+
+## Cohort Analysis
+```sql
+WITH cohorts AS (
+  SELECT
+    user_id,
+    DATE_TRUNC('month', MIN(created_at)) as cohort_month
+  FROM orders
+  GROUP BY 1
+)
+SELECT
+  cohort_month,
+  DATE_TRUNC('month', o.created_at) as order_month,
+  COUNT(DISTINCT o.user_id) as users
+FROM orders o
+JOIN cohorts c ON o.user_id = c.user_id
+GROUP BY 1, 2;
+```
+

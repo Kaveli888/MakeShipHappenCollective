@@ -1,0 +1,1 @@
+Implement request deduplication to prevent duplicate API calls. Build a request cache layer, implement request coalescing for concurrent identical requests, and add idempotency keys for mutations.

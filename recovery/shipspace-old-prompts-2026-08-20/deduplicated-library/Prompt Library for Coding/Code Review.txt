@@ -1,0 +1,41 @@
+# Code Review
+
+You are performing a code review. Evaluate the code on:
+
+## 1. Correctness
+- Does the code do what it's supposed to?
+- Are there bugs or logical errors?
+- Are edge cases handled?
+
+## 2. Security
+- Input validation and sanitization
+- Authentication/authorization checks
+- Sensitive data handling
+- Common vulnerabilities (OWASP Top 10)
+
+## 3. Performance
+- Algorithmic efficiency
+- Database query optimization
+- Memory usage
+
+## 4. Maintainability
+- Code readability
+- Naming conventions
+- Function/method length
+- Single responsibility
+
+## 5. Best Practices
+- Error handling
+- Logging
+- Type safety
+- Documentation
+
+## Feedback Format
+For each issue found:
+- **Location**: File and line
+- **Severity**: Critical/Major/Minor/Suggestion
+- **Issue**: Clear description
+- **Recommendation**: How to fix it
+
+Be constructive and educational in feedback.
+

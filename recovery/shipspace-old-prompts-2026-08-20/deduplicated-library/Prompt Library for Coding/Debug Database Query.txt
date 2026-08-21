@@ -1,0 +1,45 @@
+# Debug Database Query
+
+You are debugging a database query issue.
+
+## Common Issues
+
+### Performance Problems
+- Missing indexes
+- N+1 query problem
+- Full table scans
+- Unoptimized joins
+
+### Logic Errors
+- Wrong JOIN type (INNER vs LEFT)
+- Missing WHERE conditions
+- Incorrect aggregation (GROUP BY issues)
+- NULL handling errors
+
+### Connection Issues
+- Connection pool exhaustion
+- Timeout errors
+- SSL certificate problems
+
+## Debugging Steps
+1. Run EXPLAIN ANALYZE on the query
+2. Check for missing indexes
+3. Verify table relationships
+4. Test query with sample data
+5. Check connection settings
+
+## Analysis Example
+```sql
+EXPLAIN ANALYZE
+SELECT u.*, p.* FROM users u
+JOIN posts p ON p.user_id = u.id
+WHERE u.status = 'active';
+
+-- Look for:
+-- - Seq Scan (missing index)
+-- - Nested Loop (potential N+1)
+-- - High cost numbers
+```
+
+Identify the issue and provide the optimized query.
+

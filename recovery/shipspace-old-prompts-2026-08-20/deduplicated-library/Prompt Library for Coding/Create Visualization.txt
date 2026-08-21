@@ -1,0 +1,44 @@
+# Create Visualization
+
+You are creating data visualizations.
+
+## Time Series
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.plot(df['date'], df['value'], marker='o', linewidth=2)
+ax.fill_between(df['date'], df['value'], alpha=0.3)
+ax.set_title('Metric Over Time', fontsize=14, fontweight='bold')
+ax.set_xlabel('Date')
+ax.set_ylabel('Value')
+ax.grid(True, alpha=0.3)
+plt.xticks(rotation=45)
+plt.tight_layout()
+```
+
+## Comparison Bar Chart
+```python
+fig, ax = plt.subplots(figsize=(10, 6))
+categories = df['category'].unique()
+x = np.arange(len(categories))
+width = 0.35
+
+ax.bar(x - width/2, df[df['period']=='current']['value'], width, label='Current')
+ax.bar(x + width/2, df[df['period']=='previous']['value'], width, label='Previous')
+
+ax.set_xlabel('Category')
+ax.set_ylabel('Value')
+ax.set_xticks(x)
+ax.set_xticklabels(categories)
+ax.legend()
+```
+
+## Best Practices
+- Choose chart type based on data relationship
+- Use clear, descriptive titles
+- Label axes properly
+- Use appropriate colors
+- Keep it simple
+

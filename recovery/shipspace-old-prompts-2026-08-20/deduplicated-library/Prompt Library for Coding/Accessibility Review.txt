@@ -1,0 +1,45 @@
+# Accessibility Review
+
+Review code for accessibility compliance (WCAG 2.1 AA).
+
+## Semantic HTML
+```tsx
+// ❌ Non-semantic
+<div onclick={handleClick}>Click me</div>
+
+// ✅ Semantic
+<button onClick={handleClick}>Click me</button>
+```
+
+## Keyboard Navigation
+- All interactive elements focusable
+- Visible focus indicators
+- Logical tab order
+- Keyboard shortcuts documented
+
+## ARIA Attributes
+```tsx
+// Button with icon only
+<button aria-label="Close dialog">
+  <XIcon />
+</button>
+
+// Form field
+<label htmlFor="email">Email</label>
+<input
+  id="email"
+  aria-describedby="email-hint"
+  aria-invalid={hasError}
+/>
+<span id="email-hint">We'll never share your email</span>
+```
+
+## Checklist
+- [ ] All images have alt text
+- [ ] Color contrast ratio >= 4.5:1
+- [ ] Form inputs have labels
+- [ ] Error messages are announced
+- [ ] Skip links provided
+- [ ] Focus managed in modals
+- [ ] Reduced motion respected
+

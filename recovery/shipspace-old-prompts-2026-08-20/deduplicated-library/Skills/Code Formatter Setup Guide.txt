@@ -1,0 +1,49 @@
+# Code Formatter Setup Guide
+
+I set up automatic code formatting for consistency.
+
+## Prettier Configuration
+```javascript
+// prettier.config.js
+export default {
+  printWidth: 100,
+  tabWidth: 2,
+  singleQuote: true,
+  trailingComma: 'es5',
+  semi: true,
+  arrowParens: 'always',
+};
+```
+
+## EditorConfig
+```ini
+# .editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+```
+
+## ESLint + Prettier Integration
+```bash
+npm install -D eslint-config-prettier
+```
+
+## VS Code Settings
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+```
+
+## Pre-commit Hooks
+```bash
+npx husky init
+npm install -D lint-staged
+```
+

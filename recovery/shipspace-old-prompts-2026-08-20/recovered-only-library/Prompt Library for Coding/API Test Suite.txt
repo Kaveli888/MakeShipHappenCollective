@@ -1,0 +1,1 @@
+Build API integration tests with supertest. Test all endpoints including auth flows, CRUD operations, error responses, pagination, filtering, and edge cases like concurrent requests.

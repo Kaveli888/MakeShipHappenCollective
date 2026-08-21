@@ -1,0 +1,64 @@
+# Create CLI Command
+
+You are creating a CLI command or script.
+
+## Node.js CLI Script
+```typescript
+#!/usr/bin/env node
+
+import { program } from 'commander';
+import chalk from 'chalk';
+import ora from 'ora';
+
+program
+  .name('mytool')
+  .description('CLI tool description')
+  .version('1.0.0');
+
+program
+  .command('generate <name>')
+  .description('Generate a new component')
+  .option('-t, --type <type>', 'Component type', 'component')
+  .option('-d, --directory <dir>', 'Output directory', './src')
+  .action(async (name, options) => {
+    const spinner = ora('Generating component...').start();
+
+    try {
+      await generateComponent(name, options);
+      spinner.succeed(chalk.green(`Created ${name}`));
+    } catch (error) {
+      spinner.fail(chalk.red(`Failed: ${error.message}`));
+      process.exit(1);
+    }
+  });
+
+program.parse();
+```
+
+## Interactive Prompts
+```typescript
+import inquirer from 'inquirer';
+
+const answers = await inquirer.prompt([
+  {
+    type: 'input',
+    name: 'name',
+    message: 'What is the component name?',
+    validate: input => input.length > 0,
+  },
+  {
+    type: 'list',
+    name: 'type',
+    message: 'Select component type:',
+    choices: ['component', 'page', 'layout'],
+  },
+]);
+```
+
+## package.json
+```json
+{
+  "bin": { "mytool": "./dist/cli.js" }
+}
+```
+

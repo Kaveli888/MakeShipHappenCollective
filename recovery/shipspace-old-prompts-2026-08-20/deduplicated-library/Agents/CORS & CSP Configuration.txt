@@ -1,0 +1,1 @@
+Implement and configure Content Security Policy headers, CORS policies, and other security headers (HSTS, X-Frame-Options, X-Content-Type-Options). Test across all endpoints and document the policy.

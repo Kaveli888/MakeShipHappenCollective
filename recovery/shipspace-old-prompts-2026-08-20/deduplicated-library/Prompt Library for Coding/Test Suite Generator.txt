@@ -1,0 +1,1 @@
+Generate a comprehensive test suite including unit tests, integration tests, and edge case coverage. Use the project testing framework, mock external dependencies, and aim for 90%+ coverage.

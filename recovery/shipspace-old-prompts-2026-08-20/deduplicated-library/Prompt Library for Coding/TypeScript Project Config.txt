@@ -1,0 +1,1 @@
+Configure TypeScript with strict settings, path aliases, project references, declaration files, incremental builds, and optimized settings for development speed and production safety.

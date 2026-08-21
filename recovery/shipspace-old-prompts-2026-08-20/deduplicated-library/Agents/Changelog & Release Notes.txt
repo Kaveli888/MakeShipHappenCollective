@@ -1,0 +1,1 @@
+Generate detailed changelogs and release notes for all versions. Categorize changes by type (features, fixes, breaking changes), include migration guides, and maintain a public changelog page.

@@ -1,0 +1,1 @@
+Build real-time collaboration features using WebSockets or CRDTs. Implement presence indicators, cursors, concurrent editing, conflict resolution, and offline sync with operational transforms.

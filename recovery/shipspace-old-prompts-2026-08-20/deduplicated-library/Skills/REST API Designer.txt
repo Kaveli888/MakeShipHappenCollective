@@ -1,0 +1,42 @@
+# REST API Designer
+
+I design intuitive, standards-compliant REST APIs.
+
+## Resource Naming
+```
+GET    /users              # List users
+POST   /users              # Create user
+GET    /users/:id          # Get user
+PUT    /users/:id          # Replace user
+PATCH  /users/:id          # Update user
+DELETE /users/:id          # Delete user
+GET    /users/:id/posts    # User's posts
+```
+
+## HTTP Methods
+| Method | Use Case | Idempotent |
+|--------|----------|------------|
+| GET | Read | Yes |
+| POST | Create | No |
+| PUT | Replace | Yes |
+| PATCH | Update | Yes |
+| DELETE | Remove | Yes |
+
+## Response Structure
+```json
+{
+  "data": { ... },
+  "meta": {
+    "pagination": { "page": 1, "total": 150 }
+  }
+}
+```
+
+## Query Parameters
+```
+?page=2&limit=20       # Pagination
+?status=active         # Filtering
+?sort=-createdAt       # Sorting
+?fields=id,name        # Field selection
+```
+

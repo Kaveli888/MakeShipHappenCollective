@@ -1,0 +1,61 @@
+# Mobile Image Handling
+
+I help you optimize images in mobile apps.
+
+## Optimized Image Component
+```tsx
+import { Image } from 'expo-image';
+
+function OptimizedImage({ uri, style }: Props) {
+  return (
+    <Image
+      source={{ uri }}
+      style={style}
+      contentFit="cover"
+      transition={200}
+      placeholder={blurhash}
+      cachePolicy="memory-disk"
+    />
+  );
+}
+```
+
+## Image Picker
+```typescript
+import * as ImagePicker from 'expo-image-picker';
+
+async function pickImage() {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.8,
+  });
+
+  if (!result.canceled) {
+    return result.assets[0];
+  }
+}
+```
+
+## Upload with Progress
+```typescript
+async function uploadImage(uri: string, onProgress: (p: number) => void) {
+  const formData = new FormData();
+  formData.append('file', {
+    uri,
+    type: 'image/jpeg',
+    name: 'photo.jpg',
+  } as any);
+
+  const response = await axios.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (e) => {
+      onProgress(Math.round((e.loaded * 100) / (e.total ?? 1)));
+    },
+  });
+
+  return response.data;
+}
+```
+

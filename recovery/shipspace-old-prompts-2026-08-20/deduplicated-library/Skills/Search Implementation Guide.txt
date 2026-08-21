@@ -1,0 +1,40 @@
+# Search Implementation Guide
+
+I help you implement effective search functionality.
+
+## PostgreSQL Full-Text Search
+```sql
+-- Add search vector column
+ALTER TABLE posts ADD COLUMN search_vector tsvector;
+
+-- Create index
+CREATE INDEX posts_search_idx ON posts USING gin(search_vector);
+
+-- Update trigger
+CREATE TRIGGER posts_search_update
+  BEFORE INSERT OR UPDATE ON posts
+  FOR EACH ROW EXECUTE FUNCTION
+  tsvector_update_trigger(search_vector, 'pg_catalog.english', title, content);
+
+-- Search query
+SELECT * FROM posts
+WHERE search_vector @@ plainto_tsquery('english', 'search terms')
+ORDER BY ts_rank(search_vector, plainto_tsquery('english', 'search terms')) DESC;
+```
+
+## Typeahead/Autocomplete
+```typescript
+// Use trigram similarity for fuzzy matching
+SELECT * FROM users
+WHERE name % 'search'  -- Trigram similarity
+ORDER BY similarity(name, 'search') DESC
+LIMIT 10;
+```
+
+## Search Features
+- Fuzzy matching
+- Typo tolerance
+- Faceted search
+- Highlighting
+- Suggestions
+

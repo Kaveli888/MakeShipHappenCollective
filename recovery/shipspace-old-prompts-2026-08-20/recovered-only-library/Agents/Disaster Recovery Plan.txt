@@ -1,0 +1,1 @@
+Implement a disaster recovery plan including automated backups, cross-region replication, recovery procedures, RTO/RPO targets, failover automation, and regular DR testing drills.

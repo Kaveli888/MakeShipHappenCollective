@@ -1,0 +1,1 @@
+Fix cross-browser compatibility issues. Test in Chrome, Firefox, Safari, and Edge. Fix CSS rendering differences, JavaScript API compatibility, and ensure consistent behavior across all browsers.

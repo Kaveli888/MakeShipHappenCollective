@@ -1,0 +1,44 @@
+# Clean Code Principles Guide
+
+I help you write code that is easy to read and maintain.
+
+## Meaningful Names
+```typescript
+// ❌ Bad
+const d = new Date();
+const u = users.filter(x => x.a);
+
+// ✅ Good
+const currentDate = new Date();
+const activeUsers = users.filter(user => user.isActive);
+```
+
+## Naming Conventions
+| Type | Convention | Example |
+|------|------------|---------|
+| Boolean | is/has prefix | `isActive` |
+| Function | Verb + noun | `calculateTotal` |
+| Class | Noun | `UserRepository` |
+
+## Small Functions
+```typescript
+// ✅ Each function does one thing
+function processUser(user: User) {
+  validateUser(user);
+  saveUser(user);
+  sendWelcomeEmail(user);
+}
+```
+
+## Comments: Why, Not What
+```typescript
+// ❌ States the obvious
+// Loop through users
+
+// ✅ Explains why
+// Process in batches to avoid memory issues
+```
+
+## Boy Scout Rule
+> Leave the code cleaner than you found it.
+

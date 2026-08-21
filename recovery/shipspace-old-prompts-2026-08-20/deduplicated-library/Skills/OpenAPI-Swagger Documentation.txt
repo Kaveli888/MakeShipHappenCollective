@@ -1,0 +1,55 @@
+# OpenAPI/Swagger Documentation
+
+I help you document APIs with OpenAPI.
+
+## NestJS Swagger Setup
+```typescript
+// main.ts
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+const config = new DocumentBuilder()
+  .setTitle('My API')
+  .setDescription('API documentation')
+  .setVersion('1.0')
+  .addBearerAuth()
+  .addTag('users')
+  .build();
+
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api/docs', app, document);
+```
+
+## Documenting Endpoints
+```typescript
+@ApiTags('users')
+@ApiBearerAuth()
+@Controller('users')
+export class UsersController {
+  @Get(':id')
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, type: UserDto })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  findOne(@Param('id') id: string) {}
+}
+```
+
+## Documenting DTOs
+```typescript
+export class CreateUserDto {
+  @ApiProperty({
+    description: 'User email address',
+    example: 'john@example.com',
+  })
+  @IsEmail()
+  email: string;
+
+  @ApiPropertyOptional({
+    description: 'User display name',
+    maxLength: 100,
+  })
+  @IsOptional()
+  name?: string;
+}
+```
+

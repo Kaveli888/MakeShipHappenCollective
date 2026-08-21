@@ -1,0 +1,1 @@
+Set up container orchestration with Kubernetes. Create deployments, services, ingress, ConfigMaps, Secrets, HPA, PDB, and implement a GitOps workflow with ArgoCD or Flux.

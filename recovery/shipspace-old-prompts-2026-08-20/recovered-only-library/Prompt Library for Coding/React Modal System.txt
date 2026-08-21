@@ -1,0 +1,1 @@
+Build a modal/dialog system with portal rendering, focus trapping, keyboard navigation, animation transitions, stacking, confirmation dialogs, and accessibility compliance.

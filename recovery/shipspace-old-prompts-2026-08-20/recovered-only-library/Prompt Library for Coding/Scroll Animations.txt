@@ -1,0 +1,1 @@
+Implement scroll-triggered animations with Intersection Observer. Create fade-in, slide-up, parallax, and count-up animations. Handle throttling, direction detection, and reduced-motion.

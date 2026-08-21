@@ -1,0 +1,1 @@
+Set up and configure an ORM (Prisma/TypeORM/Drizzle) with model definitions, relationships, migrations, query builders, transaction support, connection management, and type-safe database access.

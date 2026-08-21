@@ -1,0 +1,1 @@
+Implement PDF generation from templates with Puppeteer or jsPDF. Support dynamic content, tables, charts, headers/footers, page numbering, custom fonts, and batch generation.

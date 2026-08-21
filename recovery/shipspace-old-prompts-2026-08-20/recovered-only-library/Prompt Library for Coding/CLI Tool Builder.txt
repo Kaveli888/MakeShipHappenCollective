@@ -1,0 +1,1 @@
+Build a CLI tool with Commander.js or yargs. Implement commands, flags, interactive prompts, colored output, progress bars, configuration file support, and auto-generated help text.

@@ -1,0 +1,1 @@
+Integrate a rich text editor (TipTap/Slate/Lexical) with formatting toolbar, image upload, link insertion, code blocks, mentions, collaborative editing support, and HTML/markdown output.

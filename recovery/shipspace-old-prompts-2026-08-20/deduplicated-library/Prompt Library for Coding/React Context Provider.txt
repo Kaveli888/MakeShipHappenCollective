@@ -1,0 +1,1 @@
+Build a React Context provider with TypeScript, performance optimization (memoization, context splitting), dev tools integration, and a custom hook for consuming the context.

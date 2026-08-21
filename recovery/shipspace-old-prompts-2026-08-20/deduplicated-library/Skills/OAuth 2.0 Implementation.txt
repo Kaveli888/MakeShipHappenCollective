@@ -1,0 +1,1 @@
+Implement OAuth 2.0 authorization with authorization code flow, PKCE, token refresh, scope management, and integration with Google, GitHub, and Microsoft identity providers.

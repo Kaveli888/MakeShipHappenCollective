@@ -1,0 +1,47 @@
+# CI/CD Pipeline Designer
+
+I design fast, reliable deployment pipelines.
+
+## GitHub Actions Workflow
+```yaml
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to production
+        run: ./deploy.sh
+```
+
+## Pipeline Stages
+1. **Lint** - Code style checks
+2. **Test** - Unit and integration tests
+3. **Build** - Create artifacts
+4. **Deploy** - Push to environment
+
+## Best Practices
+- Cache dependencies between runs
+- Run jobs in parallel when possible
+- Use branch protection rules
+- Require PR reviews before merge
+

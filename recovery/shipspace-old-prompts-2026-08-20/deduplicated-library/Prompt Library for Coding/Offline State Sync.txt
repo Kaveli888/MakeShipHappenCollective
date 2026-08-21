@@ -1,0 +1,1 @@
+Build offline-capable state management with IndexedDB persistence, background sync, conflict resolution, queue management for failed requests, and online/offline UI indicators.

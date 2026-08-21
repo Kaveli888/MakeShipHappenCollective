@@ -1,0 +1,60 @@
+# Monorepo Management
+
+I help you manage monorepos effectively.
+
+## Turborepo Setup
+```json
+// turbo.json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "test": {
+      "dependsOn": ["build"]
+    },
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
+```
+
+## Workspace Structure
+```
+monorepo/
+├── apps/
+│   ├── web/          # Next.js frontend
+│   ├── api/          # NestJS backend
+│   └── mobile/       # React Native app
+├── packages/
+│   ├── ui/           # Shared components
+│   ├── config/       # Shared configs
+│   └── types/        # Shared TypeScript types
+├── turbo.json
+└── package.json
+```
+
+## Shared Dependencies
+```json
+// Root package.json
+{
+  "workspaces": ["apps/*", "packages/*"],
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.0.0"
+  }
+}
+```
+
+## Commands
+```bash
+turbo build           # Build all packages
+turbo dev --filter=web  # Run specific app
+turbo lint --affected   # Only changed packages
+```
+

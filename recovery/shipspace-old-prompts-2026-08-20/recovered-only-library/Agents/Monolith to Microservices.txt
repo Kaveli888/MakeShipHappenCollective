@@ -1,0 +1,1 @@
+Decompose a monolithic application into microservices. Identify service boundaries, implement API gateway, set up inter-service communication, handle distributed transactions, and maintain data consistency.

@@ -1,0 +1,1 @@
+Build a test fixture system for database seeding. Create fixtures for all entities, handle relationships, support transaction isolation between tests, and automatic cleanup.

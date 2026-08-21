@@ -1,0 +1,46 @@
+# Debug Mobile App
+
+You are debugging a React Native app issue.
+
+## Common Issues
+
+### Metro Bundler Issues
+```bash
+# Clear cache
+npx expo start --clear
+# or
+npx react-native start --reset-cache
+```
+
+### iOS Specific
+```bash
+cd ios && pod install && cd ..
+npx react-native run-ios
+```
+
+### Android Specific
+```bash
+cd android && ./gradlew clean && cd ..
+npx react-native run-android
+```
+
+## Debugging Tools
+1. React Native Debugger
+2. Flipper
+3. console.log (appears in Metro terminal)
+4. React DevTools
+
+## Common Errors
+- **Red screen**: Check error message, fix syntax/runtime error
+- **White screen**: Check for JS errors in Metro
+- **Slow performance**: Check for re-renders, optimize lists
+- **App crash**: Check native logs (adb logcat / Xcode console)
+
+## Debugging Steps
+1. Read the full error message
+2. Check Metro bundler output
+3. Check native logs if crash
+4. Reproduce in simulator
+5. Add debug logging
+6. Use React DevTools for component state
+

@@ -1,0 +1,66 @@
+# Add Export Feature
+
+You are implementing data export functionality.
+
+## CSV Export
+```typescript
+import { stringify } from 'csv-stringify/sync';
+
+@Controller('export')
+@UseGuards(JwtAuthGuard)
+export class ExportController {
+  @Get('users/csv')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="users.csv"')
+  async exportUsersCsv() {
+    const users = await this.usersService.findAll();
+
+    return stringify(users, {
+      header: true,
+      columns: ['id', 'email', 'name', 'createdAt'],
+    });
+  }
+
+  @Get('users/json')
+  async exportUsersJson(@Res() res: Response) {
+    const users = await this.usersService.findAll();
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="users.json"');
+    res.send(JSON.stringify(users, null, 2));
+  }
+}
+```
+
+## Large Dataset Export (Streaming)
+```typescript
+@Get('posts/csv')
+async exportPostsCsv(@Res() res: Response) {
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="posts.csv"');
+
+  // Write header
+  res.write('id,title,createdAt\n');
+
+  // Stream in batches
+  let offset = 0;
+  const batchSize = 1000;
+
+  while (true) {
+    const batch = await db.select().from(posts)
+      .limit(batchSize)
+      .offset(offset);
+
+    if (batch.length === 0) break;
+
+    for (const post of batch) {
+      res.write(`${post.id},"${post.title}",${post.createdAt}\n`);
+    }
+
+    offset += batchSize;
+  }
+
+  res.end();
+}
+```
+

@@ -1,0 +1,1 @@
+Refactor the test suite for better maintainability. Create test factories, implement page objects, reduce test duplication, organize by feature, and improve test naming conventions.

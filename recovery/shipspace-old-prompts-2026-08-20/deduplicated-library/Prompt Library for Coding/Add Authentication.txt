@@ -1,0 +1,59 @@
+# Add Authentication
+
+You are implementing authentication for an application.
+
+## JWT Implementation (NestJS)
+
+### Auth Module
+```typescript
+@Module({
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '15m' },
+    }),
+  ],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+```
+
+### Login Endpoint
+```typescript
+@Post('login')
+async login(@Body() dto: LoginDto) {
+  const user = await this.authService.validateUser(dto);
+  if (!user) throw new UnauthorizedException();
+
+  const accessToken = this.jwtService.sign({ sub: user.id });
+  return { accessToken, user };
+}
+```
+
+### JWT Strategy
+```typescript
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
+    });
+  }
+
+  async validate(payload: JwtPayload) {
+    return { id: payload.sub };
+  }
+}
+```
+
+### Protected Routes
+```typescript
+@UseGuards(JwtAuthGuard)
+@Get('profile')
+getProfile(@GetUser() user: User) {
+  return user;
+}
+```
+

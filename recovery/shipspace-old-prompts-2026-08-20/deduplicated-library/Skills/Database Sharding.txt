@@ -1,0 +1,1 @@
+Implement database sharding for horizontal scalability. Choose a sharding key, implement routing logic, handle cross-shard queries, rebalancing, and maintain referential integrity across shards.

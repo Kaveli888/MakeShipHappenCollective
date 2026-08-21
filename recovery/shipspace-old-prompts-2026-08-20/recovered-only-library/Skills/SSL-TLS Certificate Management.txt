@@ -1,0 +1,1 @@
+Automate SSL/TLS certificate management with Let's Encrypt or AWS ACM. Implement auto-renewal, certificate monitoring, HTTPS redirect, HSTS configuration, and certificate pinning for mobile apps.

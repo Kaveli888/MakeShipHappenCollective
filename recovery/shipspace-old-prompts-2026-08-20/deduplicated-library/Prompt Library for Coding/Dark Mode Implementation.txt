@@ -1,0 +1,1 @@
+Implement dark mode with CSS custom properties, system preference detection, manual toggle, smooth transitions, proper color contrast, and image/icon adaptation for dark backgrounds.

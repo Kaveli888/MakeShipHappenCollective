@@ -1,0 +1,52 @@
+# Mobile Form Handling
+
+I help you build accessible, user-friendly forms in mobile apps.
+
+## React Hook Form in React Native
+```tsx
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const schema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Min 8 characters'),
+});
+
+function LoginForm() {
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  return (
+    <View>
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            placeholder="Email"
+            value={value}
+            onChangeText={onChange}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        )}
+      />
+      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+    </View>
+  );
+}
+```
+
+## Keyboard Handling
+```tsx
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={styles.container}
+>
+  <ScrollView keyboardShouldPersistTaps="handled">
+    {/* Form content */}
+  </ScrollView>
+</KeyboardAvoidingView>
+```
+

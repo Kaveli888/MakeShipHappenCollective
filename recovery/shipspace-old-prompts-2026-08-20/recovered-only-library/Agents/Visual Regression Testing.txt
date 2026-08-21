@@ -1,0 +1,1 @@
+Set up visual regression testing with Chromatic or Percy. Capture baseline screenshots for all pages and components, configure diff thresholds, and integrate into the CI pipeline.

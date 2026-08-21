@@ -1,0 +1,1 @@
+Audit all database queries for SQL injection vulnerabilities. Replace raw queries with parameterized statements, implement input sanitization, add WAF rules, and create integration tests for injection attempts.

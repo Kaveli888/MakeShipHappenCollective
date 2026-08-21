@@ -1,0 +1,1 @@
+Build a real-time analytics dashboard showing user signups, retention, revenue metrics, funnel conversion rates, and cohort analysis. Use charts and exportable reports.

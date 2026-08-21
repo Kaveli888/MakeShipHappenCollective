@@ -1,0 +1,1 @@
+/goal Write a monthly SEO report template. Include sections for: keyword ranking changes, organic traffic summary, new backlinks, technical issues found, and next month's priorities. Include placeholder text for each section. Don't stop until all sections are complete.

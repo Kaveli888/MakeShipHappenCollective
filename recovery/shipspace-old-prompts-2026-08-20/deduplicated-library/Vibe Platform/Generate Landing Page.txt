@@ -1,0 +1,1 @@
+Create a highly converting landing page with modern UI components, hero section, feature grid, pricing table, testimonials, and a strong CTA. Use Tailwind CSS and React.

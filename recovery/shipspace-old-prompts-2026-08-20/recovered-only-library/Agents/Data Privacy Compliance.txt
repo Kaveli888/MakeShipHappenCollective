@@ -1,0 +1,1 @@
+Audit the application for GDPR/CCPA compliance. Implement data export, right to deletion, consent management, data processing records, privacy policy generation, and cookie consent banners.

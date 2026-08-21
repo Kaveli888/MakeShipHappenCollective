@@ -1,0 +1,1 @@
+/goal Write 10 personalised outreach emails for link building targeting [niche] blogs. Each email must reference a specific article angle, be under 150 words, and have a subject line under 50 characters. Don't stop until all 10 are written.

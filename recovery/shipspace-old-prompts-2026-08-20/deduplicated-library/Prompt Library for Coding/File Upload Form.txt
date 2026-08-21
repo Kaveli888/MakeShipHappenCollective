@@ -1,0 +1,1 @@
+Build a file upload form component with drag-and-drop zone, file type/size validation, image preview, progress bar, multiple file support, and integration with cloud storage.

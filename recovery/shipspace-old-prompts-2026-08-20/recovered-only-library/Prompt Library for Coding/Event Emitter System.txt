@@ -1,0 +1,1 @@
+Build a type-safe event emitter system with event registration, async handlers, error handling, event replay, debugging tools, and integration with external event buses.

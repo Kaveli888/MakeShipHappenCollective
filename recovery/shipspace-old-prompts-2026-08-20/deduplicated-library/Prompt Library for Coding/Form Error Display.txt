@@ -1,0 +1,1 @@
+Build a form error display system with inline field errors, error summary panel, scroll to first error, accessible error announcements, and server-side error mapping to form fields.

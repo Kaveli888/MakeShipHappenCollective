@@ -1,0 +1,1 @@
+/goal Write 10 comment-based link building conversation starters for [niche] forums or blogs. Each must be genuine, add value, and naturally reference my expertise. Don't stop until all 10 are written.

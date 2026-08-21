@@ -1,0 +1,52 @@
+# Write Unit Test Suite
+
+Create a comprehensive unit test suite.
+
+## Test File Structure
+```typescript
+describe('UserService', () => {
+  let service: UserService;
+  let mockRepository: jest.Mocked<UserRepository>;
+
+  beforeEach(() => {
+    mockRepository = {
+      findById: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+    service = new UserService(mockRepository);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('findById', () => {
+    it('should return user when found', async () => {
+      const user = { id: '1', name: 'John' };
+      mockRepository.findById.mockResolvedValue(user);
+
+      const result = await service.findById('1');
+
+      expect(result).toEqual(user);
+      expect(mockRepository.findById).toHaveBeenCalledWith('1');
+    });
+
+    it('should throw NotFoundException when not found', async () => {
+      mockRepository.findById.mockResolvedValue(null);
+
+      await expect(service.findById('1'))
+        .rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('create', () => {
+    it('should create and return user', async () => { /* ... */ });
+    it('should throw on duplicate email', async () => { /* ... */ });
+  });
+});
+```
+
+Include tests for all public methods, edge cases, and error scenarios.
+

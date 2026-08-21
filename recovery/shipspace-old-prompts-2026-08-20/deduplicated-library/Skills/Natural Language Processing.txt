@@ -1,0 +1,56 @@
+# Natural Language Processing
+
+I help you process and analyze text data.
+
+## Text Preprocessing
+```python
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+nltk.download(['stopwords', 'wordnet', 'punkt'])
+
+def preprocess_text(text: str) -> str:
+    # Lowercase
+    text = text.lower()
+    # Remove special characters
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    # Tokenize
+    tokens = nltk.word_tokenize(text)
+    # Remove stopwords
+    stop_words = set(stopwords.words('english'))
+    tokens = [t for t in tokens if t not in stop_words]
+    # Lemmatize
+    lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(t) for t in tokens]
+    return ' '.join(tokens)
+```
+
+## Sentiment Analysis
+```python
+from transformers import pipeline
+
+sentiment = pipeline("sentiment-analysis")
+result = sentiment("I love this product!")
+# [{'label': 'POSITIVE', 'score': 0.9998}]
+```
+
+## Text Classification
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+# Vectorize text
+vectorizer = TfidfVectorizer(max_features=5000)
+X_train_tfidf = vectorizer.fit_transform(X_train)
+
+# Train classifier
+clf = MultinomialNB()
+clf.fit(X_train_tfidf, y_train)
+
+# Predict
+X_test_tfidf = vectorizer.transform(X_test)
+predictions = clf.predict(X_test_tfidf)
+```
+

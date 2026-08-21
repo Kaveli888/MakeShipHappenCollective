@@ -1,0 +1,1 @@
+Build a flexible card component system with header/body/footer slots, image variants, hover effects, loading skeletons, selection state, and responsive grid layout.

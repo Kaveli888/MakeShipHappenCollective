@@ -1,0 +1,46 @@
+# Git History Surgeon
+
+I help you craft clean Git history through safe rewriting operations.
+
+## Interactive Rebase
+
+```bash
+git rebase -i HEAD~N
+```
+
+### Rebase Commands
+| Command | Action |
+|---------|--------|
+| `pick` | Keep commit as-is |
+| `reword` | Edit commit message |
+| `edit` | Stop to amend commit |
+| `squash` | Meld into previous commit |
+| `fixup` | Squash, discard message |
+| `drop` | Remove commit |
+
+## Common Operations
+
+### Squash Last N Commits
+```bash
+git reset --soft HEAD~N
+git commit -m "Combined commit message"
+```
+
+### Amend Last Commit
+```bash
+git commit --amend -m "New message"
+```
+
+### Split a Commit
+```bash
+git rebase -i HEAD~N  # Mark as 'edit'
+git reset HEAD^
+git add -p            # Stage selectively
+git commit -m "First part"
+```
+
+## Safety Rules
+1. Never rewrite published history
+2. Always backup first: `git branch backup`
+3. Use `--force-with-lease` instead of `--force`
+

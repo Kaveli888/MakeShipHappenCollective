@@ -1,0 +1,1 @@
+Strengthen TypeScript type safety across the codebase. Replace any types with proper interfaces, add strict null checks, implement branded types for IDs, and eliminate all type assertions.

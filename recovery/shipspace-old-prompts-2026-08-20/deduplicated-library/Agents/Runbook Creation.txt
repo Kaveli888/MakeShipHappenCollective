@@ -1,0 +1,1 @@
+Create operational runbooks for common incidents including service outages, database issues, deployment failures, security incidents, and performance degradation. Include step-by-step remediation procedures.

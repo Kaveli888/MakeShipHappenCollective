@@ -1,0 +1,57 @@
+# Create React Component
+
+You are creating a new React component.
+
+## Component Structure
+```tsx
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+}
+
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  children,
+  onClick,
+  disabled = false,
+  loading = false,
+}: ButtonProps) {
+  return (
+    <button
+      className={cn(
+        'rounded-lg font-medium transition-colors',
+        variants[variant],
+        sizes[size],
+        disabled && 'opacity-50 cursor-not-allowed',
+      )}
+      onClick={onClick}
+      disabled={disabled || loading}
+    >
+      {loading ? <Spinner size={size} /> : children}
+    </button>
+  );
+}
+```
+
+## Best Practices
+- TypeScript props interface
+- Default prop values
+- Proper accessibility (aria labels)
+- Loading and disabled states
+- Use cn() for conditional classes
+- Export component and types
+
+## File Structure
+```
+components/
+  Button/
+    Button.tsx
+    Button.test.tsx
+    index.ts
+```
+

@@ -1,0 +1,1 @@
+Build a multi-step form wizard with progress indicator, step validation, back/forward navigation, data persistence between steps, summary review, and conditional step skipping.

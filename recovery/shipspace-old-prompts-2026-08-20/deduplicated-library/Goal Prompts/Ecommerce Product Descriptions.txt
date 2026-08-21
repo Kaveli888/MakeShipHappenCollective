@@ -1,0 +1,1 @@
+/goal Write optimised product descriptions for these 10 products: [list]. Each must be 150-200 words, include the product keyword 3 times, highlight 3 features, and end with a CTA. Don't stop until all 10 are written.

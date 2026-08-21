@@ -1,0 +1,1 @@
+Define a spacing and layout token system with consistent scale (4px base), responsive spacing, section padding, component gaps, and utility classes for common layout patterns.

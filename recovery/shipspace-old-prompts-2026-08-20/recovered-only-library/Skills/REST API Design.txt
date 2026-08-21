@@ -1,0 +1,1 @@
+Design a RESTful API following best practices. Define resources, HTTP methods, status codes, pagination, filtering, sorting, versioning, HATEOAS links, and comprehensive error response format.

@@ -1,0 +1,1 @@
+Implement a service mesh with Istio or Linkerd for microservice communication. Configure mutual TLS, traffic management, circuit breaking, retries, observability, and canary deployments.

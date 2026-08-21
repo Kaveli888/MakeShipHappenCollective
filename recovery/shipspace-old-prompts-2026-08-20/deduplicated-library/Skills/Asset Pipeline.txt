@@ -1,0 +1,1 @@
+Build a static asset pipeline with optimization, versioning, CDN upload, cache busting, source maps, bundle analysis, and automated performance regression detection.

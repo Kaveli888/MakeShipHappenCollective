@@ -1,0 +1,1 @@
+Build an automated backup system with scheduled backups, incremental backups, encrypted storage, cross-region replication, backup verification, and one-click restore with testing.

@@ -1,0 +1,1 @@
+/goal Create a keyword rank tracking spreadsheet structure for 50 keywords. Include columns for: keyword, target URL, current position, previous position, change, and notes. Don't stop until the structure is complete.

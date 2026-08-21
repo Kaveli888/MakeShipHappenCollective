@@ -1,0 +1,1 @@
+/goal Write 3 variations of an intro paragraph for an article targeting [keyword]. Each intro must hook the reader in the first sentence, include the keyword, and be under 100 words. Don't stop until all 3 are written.

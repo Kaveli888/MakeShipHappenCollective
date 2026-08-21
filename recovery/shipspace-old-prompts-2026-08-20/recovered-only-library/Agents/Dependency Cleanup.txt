@@ -1,0 +1,1 @@
+Audit all project dependencies. Remove unused packages, consolidate duplicate functionality, update outdated packages, replace deprecated libraries, and reduce overall bundle size.

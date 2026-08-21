@@ -1,0 +1,1 @@
+Build a CSS animation library with enter/exit transitions, scroll-triggered animations, loading spinners, skeleton screens, and micro-interactions. Respect reduced-motion preferences.

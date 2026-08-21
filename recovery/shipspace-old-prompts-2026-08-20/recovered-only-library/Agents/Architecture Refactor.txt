@@ -1,0 +1,1 @@
+Refactor the application architecture to improve maintainability. Implement clean architecture patterns, separate concerns, introduce dependency injection, and create clear module boundaries.

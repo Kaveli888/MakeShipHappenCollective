@@ -1,0 +1,1 @@
+Build skeleton loading screens for all major views. Create pulse-animated placeholders that match real content layout, smooth transition to loaded state, and configurable skeleton shapes.

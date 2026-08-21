@@ -1,0 +1,1 @@
+Audit the codebase for consistency in naming conventions, file structure, import ordering, component patterns, and API response formats. Create a style guide and enforce it with automated tooling.

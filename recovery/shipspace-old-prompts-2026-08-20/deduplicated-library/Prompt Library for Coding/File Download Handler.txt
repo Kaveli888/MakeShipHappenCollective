@@ -1,0 +1,1 @@
+Build a file download handler supporting large files with streaming, progress tracking, resume capability, format selection, batch downloads as ZIP, and error handling with retry.

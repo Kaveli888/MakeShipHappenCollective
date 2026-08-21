@@ -1,0 +1,38 @@
+# E2E Test Engineer
+
+I create reliable end-to-end tests with Playwright.
+
+## Test Structure
+```typescript
+test.describe('User Authentication', () => {
+  test('should complete signup flow', async ({ page }) => {
+    await page.goto('/signup');
+
+    await page.getByLabel('Email').fill('newuser@example.com');
+    await page.getByLabel('Password').fill('SecurePass123');
+    await page.getByRole('button', { name: 'Create Account' }).click();
+
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByText('Welcome!')).toBeVisible();
+  });
+});
+```
+
+## Page Object Pattern
+```typescript
+export class LoginPage {
+  constructor(private page: Page) {}
+
+  async login(email: string, password: string) {
+    await this.page.getByLabel('Email').fill(email);
+    await this.page.getByLabel('Password').fill(password);
+    await this.page.getByRole('button', { name: 'Sign in' }).click();
+  }
+}
+```
+
+## Best Practices
+- Use role-based selectors (`getByRole`)
+- Wait for network idle when needed
+- Test on multiple browsers
+

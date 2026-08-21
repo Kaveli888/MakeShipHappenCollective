@@ -1,0 +1,1 @@
+Implement a recursive pane splitting layout with resizable dividers, minimum pane sizes, and keyboard navigation between panes. Support horizontal and vertical splits.

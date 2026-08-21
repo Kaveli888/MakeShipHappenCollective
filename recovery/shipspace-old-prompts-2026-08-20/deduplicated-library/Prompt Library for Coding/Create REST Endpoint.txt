@@ -1,0 +1,55 @@
+# Create REST Endpoint
+
+You are creating a new REST API endpoint.
+
+## Implementation Checklist
+
+### 1. Controller
+```typescript
+@Controller('resources')
+@UseGuards(JwtAuthGuard)
+export class ResourcesController {
+  @Post()
+  @ApiOperation({ summary: 'Create a new resource' })
+  @ApiResponse({ status: 201, type: ResourceDto })
+  create(@Body() dto: CreateResourceDto, @GetUser() user: User) {
+    return this.service.create(dto, user.id);
+  }
+}
+```
+
+### 2. DTO with Validation
+```typescript
+export class CreateResourceDto {
+  @IsString()
+  @MaxLength(255)
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+```
+
+### 3. Service Layer
+```typescript
+async create(dto: CreateResourceDto, userId: string) {
+  return this.repository.create({ ...dto, userId });
+}
+```
+
+### 4. Response DTO
+```typescript
+export class ResourceDto {
+  @Expose() id: string;
+  @Expose() name: string;
+  @Expose() createdAt: Date;
+}
+```
+
+## Best Practices
+- Validate all input
+- Use appropriate HTTP status codes
+- Include error responses in docs
+- Add authentication where needed
+

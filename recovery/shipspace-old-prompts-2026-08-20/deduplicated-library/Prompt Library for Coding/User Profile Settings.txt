@@ -1,0 +1,1 @@
+Build user profile settings with avatar upload, display name editing, email change with verification, password change, connected accounts management, and account deletion.

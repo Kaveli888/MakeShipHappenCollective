@@ -1,0 +1,1 @@
+Implement JWT-based authentication with access/refresh token pair, token rotation, blacklisting, payload encryption, middleware verification, and secure cookie storage.

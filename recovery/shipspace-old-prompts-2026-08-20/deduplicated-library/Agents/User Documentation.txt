@@ -1,0 +1,1 @@
+Write end-user documentation including feature guides, tutorials, FAQ, troubleshooting guides, keyboard shortcuts reference, and video walkthrough scripts. Organize with clear navigation.

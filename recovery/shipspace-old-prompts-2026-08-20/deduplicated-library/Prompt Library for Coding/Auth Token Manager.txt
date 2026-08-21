@@ -1,0 +1,1 @@
+Build an auth token manager handling access token storage, refresh token rotation, automatic token refresh before expiry, logout on token failure, and concurrent request queuing during refresh.

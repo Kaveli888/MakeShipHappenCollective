@@ -1,0 +1,48 @@
+# Configure Auto Scaling
+
+You are setting up auto scaling for an application.
+
+## ECS Auto Scaling
+```yaml
+# CloudFormation
+AutoScalingTarget:
+  Type: AWS::ApplicationAutoScaling::ScalableTarget
+  Properties:
+    MaxCapacity: 10
+    MinCapacity: 2
+    ResourceId: !Sub 'service/${ECSCluster}/${Service.Name}'
+    RoleARN: !GetAtt AutoScalingRole.Arn
+    ScalableDimension: ecs:service:DesiredCount
+    ServiceNamespace: ecs
+
+CPUScalingPolicy:
+  Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  Properties:
+    PolicyName: CPUScaling
+    PolicyType: TargetTrackingScaling
+    ScalingTargetId: !Ref AutoScalingTarget
+    TargetTrackingScalingPolicyConfiguration:
+      TargetValue: 70
+      ScaleInCooldown: 300
+      ScaleOutCooldown: 60
+      PredefinedMetricSpecification:
+        PredefinedMetricType: ECSServiceAverageCPUUtilization
+
+MemoryScalingPolicy:
+  Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  Properties:
+    PolicyName: MemoryScaling
+    PolicyType: TargetTrackingScaling
+    ScalingTargetId: !Ref AutoScalingTarget
+    TargetTrackingScalingPolicyConfiguration:
+      TargetValue: 80
+      PredefinedMetricSpecification:
+        PredefinedMetricType: ECSServiceAverageMemoryUtilization
+```
+
+## Scaling Triggers
+- CPU utilization > 70%
+- Memory utilization > 80%
+- Request count per target
+- Custom CloudWatch metrics
+

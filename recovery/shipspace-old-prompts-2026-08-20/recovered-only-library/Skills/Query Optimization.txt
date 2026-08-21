@@ -1,0 +1,1 @@
+Optimize database queries by analyzing execution plans, adding indexes, rewriting slow queries, implementing query caching, setting up connection pooling, and creating a slow query monitoring dashboard.

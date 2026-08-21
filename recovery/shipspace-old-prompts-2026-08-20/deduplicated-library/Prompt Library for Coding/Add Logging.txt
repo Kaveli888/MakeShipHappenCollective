@@ -1,0 +1,60 @@
+# Add Logging
+
+You are implementing structured logging.
+
+## Winston Logger (NestJS)
+```typescript
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+
+@Module({
+  imports: [
+    WinstonModule.forRoot({
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.json(),
+          ),
+        }),
+        new winston.transports.File({
+          filename: 'logs/error.log',
+          level: 'error',
+        }),
+      ],
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+## Request Logging Middleware
+```typescript
+@Injectable()
+export class LoggingMiddleware implements NestMiddleware {
+  constructor(@Inject(WINSTON_MODULE_PROVIDER) private logger: Logger) {}
+
+  use(req: Request, res: Response, next: NextFunction) {
+    const start = Date.now();
+
+    res.on('finish', () => {
+      this.logger.info({
+        method: req.method,
+        url: req.url,
+        status: res.statusCode,
+        duration: Date.now() - start,
+        userId: req.user?.id,
+      });
+    });
+
+    next();
+  }
+}
+```
+
+## Log Levels
+- **error**: Errors requiring immediate attention
+- **warn**: Potential issues
+- **info**: Important business events
+- **debug**: Detailed debugging info
+

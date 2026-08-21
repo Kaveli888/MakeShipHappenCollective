@@ -1,0 +1,1 @@
+Integrate Stripe payment processing with subscription management, webhook handling, invoice generation, proration logic, and a customer billing portal. Support monthly and annual plans.

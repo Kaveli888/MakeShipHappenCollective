@@ -1,0 +1,1 @@
+Create page object models for E2E tests with Playwright. Abstract page interactions, implement reusable test helpers, handle dynamic content, and create visual comparison baselines.

@@ -1,0 +1,1 @@
+/goal Create a faceted navigation SEO strategy for an e-commerce site in [niche]. Include canonical tag rules, parameter handling, and which facets to index vs. noindex. Don't stop until all rules are documented.

@@ -1,0 +1,1 @@
+Integrate a message queue (RabbitMQ/SQS/Redis Streams) for async processing. Implement producers, consumers, dead letter queues, retry policies, message deduplication, and monitoring dashboards.

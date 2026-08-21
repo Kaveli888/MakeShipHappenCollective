@@ -1,0 +1,1 @@
+Implement the repository pattern for database access with CRUD operations, query builder, transaction support, pagination, filtering, and TypeScript type safety.

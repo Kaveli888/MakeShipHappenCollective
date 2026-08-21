@@ -1,0 +1,1 @@
+Build a VS Code extension with custom commands, code snippets, language support, tree view providers, webview panels, and workspace configuration.

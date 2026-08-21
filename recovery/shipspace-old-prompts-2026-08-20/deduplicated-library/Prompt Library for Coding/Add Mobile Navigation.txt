@@ -1,0 +1,45 @@
+# Add Mobile Navigation
+
+You are implementing navigation in a React Native app.
+
+## Navigation Setup
+```tsx
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function MainTabs() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+}
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Details" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+```
+
+## Type-Safe Navigation
+```tsx
+type RootStackParamList = {
+  Main: undefined;
+  Details: { id: string };
+};
+
+const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+navigation.navigate('Details', { id: '123' });
+```
+
