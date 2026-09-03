@@ -1,18 +1,26 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { basename, dirname, extname, join, relative } from 'node:path';
+import { homedir, tmpdir } from 'node:os';
+import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 
-const require = createRequire(import.meta.url);
-const esbuild = require('/Users/jake/Documents/Ship Ecosystem/MakeShipHappenCollective/ShipSpace/node_modules/esbuild');
-
-const recoveryRoot = dirname(new URL(import.meta.url).pathname);
+const recoveryRoot = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(recoveryRoot, '..', '..');
 const reportRoot = join(recoveryRoot, 'reports');
-const liveRepo = '/Users/jake/Documents/Ship Ecosystem/MakeShipHappenCollective/ShipSpace';
-const promptRoot = '/Users/jake/MakeShipHappenCollective/Prompts';
+const argumentValue = (name) => {
+    const index = process.argv.indexOf(name);
+    if (index < 0) return undefined;
+    const value = process.argv[index + 1];
+    if (!value) throw new Error(`${name} requires a path`);
+    return value;
+};
+const liveRepo = resolve(argumentValue('--live-repo') ?? process.env.SHIPSPACE_LIVE_REPO ?? repositoryRoot);
+const promptRoot = resolve(argumentValue('--prompt-root') ?? process.env.SHIPSPACE_PROMPT_ROOT ?? join(liveRepo, 'Prompts'));
+const outputPath = resolve(argumentValue('--output') ?? join(reportRoot, 'all-source-audit.json'));
+const skipLocalStorage = process.argv.includes('--skip-local-storage');
 
 const hash = (...parts) => createHash('sha256')
     .update(JSON.stringify(parts))
@@ -80,8 +88,8 @@ async function readFilesystemPrompts() {
 
 async function readLocalStoragePrompts() {
     const roots = [
-        '/Users/jake/Library/WebKit',
-        '/Users/jake/Library/Containers',
+        join(homedir(), 'Library', 'WebKit'),
+        join(homedir(), 'Library', 'Containers'),
     ];
     const dbs = [];
     for (const root of roots) {
@@ -145,6 +153,15 @@ async function readGitPromptCatalogs() {
         encoding: 'utf8',
     });
     const commits = [...new Set(commitText.trim().split('\n').filter(Boolean))];
+    if (!commits.length) return [];
+
+    const requireFromRepo = createRequire(join(liveRepo, 'package.json'));
+    let esbuild;
+    try {
+        esbuild = requireFromRepo('esbuild');
+    } catch {
+        throw new Error(`esbuild is required to audit historical TypeScript catalogs in ${liveRepo}`);
+    }
     const tempRoot = await mkdtemp(join(tmpdir(), 'shipspace-prompt-history-'));
     const sources = [];
     try {
@@ -214,7 +231,7 @@ function summarize(records) {
 }
 
 const filesystem = await readFilesystemPrompts();
-const localStorageSnapshots = await readLocalStoragePrompts();
+const localStorageSnapshots = skipLocalStorage ? [] : await readLocalStoragePrompts();
 const gitSources = await readGitPromptCatalogs();
 
 const exactKey = (record) => hash(record.project, record.title, record.content);
@@ -300,8 +317,8 @@ const report = {
     currentDevDuplicateContentGroups: currentDuplicates,
 };
 
-await mkdir(reportRoot, { recursive: true });
-await writeFile(join(reportRoot, 'all-source-audit.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+await mkdir(dirname(outputPath), { recursive: true });
+await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 console.log(JSON.stringify({
     filesystem: report.filesystem,
     localStorageSnapshots: report.localStorage.snapshots.length,

@@ -67,3 +67,28 @@ Completed 2026-08-21 after specific historical titles were still difficult to fi
 - Identified 29 historical title-only aliases whose content was already present. These were mostly filename punctuation changes (`A/B` vs `A B`, colons, quotes) plus the old `Swarm` names now branded as `Gang`.
 - ShipSpace search now normalizes punctuation and maps historical `Swarm` searches to `Gang`, so the old names resolve without adding another layer of repetitive duplicate records.
 - Full machine-readable evidence: `all-source-audit.json`.
+
+## Re-running the tools
+
+The recovery tools default to the current repository and its `Prompts` folder. Override paths with `--prompt-root`, `--live-repo`, or the `SHIPSPACE_PROMPT_ROOT` and `SHIPSPACE_LIVE_REPO` environment variables.
+
+```bash
+# Rebuild the recovery inventory against this checkout.
+node recovery/shipspace-old-prompts-2026-08-20/recover-prompts.mjs
+
+# Re-audit this checkout without scanning macOS app storage.
+node recovery/shipspace-old-prompts-2026-08-20/audit-all-prompt-sources.mjs \
+  --skip-local-storage --output /tmp/shipspace-all-source-audit.json
+
+# Preview an import without changing the library or committed report.
+node recovery/shipspace-old-prompts-2026-08-20/import-recovered-prompts.mjs \
+  --output /tmp/shipspace-prompt-import-plan.json
+
+# Apply only to an explicitly selected library, then verify it.
+node recovery/shipspace-old-prompts-2026-08-20/import-recovered-prompts.mjs \
+  --apply --prompt-root /absolute/path/to/Prompts
+node recovery/shipspace-old-prompts-2026-08-20/verify-import.mjs \
+  --prompt-root /absolute/path/to/Prompts
+```
+
+`--apply` refuses to run unless the destination is explicit. This prevents a recovery command from writing to an unintended checkout.

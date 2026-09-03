@@ -1,16 +1,35 @@
 import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const recoveryRoot = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(recoveryRoot, '..', '..');
 const inventoryPath = join(recoveryRoot, 'reports', 'inventory.json');
-const reportPath = join(
-    recoveryRoot,
-    'reports',
-    process.argv.includes('--apply') ? 'import-result.json' : 'import-plan.json',
-);
-const promptRoot = '/Users/jake/MakeShipHappenCollective/Prompts';
 const apply = process.argv.includes('--apply');
+const promptRootIndex = process.argv.indexOf('--prompt-root');
+const outputIndex = process.argv.indexOf('--output');
+const explicitPromptRoot = promptRootIndex >= 0
+    ? process.argv[promptRootIndex + 1]
+    : process.env.SHIPSPACE_PROMPT_ROOT;
+
+if (promptRootIndex >= 0 && !explicitPromptRoot) {
+    throw new Error('--prompt-root requires a path');
+}
+if (outputIndex >= 0 && !process.argv[outputIndex + 1]) {
+    throw new Error('--output requires a path');
+}
+if (apply && !explicitPromptRoot) {
+    throw new Error('--apply requires an explicit --prompt-root (or SHIPSPACE_PROMPT_ROOT)');
+}
+
+const promptRoot = resolve(explicitPromptRoot ?? join(repositoryRoot, 'Prompts'));
+const reportPath = resolve(
+    outputIndex >= 0 ? process.argv[outputIndex + 1] : join(
+        recoveryRoot,
+        'reports',
+        apply ? 'import-result.json' : 'import-plan.json',
+    ),
+);
 
 const destinationFolders = {
     'Agents': join(promptRoot, 'Agents'),

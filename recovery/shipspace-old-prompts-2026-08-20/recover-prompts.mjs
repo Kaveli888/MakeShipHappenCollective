@@ -1,14 +1,24 @@
 import { createHash } from 'node:crypto';
 import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const recoveryRoot = dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = resolve(recoveryRoot, '..', '..');
 const jsonRoot = join(recoveryRoot, 'json');
 const outputRoot = join(recoveryRoot, 'deduplicated-library');
 const recoveredOnlyRoot = join(recoveryRoot, 'recovered-only-library');
 const reportsRoot = join(recoveryRoot, 'reports');
-const filesystemRoot = '/Users/jake/MakeShipHappenCollective/Prompts';
+const promptRootIndex = process.argv.indexOf('--prompt-root');
+const filesystemRoot = resolve(
+    promptRootIndex >= 0
+        ? process.argv[promptRootIndex + 1] ?? ''
+        : process.env.SHIPSPACE_PROMPT_ROOT ?? join(repositoryRoot, 'Prompts'),
+);
+
+if (promptRootIndex >= 0 && !process.argv[promptRootIndex + 1]) {
+    throw new Error('--prompt-root requires a path');
+}
 
 const snapshots = [
     'dev-current',
@@ -211,6 +221,57 @@ const markdown = [
     '',
     'The raw UTF-16 values and normalized JSON snapshots are preserved alongside the deduplicated prompt files.',
     'The `recovered-only-library` folder contains only prompts that are not present in the current filesystem library.',
+    '',
+    '## Permanent import',
+    '',
+    'Completed 2026-08-20.',
+    '',
+    '- Imported: 375 recovered-only prompts',
+    '- New filenames: 373',
+    '- Same-title/different-content conflicts preserved with a recovery suffix: 2',
+    '- Permanent library total after import: 832 prompts',
+    '- Empty files: 0',
+    '- Byte-for-byte import verification: 375/375 passed',
+    '- Pre-import backup: `/Users/jake/MakeShipHappenCollective/Prompts.backup-before-old-prompt-import-2026-08-20`',
+    '- Detailed import log: `import-result.json`',
+    '',
+    '## Second-sweep audit',
+    '',
+    'Completed 2026-08-21 after specific historical titles were still difficult to find.',
+    '',
+    '- Rechecked all 5 ShipSpace WebKit stores containing `shipspace-prompt-library`.',
+    '- Extracted and compared 17 prompt-catalog exports across 6 Git revisions.',
+    '- Checked the permanent filesystem library, recovery backup, and ShipSpace worktrees.',
+    '- Found one real content variation: `Live Agent Status Roll-Up` changed from `Mission control` to `Ship Control` during the naming migration.',
+    '- Preserved both versions as separate files; the permanent library now contains 833 non-empty prompt files.',
+    '- Identified 29 historical title-only aliases whose content was already present. These were mostly filename punctuation changes (`A/B` vs `A B`, colons, quotes) plus the old `Swarm` names now branded as `Gang`.',
+    '- ShipSpace search now normalizes punctuation and maps historical `Swarm` searches to `Gang`, so the old names resolve without adding another layer of repetitive duplicate records.',
+    '- Full machine-readable evidence: `all-source-audit.json`.',
+    '',
+    '## Re-running the tools',
+    '',
+    'The recovery tools default to the current repository and its `Prompts` folder. Override paths with `--prompt-root`, `--live-repo`, or the `SHIPSPACE_PROMPT_ROOT` and `SHIPSPACE_LIVE_REPO` environment variables.',
+    '',
+    '```bash',
+    '# Rebuild the recovery inventory against this checkout.',
+    'node recovery/shipspace-old-prompts-2026-08-20/recover-prompts.mjs',
+    '',
+    '# Re-audit this checkout without scanning macOS app storage.',
+    'node recovery/shipspace-old-prompts-2026-08-20/audit-all-prompt-sources.mjs \\',
+    '  --skip-local-storage --output /tmp/shipspace-all-source-audit.json',
+    '',
+    '# Preview an import without changing the library or committed report.',
+    'node recovery/shipspace-old-prompts-2026-08-20/import-recovered-prompts.mjs \\',
+    '  --output /tmp/shipspace-prompt-import-plan.json',
+    '',
+    '# Apply only to an explicitly selected library, then verify it.',
+    'node recovery/shipspace-old-prompts-2026-08-20/import-recovered-prompts.mjs \\',
+    '  --apply --prompt-root /absolute/path/to/Prompts',
+    'node recovery/shipspace-old-prompts-2026-08-20/verify-import.mjs \\',
+    '  --prompt-root /absolute/path/to/Prompts',
+    '```',
+    '',
+    '`--apply` refuses to run unless the destination is explicit. This prevents a recovery command from writing to an unintended checkout.',
     '',
 ].join('\n');
 
