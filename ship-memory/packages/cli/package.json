@@ -1,0 +1,22 @@
+{
+  "name": "@ship-memory/cli",
+  "version": "0.1.0",
+  "description": "Safe, opt-in project connections for Ship Memory.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ship-memory": "dist/index.js"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@ship-memory/core": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}

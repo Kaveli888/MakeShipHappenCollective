@@ -8,7 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspace @ship-memory/core && npm run build --workspace @ship-memory/mcp && npm run build --workspace @ship-memory/connector-obsidian",
+    "build": "npm run build --workspace @ship-memory/core && npm run build --workspace @ship-memory/cli && npm run build --workspace @ship-memory/mcp && npm run build --workspace @ship-memory/connector-obsidian",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "dev": "npm run dev --workspace @ship-memory/core",
     "mcp": "node packages/mcp/dist/index.js",
     "app": "npm run dev --workspace @ship-memory/app",
@@ -16,6 +17,7 @@
     "shipmemory": "npm run app",
     "shipmemory:dev": "npm run dev",
     "shipmemory:app": "npm run app",
-    "shipmemory:mcp": "npm run mcp"
+    "shipmemory:mcp": "npm run mcp",
+    "shipmemory:cli": "node packages/cli/dist/index.js"
   }
 }

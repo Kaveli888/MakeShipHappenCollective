@@ -90,6 +90,31 @@ Register it with any MCP client (Claude, ShipSpace agents):
 }
 ```
 
+## Opt-in context for new projects
+
+Existing hubs continue to work exactly as before. New projects can opt into a
+directory-scoped briefing without migrating or changing the existing vault:
+
+```bash
+cd /path/to/a/new-project
+ship-memory connect
+```
+
+This creates a new canonical project hub under
+`~/ShipMemory/projects/<project>/.shipmemory/` and a project-local
+`.shipmemory` connection. It refuses to replace any existing `.shipmemory`
+path. Preview the operation with `ship-memory connect --dry-run`.
+
+MCP-capable agents call `connect_context` with their current working directory.
+Terminal clients without MCP can print the same `index.md` briefing with:
+
+```bash
+ship-memory context
+```
+
+The generated briefing begins as `status: draft`; captured terminal output is
+not automatically promoted into standing project context.
+
 ## Roadmap
 
 1. ✅ Core engine + MCP adapter
